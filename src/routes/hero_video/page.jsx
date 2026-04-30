@@ -11,6 +11,7 @@ import {
 import { toast } from "react-toastify"
 import { apiClient } from "../../stores/authStores"
 import { useHeroVideoStore } from "../../stores/heroVideoStore"
+import axios from "axios"
 
 const HoneymoonHeroVideo = () => {
   const [video, setVideo] = useState(null)
@@ -50,15 +51,31 @@ const HoneymoonHeroVideo = () => {
     const page = pageRef.current?.value
     if (!page) return toast.error("Please select a destination page.")
 
-    const formData = new FormData()
-    formData.append("image", video)
-    formData.append("title", page)
-    formData.append("visibility", visibility)
-
-
     try {
       setIsUploading(true)
-      const response = await apiClient.post("/admin/hero-section", formData)
+
+      // 1. Upload video to S3 directly
+      const heroFolder = `hero-section/${page.replace(/\s+/g, '_')}`;
+      const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+        fileName: video.name,
+        fileType: video.type,
+        folder: heroFolder
+      });
+
+      const { uploadUrl, key } = presignedRes.data;
+
+      await axios.put(uploadUrl, video, {
+        headers: { "Content-Type": video.type }
+      });
+
+      // 2. Build JSON payload
+      const payload = {
+        title: page,
+        visibility: visibility,
+        video_url: key
+      };
+
+      const response = await apiClient.post("/admin/hero-section", payload)
       if (response.data.success) {
         toast.success("Honeymoon hero video uploaded successfully 💕")
         handleRemoveVideo()
@@ -69,7 +86,8 @@ const HoneymoonHeroVideo = () => {
       } else {
         toast.error(response.data.msg || "Upload failed.")
       }
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error("Something went wrong while uploading.")
     } finally {
       setIsUploading(false)

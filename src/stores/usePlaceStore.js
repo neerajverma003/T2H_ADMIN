@@ -21,8 +21,14 @@ export const usePlaceStore = create((set, get) => ({
     try {
       await apiClient.post(`/admin/new-destination`, destinationData)
 
-      const name = destinationData.get("destination_name")
-      const travelType = destinationData.get("type")
+      // Handle both FormData (backward compatibility) and JSON payload
+      const name = destinationData instanceof FormData 
+        ? destinationData.get("destination_name") 
+        : destinationData.destination_name;
+        
+      const travelType = destinationData instanceof FormData 
+        ? destinationData.get("type") 
+        : destinationData.type;
 
       toast.success(`Destination "${name}" created successfully!`)
 

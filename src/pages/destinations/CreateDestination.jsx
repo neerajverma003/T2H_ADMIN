@@ -11,6 +11,8 @@ import {
 } from "lucide-react"
 import { usePlaceStore } from "../../stores/usePlaceStore"
 import { useNavigate } from "react-router-dom"
+import { apiClient } from "../../stores/authStores"
+import axios from "axios"
 
 const CreateDestination = () => {
   const [data, setData] = useState({
@@ -62,29 +64,68 @@ const CreateDestination = () => {
       return
     }
 
-    const formData = new FormData()
-    formData.append("type", data.type)
-    formData.append("destination_name", data.destination_name)
-
-    data.image.forEach((img) => formData.append("image", img))
-    data.destination_type.forEach((t) =>
-      formData.append("destination_type", t)
-    )
-
-    setIsLoading(true)
-    const result = await createDestination(formData)
-
-    if (result.success) {
-      setData({
-        type: data.type,
-        destination_name: "",
-        image: [],
-        destination_type: [],
-      })
-      fetchDestinationList(data.type)
+    if (data.image.length === 0) {
+      return toast.error("Please select at least one image.");
     }
 
-    setIsLoading(false)
+    setIsLoading(true)
+
+    try {
+      const imageUrls = []
+
+      // 1. Get presigned URL and upload to S3 directly
+      const capitalizedType = data.type.charAt(0).toUpperCase() + data.type.slice(1);
+      const destinationFolder = `destination/${capitalizedType}/${data.destination_name.replace(/\s+/g, '_')}`;
+
+      for (const img of data.image) {
+        const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+          fileName: img.name,
+          fileType: img.type,
+          folder: destinationFolder
+        })
+
+        const { uploadUrl, key } = presignedRes.data
+
+        // PUT request bypasses our backend and goes directly to AWS S3
+        await axios.put(uploadUrl, img, {
+          headers: {
+            "Content-Type": img.type
+          }
+        })
+
+        imageUrls.push(key)
+      }
+
+      // 2. Submit lightweight JSON data to our backend
+      const payload = {
+        type: data.type,
+        destination_name: data.destination_name,
+        destination_type: data.destination_type,
+        title_image: imageUrls
+      }
+
+      const result = await createDestination(payload)
+      
+      if (result) {
+        toast.success(`Destination "${data.destination_name}" created!`);
+        // Reset form state
+        setData({
+          type: "domestic",
+          destination_name: "",
+          destination_type: [],
+          image: []
+        })
+        // Manually clear the file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = "";
+      }
+
+    } catch (err) {
+      console.error("Error saving destination:", err)
+      toast.error(err.response?.data?.msg || "Failed to upload to S3 or save destination.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleDelete = async (id) => {

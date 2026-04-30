@@ -6,8 +6,6 @@ import {
     CoreDetailsSection,
     DayInfoSection,
     HotelDetailsSection,
-    MediaSection,
-    PricingSection,
 } from "./components";
 
 import DiscriptionDetailsSection from "./components/DiscriptionDetailsSection";
@@ -16,6 +14,8 @@ import ExclusionSection from "./components/ExclusionSection";
 import TermsSection from "./components/TermsSection";
 import PaymentModeSection from "./components/PaymentModeSection";
 import CancellationPolicySection from "./components/CancellationPolicySection";
+import MediaSection from "./components/MediaSection";
+import PricingSection from "./components/PricingSection";
 
 import { extractDaysAndNights } from "../../utils/extractDaysFromDuration";
 import { apiClient } from "../../stores/authStores";
@@ -150,53 +150,80 @@ const CreateItineriesPage = () => {
 
         const validation = validateForm();
         if (!validation.valid) {
-            // Show specific error and focus the first offending field if possible
             toast.error(validation.firstErrorMessage || "Please fix the highlighted errors");
             const el = validation.firstErrorKey && document.getElementById(validation.firstErrorKey);
             if (el) el.focus();
-            // Scroll to top to make sure error area is visible for non-input errors
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
-        const toastId = toast.loading("Creating honeymoon itinerary 💕");
-        const payload = new FormData();
-
-        Object.entries(formData).forEach(([key, value]) => {
-            if (key === "video" && value instanceof File) {
-                payload.append(key, value);
-                return;
-            }
-
-            if (key === "destination_images_files" || key === "destination_thumbnails_files") {
-                return; // handled below when appending actual File objects
-            }
-
-            // Avoid sending large data-URI image previews in the JSON body.
-            if ((key === "destination_images" || key === "destination_thumbnails") && Array.isArray(value)) {
-                const filtered = value.filter((v) => typeof v === "string" && v.startsWith("http"));
-                payload.append(key, JSON.stringify(filtered));
-                return;
-            }
-
-            if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
-                payload.append(key, JSON.stringify(value));
-            } else {
-                payload.append(key, value);
-            }
-        });
-
-        // Attach uploaded files (actual File objects)
-        (formData.destination_images_files || []).forEach(
-            (file) => file && payload.append("destination_images", file)
-        );
-
-        (formData.destination_thumbnails_files || []).forEach(
-            (file) => file && payload.append("destination_thumbnails", file)
-        );
+        const toastId = toast.loading("Uploading media & creating itinerary... 💕");
+        setIsSubmitting(true);
 
         try {
-            setIsSubmitting(true);
+            const token = localStorage.getItem("token");
+            const itineraryFolder = `itinerary/${formData.destination_type.charAt(0).toUpperCase() + formData.destination_type.slice(1)}/${formData.title.replace(/\s+/g, '_')}`;
+
+            // 1. Upload Images to S3
+            const uploadedImageKeys = [];
+            for (const file of (formData.destination_images_files || [])) {
+                if (!file) continue;
+                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                    fileName: file.name,
+                    fileType: file.type,
+                    folder: `${itineraryFolder}/images`
+                });
+                const { uploadUrl, key } = presignedRes.data;
+                await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+                uploadedImageKeys.push(key);
+            }
+
+            // 2. Upload Thumbnails to S3
+            const uploadedThumbnailKeys = [];
+            for (const file of (formData.destination_thumbnails_files || [])) {
+                if (!file) continue;
+                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                    fileName: file.name,
+                    fileType: file.type,
+                    folder: `${itineraryFolder}/thumbnails`
+                });
+                const { uploadUrl, key } = presignedRes.data;
+                await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+                uploadedThumbnailKeys.push(key);
+            }
+
+            // 3. Upload Video to S3
+            let uploadedVideoKey = null;
+            if (formData.video instanceof File) {
+                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                    fileName: formData.video.name,
+                    fileType: formData.video.type,
+                    folder: `${itineraryFolder}/videos`
+                });
+                const { uploadUrl, key } = presignedRes.data;
+                await fetch(uploadUrl, { method: "PUT", body: formData.video, headers: { "Content-Type": formData.video.type } });
+                uploadedVideoKey = key;
+            }
+
+            // 4. Prepare JSON Payload
+            const payload = {
+                ...formData,
+                destination_images: [
+                    ...formData.destination_images.filter(img => typeof img === 'string' && img.startsWith('http')),
+                    ...uploadedImageKeys
+                ],
+                destination_thumbnails: [
+                    ...formData.destination_thumbnails.filter(img => typeof img === 'string' && img.startsWith('http')),
+                    ...uploadedThumbnailKeys
+                ],
+                video_key: uploadedVideoKey
+            };
+
+            // Remove file objects before sending
+            delete payload.destination_images_files;
+            delete payload.destination_thumbnails_files;
+            delete payload.video;
+
             const res = await apiClient.post("/admin/itinerary", payload);
 
             toast.update(toastId, {
@@ -210,9 +237,9 @@ const CreateItineriesPage = () => {
                 navigate("/admin/itineraries");
             }, 1200);
         } catch (err) {
+            console.error("Submit Error:", err);
             toast.update(toastId, {
-                render:
-                    err.response?.data?.message || err.response?.data?.msg || "Something went wrong",
+                render: err.response?.data?.message || err.response?.data?.msg || "Something went wrong",
                 type: "error",
                 isLoading: false,
                 autoClose: 5000,

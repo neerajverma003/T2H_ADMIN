@@ -73,10 +73,14 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
         });
     };
 
-    // Fetch destinations once (honeymoon trips don’t switch travel type)
+    // Fetch destinations dynamically when Destination Type changes (Domestic/International)
     useEffect(() => {
-        fetchDestinationList("honeymoon");
-    }, [fetchDestinationList]);
+        if (formData.destination_type) {
+            fetchDestinationList(formData.destination_type);
+            // Optionally, clear the selected destination if it doesn't match the new type list
+            // But we can let the user re-select manually for now
+        }
+    }, [fetchDestinationList, formData.destination_type]);
 
     return (
         <div className={cardStyle}>

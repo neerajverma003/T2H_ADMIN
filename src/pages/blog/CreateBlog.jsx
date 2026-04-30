@@ -65,23 +65,54 @@ const CreateBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("visibility", visibility);
-    formData.append("category", category);
-    if (coverImage) formData.append("coverImage", coverImage);
-
     try {
+      let finalCoverImage = blogToEdit?.cover_image || null;
+
+      // 1. If a new image is selected, upload to S3 first
+      if (coverImage) {
+        const blogFolder = `blog/${title.replace(/\s+/g, '_')}`;
+        const presignedRes = await fetch("http://localhost:5000/admin/generate-presigned-url", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          },
+          body: JSON.stringify({
+            fileName: coverImage.name,
+            fileType: coverImage.type,
+            folder: blogFolder
+          })
+        });
+
+        const { uploadUrl, key } = await presignedRes.json();
+
+        await fetch(uploadUrl, {
+          method: "PUT",
+          body: coverImage,
+          headers: { "Content-Type": coverImage.type }
+        });
+
+        finalCoverImage = key;
+      }
+
+      // 2. Prepare JSON payload
+      const payload = {
+        title,
+        content,
+        visibility,
+        category,
+        cover_image: finalCoverImage
+      };
+
       if (isEditMode) {
-        const res = await updateBlog(id, formData, navigate);
+        const res = await updateBlog(id, payload, navigate);
         if (res?.success) {
           toast.success("💍 Story updated successfully!");
         } else {
           toast.error(res?.msg || "Failed to update story.");
         }
       } else {
-        const res = await createBlog(formData, navigate);
+        const res = await createBlog(payload, navigate);
         if (res?.success) {
           toast.success("✨ Story published successfully!");
         } else {

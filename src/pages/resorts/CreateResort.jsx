@@ -177,28 +177,47 @@ const HoneymoonResortForm = ({ editId }) => {
         return;
       }
 
-      const payload = new FormData();
-      
-      // Add all form fields to payload
-      Object.entries(formData).forEach(([key, val]) => {
-        if (Array.isArray(val) && val.length > 0) {
-          payload.append(key, JSON.stringify(val));
-        } else if (val !== null && val !== "" && !Array.isArray(val)) {
-          payload.append(key, val);
-        }
-      });
+      const imageUrls = []
 
-      // Add new images
+      // 1. Upload to S3 with nested structure: resort / [Title] / [filename]
+      const resortFolder = `resort/${formData.title.replace(/\s+/g, '_')}`;
+
       if (formData.images && formData.images.length > 0) {
         for (let i = 0; i < formData.images.length; i++) {
-          payload.append("images", formData.images[i]);
+          const img = formData.images[i];
+          const presignedRes = await fetch("http://localhost:5000/admin/generate-presigned-url", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              fileName: img.name,
+              fileType: img.type,
+              folder: resortFolder
+            })
+          });
+
+          const { uploadUrl, key } = await presignedRes.json();
+
+          await fetch(uploadUrl, {
+            method: "PUT",
+            body: img,
+            headers: { "Content-Type": img.type }
+          });
+
+          imageUrls.push(key);
         }
       }
 
-      // For editing, include removed image indexes
-      if (id && removedImageIndexes.length > 0) {
-        payload.append("removedImageIndexes", JSON.stringify(removedImageIndexes));
-      }
+      // 2. Prepare JSON payload
+      const payload = {
+        ...formData,
+        images: imageUrls,
+        removedImageIndexes: removedImageIndexes.length > 0 ? removedImageIndexes : undefined
+      };
+      // Delete the raw files from payload as we already uploaded them
+      delete payload.images_files; 
 
       // Determine URL and method
       const url = id
@@ -207,15 +226,15 @@ const HoneymoonResortForm = ({ editId }) => {
       const method = id ? "PATCH" : "POST";
 
       console.log("Submitting to:", url, "Method:", method);
-      console.log("Form data keys:", Array.from(payload.keys()));
 
-      // Make request
+      // Make request with JSON
       const response = await fetch(url, {
         method,
-        body: payload,
         headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
+        body: JSON.stringify(payload),
       });
 
       console.log("Response status:", response.status);

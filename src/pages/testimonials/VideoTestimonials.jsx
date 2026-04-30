@@ -311,15 +311,36 @@ const UploadVideoTestimonial = () => {
     if (!name || !location)
       return toast.error("Please fill all fields")
 
-    const fd = new FormData()
-    fd.append("image", videoFile)
-    fd.append("title", name)
-    fd.append("location", location)
-    fd.append("visibility", visibility)
-
     try {
       setIsLoading(true)
-      const res = await apiClient.post("/admin/testimonial-video", fd)
+
+      const testimonialFolder = `testimonials/${name.replace(/\s+/g, '_')}`
+
+      // 1. Get Presigned URL
+      const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+        fileName: videoFile.name,
+        fileType: videoFile.type,
+        folder: testimonialFolder
+      })
+
+      const { uploadUrl, key } = presignedRes.data
+
+      // 2. Upload to S3
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: videoFile,
+        headers: { "Content-Type": videoFile.type }
+      })
+
+      // 3. Send JSON payload
+      const payload = {
+        title: name,
+        location,
+        visibility,
+        video_key: key
+      }
+
+      const res = await apiClient.post("/admin/testimonial-video", payload)
       if (res.data.success) {
         toast.success("Honeymoon testimonial uploaded 💙")
         setVideoFile(null)

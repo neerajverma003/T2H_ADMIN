@@ -14,17 +14,7 @@ export const useBlogStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const res = await apiClient.get("/admin/blog");
-      const raw = res?.data?.blogData || [];
-      // Normalize cover_image to full URL so img src works in frontend
-      const blogData = raw.map((b) => {
-        const copy = { ...b };
-        if (copy.cover_image && !copy.cover_image.startsWith('http')) {
-          const base = apiClient.defaults.baseURL || '';
-          const path = copy.cover_image.replace(/^\/+/, '');
-          copy.cover_image = `${base}/${path}`;
-        }
-        return copy;
-      });
+      const blogData = res?.data?.blogData || [];
       set({ blogs: blogData, isLoading: false });
     } catch (error) {
       console.error("Error fetching blogs:", error);
@@ -39,12 +29,7 @@ export const useBlogStore = create((set, get) => ({
     try {
       const res = await apiClient.get(`/admin/blog/${id}`);
       if (res.data.success) {
-        const b = res.data.blogData;
-        if (b && b.cover_image && !b.cover_image.startsWith('http')) {
-          const base = apiClient.defaults.baseURL || '';
-          b.cover_image = `${base}/${b.cover_image.replace(/^\/+/, '')}`;
-        }
-        set({ blogToEdit: b, isFetchingDetails: false });
+        set({ blogToEdit: res.data.blogData, isFetchingDetails: false });
       } else {
         toast.error(res.data.msg || "Failed to fetch blog details.");
         set({ isFetchingDetails: false });
@@ -57,10 +42,10 @@ export const useBlogStore = create((set, get) => ({
   },
 
   // Create a new blog post
-  createBlog: async (formData, navigate) => {
+  createBlog: async (payload, navigate) => {
     set({ isLoading: true });
     try {
-      const res = await apiClient.post('/admin/blog', formData);
+      const res = await apiClient.post('/admin/blog', payload);
       if (res.data.success) {
         // Refresh the blog list so it shows up when user visits the list
         get().fetchBlogs();
@@ -76,15 +61,10 @@ export const useBlogStore = create((set, get) => ({
   },
 
   // Update an existing blog post
-  updateBlog: async (id, formData, navigate) => {
+  updateBlog: async (id, payload, navigate) => {
     set({ isLoading: true });
     try {
-      console.log("Update formData:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
-      const res = await apiClient.patch(`/admin/blog/${id}`, formData);
+      const res = await apiClient.patch(`/admin/blog/${id}`, payload);
       if (res.data.success) {
         // Refresh the blog list so it shows updated data when visiting the list
         get().fetchBlogs();
