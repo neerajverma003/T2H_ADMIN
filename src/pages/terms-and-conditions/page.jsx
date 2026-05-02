@@ -1,202 +1,175 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { FiFileText, FiSave, FiEdit, FiLoader, FiGlobe, FiMapPin } from "react-icons/fi";
+import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
-import { usePlaceStore } from "../../stores/usePlaceStore";
-import { Loader2, FileText, Edit, Save, MapPin, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const HoneymoonTermsAndCondition = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [travelType, setTravelType] = useState("domestic");
-
-  // Holds destination ID
-  const [selectedPlaceId, setSelectedPlaceId] = useState("");
-
+  const [activeTab, setActiveTab] = useState("domestic"); // 'domestic' or 'international'
   const [textContent, setTextContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const {
-    destinationList,
-    isListLoading,
-    currentTermsContent,
-    isContentLoading,
-    fetchDestinationList,
-    fetchHoneymoonTermsContent,
-    updateHoneymoonTermsContent,
-  } = usePlaceStore();
-
-  // Fetch destination list on travel type change
+  // Fetch global honeymoon terms based on active tab
   useEffect(() => {
-    fetchDestinationList(travelType);
-    setSelectedPlaceId("");
-  }, [travelType, fetchDestinationList]);
-
-  // Fetch honeymoon terms when destination changes
-  useEffect(() => {
-    if (selectedPlaceId) {
-      fetchHoneymoonTermsContent(selectedPlaceId);
-      setIsEditing(false);
-    } else {
-      setTextContent("");
-    }
-  }, [selectedPlaceId, fetchHoneymoonTermsContent]);
-
-  // Sync textarea with store content
-  useEffect(() => {
-    setTextContent(currentTermsContent);
-  }, [currentTermsContent]);
-
-  // Save honeymoon terms
-  const handleSave = async () => {
-    if (!selectedPlaceId) {
-      toast.warn("Please select a destination to save honeymoon terms.");
-      return;
-    }
-
-    setIsSaving(true);
-    const data = {
-      id: selectedPlaceId,
-      honeymoon_terms_and_conditions: textContent,
+    const fetchTerms = async () => {
+      try {
+        setLoading(true);
+        const res = await apiClient.get(`/admin/global-tnc?type=${activeTab}`);
+        setTextContent(res.data?.data?.terms_And_condition || "");
+      } catch (error) {
+        console.error("Fetch Global TNC error:", error);
+        toast.error(`Failed to load ${activeTab} terms.`);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchTerms();
+    setIsEditing(false); // Reset editing state on tab change
+  }, [activeTab]);
 
-    await updateHoneymoonTermsContent(data);
-
-    setIsSaving(false);
-    setIsEditing(false);
-    toast.success("Honeymoon terms saved successfully 💕");
+  // Save terms for the specific category
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await apiClient.put("/admin/global-tnc", {
+        type: activeTab,
+        terms_And_condition: textContent,
+      });
+      toast.success(`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} terms saved successfully! ✨`);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Update Global TNC error:", error);
+      toast.error("Something went wrong while saving.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="flex flex-col gap-y-8 p-4 md:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-          Honeymoon Trip Terms Management <Heart className="text-pink-500" />
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Manage destination-wise terms & conditions for honeymoon trips.
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Select Category
-            </label>
-            <div className="flex gap-6">
-              {["domestic", "international"].map((type) => (
-                <label key={type} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value={type}
-                    checked={travelType === type}
-                    onChange={(e) => setTravelType(e.target.value)}
-                    className="h-4 w-4 text-pink-600 focus:ring-pink-500"
-                  />
-                  <span className="capitalize text-slate-800 dark:text-slate-200">
-                    {type}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Destination */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Select Destination
-            </label>
-            <select
-              value={selectedPlaceId}
-              onChange={(e) => setSelectedPlaceId(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm focus:ring-pink-500 focus:border-pink-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50"
-              disabled={isListLoading}
-            >
-              <option value="">
-                {isListLoading
-                  ? "Loading Destinations..."
-                  : "-- Select Destination --"}
-              </option>
-              {destinationList.map((place) => (
-                <option key={place._id} value={place._id}>
-                  {place.destination_name}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="flex flex-col gap-y-8 p-4 md:p-8 max-w-5xl mx-auto">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
+            Honeymoon Terms Management <span className="text-pink-500">❤️</span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Manage global terms & conditions separately for Domestic and International honeymoon trips.
+          </p>
         </div>
       </div>
 
-      {/* Content */}
-      <div
-        className={`rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all dark:border-slate-800 dark:bg-slate-900 ${
-          !selectedPlaceId ? "opacity-50" : ""
-        }`}
+      {/* Tabs Switcher */}
+      <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+        <button
+          onClick={() => setActiveTab("domestic")}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            activeTab === "domestic"
+              ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          }`}
+        >
+          <FiMapPin /> Domestic Terms
+        </button>
+        <button
+          onClick={() => setActiveTab("international")}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            activeTab === "international"
+              ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          }`}
+        >
+          <FiGlobe /> International Terms
+        </button>
+      </div>
+
+      {/* Editor Section */}
+      <motion.div 
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-x-3">
-            <FileText className="size-6 text-slate-800 dark:text-slate-200" />
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
-              Honeymoon Terms & Conditions
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${activeTab === 'domestic' ? 'bg-green-50 dark:bg-green-900/30' : 'bg-purple-50 dark:bg-purple-900/30'}`}>
+              <FiFileText className={activeTab === 'domestic' ? 'text-green-600' : 'text-purple-600'} size={20} />
+            </div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+              {activeTab === 'domestic' ? 'Domestic' : 'International'} Booking Terms
             </h2>
           </div>
-
-          {!isEditing ? (
+          {!isEditing && !loading && (
             <button
               onClick={() => setIsEditing(true)}
-              disabled={!selectedPlaceId || isSaving || isContentLoading}
-              className="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 disabled:opacity-50"
+              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
             >
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </button>
-          ) : (
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="inline-flex items-center rounded-md bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-700"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving…
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save
-                </>
-              )}
+              <FiEdit /> Edit Content
             </button>
           )}
         </div>
 
-        <div className="mt-6 min-h-[300px]">
-          {isContentLoading ? (
-            <div className="text-center py-20">
-              <Loader2 className="size-8 animate-spin mx-auto text-slate-400" />
-              <p className="text-sm mt-2 text-slate-500">
-                Loading honeymoon terms…
-              </p>
+        <div className="p-6 min-h-[400px] flex flex-col">
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center py-20">
+              <FiLoader className="h-10 w-10 animate-spin text-blue-600" />
             </div>
-          ) : selectedPlaceId ? (
-            <textarea
-              value={textContent}
-              onChange={(e) => setTextContent(e.target.value)}
-              readOnly={!isEditing}
-              disabled={!isEditing}
-              className="w-full min-h-[300px] rounded-lg border border-slate-300 bg-transparent p-4 text-sm focus:ring-pink-500 dark:border-slate-700 dark:text-slate-50"
-              placeholder="Enter honeymoon terms & conditions for this destination..."
-            />
+          ) : isEditing ? (
+            <div className="space-y-6 flex-1 flex flex-col">
+              <textarea
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                className="w-full flex-1 min-h-[400px] rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm leading-relaxed
+                focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none
+                dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                placeholder={`Write your global ${activeTab} honeymoon terms and conditions here...`}
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-6 py-2.5 rounded-lg border border-slate-200 text-sm font-medium 
+                  text-slate-700 hover:bg-slate-50 transition dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-8 py-2.5 rounded-lg bg-blue-600 text-white 
+                  text-sm font-semibold shadow-lg hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition"
+                >
+                  {isSaving ? <FiLoader className="animate-spin" /> : <FiSave />}
+                  Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Terms
+                </button>
+              </div>
+            </div>
           ) : (
-            <div className="text-center py-20">
-              <MapPin className="size-8 mx-auto text-slate-400 mb-2" />
-              <p className="text-sm text-slate-500">
-                Please select a destination to manage honeymoon terms.
-              </p>
+            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-8 flex-1">
+              {textContent ? (
+                <div className="prose prose-slate max-w-none dark:prose-invert">
+                  <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {textContent}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full py-20 text-slate-400">
+                  <FiFileText size={48} className="mb-4 opacity-20" />
+                  <p>No terms defined for {activeTab}. Click edit to get started.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
+      </motion.div>
+
+      {/* Helpful Info */}
+      <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 border border-blue-100 dark:border-blue-800 flex gap-3">
+        <div className="text-blue-600 mt-0.5">ℹ️</div>
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          The <strong>{activeTab}</strong> terms will be shown when users select the "{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}" tab on the website's Terms & Conditions page.
+        </p>
       </div>
     </div>
   );

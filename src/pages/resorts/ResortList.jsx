@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { ENV } from "../../constants/api";
 
 // Custom alert function to replace Swal
 const showAlert = (type, title, message) => {
@@ -23,11 +24,16 @@ const HoneymoonResortList = () => {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/admin/resort/all", {
+      const res = await fetch(`${ENV.API_BASE_URL}/admin/resort/all`, {
         headers: {
           "Authorization": `Bearer ${token || ""}`,
         },
       });
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        throw new Error("Session expired. Please log in again.");
+      }
       if (!res.ok) throw new Error("Failed to fetch resorts");
       const json = await res.json();
       // Handle both direct array and wrapped response
@@ -51,7 +57,7 @@ const HoneymoonResortList = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/admin/resort/delete/${id}`, {
+      const res = await fetch(`${ENV.API_BASE_URL}/admin/resort/delete/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token || ""}`,

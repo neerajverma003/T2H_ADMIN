@@ -31,6 +31,7 @@ const ItineraryCard = ({ itinerary, onDelete }) => {
         selected_destination?.destination_name || "N/A";
     const thumbnail =
         destination_thumbnails?.[0] ||
+        itinerary.destination_images?.[0] ||
         "https://via.placeholder.com/400x300";
 
     const status =
@@ -43,7 +44,7 @@ const ItineraryCard = ({ itinerary, onDelete }) => {
                     <button
                         onClick={() =>
                             navigate(
-                                `itinerary_details/${itinerary._id}`
+                                `/itineraries/edit/${itinerary._id}`
                             )
                         }
                         className="rounded-full bg-white/90 p-2 text-blue-600 hover:bg-white shadow-sm dark:bg-gray-700 dark:text-blue-400"

@@ -90,6 +90,7 @@ import ContactUs from "./pages/leads/contact_us/page"
 import ConsultationLeads from "./pages/leads/consulation_leads/page"
 import Suggestions from "./pages/leads/suggesations/page"
 import Subscribe from "./pages/leads/subscribes/page"
+import HoneymoonTripRequests from "./pages/leads/plan_your_trip/page"
 // Iteraries
  import CreateItineriesPage from "./pages/itineraries/CreateItinerary"  
  import ItineraryListPage from "./pages/Itinerary_list/ItineraryList" 
@@ -108,6 +109,8 @@ import ProtectedRoutes from "./components/ProtectedRoutes"
 import HoneymoonCancellationPolicy from "./pages/cancellation-policy/page"
 import HoneymoonPaymentMode from "./pages/payment-mode/page"
 import HoneymoonTermsAndCondition from "./pages/terms-and-conditions/page"
+import Reports from "./pages/reports/Reports"
+import Settings from "./pages/settings/Settings"
 // Store
 // import useAuthStore from "./stores/authStores"
 
@@ -177,10 +180,15 @@ function App() {
             <Route path="terms-and-conditions" element={<HoneymoonTermsAndCondition />} />
             { /* Plan Your Journey Leads */}
             <Route path="leads/plan-journey" element={<PlanYourJourney />} />
+            <Route path="leads/honeymoon-requests" element={<HoneymoonTripRequests />} />
             <Route path="leads/contacts" element={<ContactUs />} />
             <Route path="leads/consultation" element={<ConsultationLeads />} />
             <Route path="leads/suggestions" element={<Suggestions />} />
             <Route path="leads/subscribe" element={<Subscribe />} />  
+
+            {/* Reports & Settings */}
+            <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
 

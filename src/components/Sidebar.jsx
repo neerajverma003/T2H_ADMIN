@@ -409,6 +409,9 @@ const Sidebar = ({ open, setOpen }) => {
           <NavLink to="/leads/consultation" onClick={() => setOpen(false)} className={subLinkClass}>
             Consultation Requests
           </NavLink>
+          <NavLink to="/leads/honeymoon-requests" onClick={() => setOpen(false)} className={subLinkClass}>
+            Honeymoon Trip Requests
+          </NavLink>
           <NavLink to="/leads/plan-journey" onClick={() => setOpen(false)} className={subLinkClass}>
             Plan Journey List
           </NavLink>

@@ -9,6 +9,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBlogStore } from "../../stores/blogStore";
 import { toast } from "react-toastify";
+import { ENV } from "../../constants/api";
 
 const inputStyle =
   "block w-full rounded-lg border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 p-3 text-slate-900 dark:text-slate-100 shadow-sm focus:border-pink-600 focus:ring-pink-600";
@@ -71,7 +72,7 @@ const CreateBlog = () => {
       // 1. If a new image is selected, upload to S3 first
       if (coverImage) {
         const blogFolder = `blog/${title.replace(/\s+/g, '_')}`;
-        const presignedRes = await fetch("http://localhost:5000/admin/generate-presigned-url", {
+        const presignedRes = await fetch(`${ENV.API_BASE_URL}/admin/generate-presigned-url`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

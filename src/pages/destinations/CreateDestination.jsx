@@ -197,7 +197,7 @@ const CreateDestination = () => {
             </label>
 
             <div className="flex flex-wrap gap-6">
-              {["trending", "TopMost Destination", "Top destination", "home", "honeymoon"].map(
+              {["trending", "TopMost Destination", "exclusive", "weekend", "home", "honeymoon"].map(
                 (opt) => (
                   <label key={opt} className="flex items-center gap-2 text-slate-300">
                     <input
@@ -272,6 +272,9 @@ const CreateDestination = () => {
                 <th className="text-left px-4 py-3 text-slate-300 font-semibold">
                   Destination Name
                 </th>
+                <th className="text-left px-4 py-3 text-slate-300 font-semibold">
+                  Category
+                </th>
                 <th className="text-right px-4 py-3 text-slate-300 font-semibold">
                   Actions
                 </th>
@@ -282,6 +285,19 @@ const CreateDestination = () => {
                 <tr key={dest._id}>
                   <td className="px-4 py-3 text-slate-200">
                     {dest.destination_name}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {(Array.isArray(dest.destination_type) ? dest.destination_type : []).map(type => (
+                        <span key={type} className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${
+                          type && type.toLowerCase().includes('topmost') 
+                            ? 'bg-amber-500/20 text-amber-500' 
+                            : 'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {type || 'General'}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

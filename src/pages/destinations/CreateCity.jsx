@@ -86,21 +86,45 @@ const CreateCity = () => {
       return
     }
 
-    const fd = new FormData()
-    fd.append("city_name", cityName)
-    fd.append("visibility", visibility)
-    fd.append("city_category", JSON.stringify(categories))
-    newImageFiles.forEach((f) => fd.append("image", f))
-
     try {
+      const cityFolder = `cities/${cityName.replace(/\s+/g, '_')}`;
+      const uploadedImageKeys = [];
+
+      // 1. Upload new images to S3
+      if (newImageFiles && newImageFiles.length > 0) {
+        for (const file of newImageFiles) {
+          const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+            fileName: file.name,
+            fileType: file.type,
+            folder: cityFolder
+          });
+          const { uploadUrl, key } = presignedRes.data;
+
+          await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type }
+          });
+          uploadedImageKeys.push(key);
+        }
+      }
+
+      // 2. Build JSON Payload
+      const payload = {
+        city_name: cityName,
+        visibility: visibility,
+        city_category: categories,
+        images: uploadedImageKeys,
+        id: selectedState
+      };
+
       if (isUpdateMode) {
-        fd.append("existingImages", JSON.stringify(existingImages))
-        await apiClient.patch(`/admin/city/${selectedCityId}`, fd)
-        toast.success("City updated successfully!")
+        payload.existingImages = existingImages;
+        await apiClient.patch(`/admin/city/${selectedCityId}`, payload);
+        toast.success("City updated successfully!");
       } else {
-        fd.append("id", selectedState)
-        await apiClient.post("/admin/city", fd)
-        toast.success("City created successfully!")
+        await apiClient.post("/admin/city", payload);
+        toast.success("City created successfully!");
       }
 
       setCityName("")

@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { ImagePlus, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiClient } from "../../stores/authStores";
+import { ENV } from "../../constants/api";
 
 const DESTINATION_ID = "HONEYMOON"; // use real destination_id if needed
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = ENV.API_BASE_URL;
 
 const HoneymoonGallery = () => {
   const [newImages, setNewImages] = useState([]);
@@ -52,18 +53,38 @@ const HoneymoonGallery = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("destination_id", DESTINATION_ID);
-    newImages.forEach((img) => formData.append("image", img));
-
     const toastId = toast.loading("Uploading honeymoon images...");
     setIsLoading(true);
 
     try {
-      // ✅ FIXED: correct POST route
-      await apiClient.post("/admin/image-Gallery", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const galleryFolder = `image_gallery/${DESTINATION_ID}`;
+      const uploadedImageKeys = [];
+
+      for (const file of newImages) {
+        // 1. Get presigned URL
+        const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+          fileName: file.name,
+          fileType: file.type,
+          folder: galleryFolder
+        });
+        const { uploadUrl, key } = presignedRes.data;
+
+        // 2. Upload direct to S3
+        await fetch(uploadUrl, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type }
+        });
+        uploadedImageKeys.push(key);
+      }
+
+      // 3. Send keys to backend
+      const payload = {
+        destination_id: DESTINATION_ID,
+        images: uploadedImageKeys
+      };
+
+      await apiClient.post("/admin/image-Gallery", payload);
 
       toast.update(toastId, {
         render: "Honeymoon images uploaded successfully!",
@@ -106,10 +127,25 @@ const HoneymoonGallery = () => {
 
     setIsDeleting(true);
     try {
-      // ✅ FIXED: backend uses POST, not DELETE
+      // Backend expects the original keys for deletion, but the frontend currently has pre-signed URLs.
+      // Wait, if it has pre-signed URLs, the deletion won't work correctly unless we extract the key!
+      // Let's extract the key from the URL. S3 keys are basically everything after the domain name and before the query params.
+      // Actually, since we only have the presigned URL, we can send the full URL and let the backend extract it, OR we can extract it here.
+      // A presigned URL looks like: https://bucket.s3.region.amazonaws.com/folder/file.jpg?X-Amz-Algorithm=...
+      // Key = url.pathname.substring(1)
+      const extractKey = (urlStr) => {
+        try {
+          const urlObj = new URL(urlStr);
+          return decodeURIComponent(urlObj.pathname.substring(1));
+        } catch {
+          return urlStr; // fallback
+        }
+      };
+      const keysToDelete = imagePaths.map(extractKey);
+
       await apiClient.post("/admin/image-Gallery/delete", {
         destination_id: DESTINATION_ID,
-        image_urls: imagePaths,
+        image_urls: keysToDelete,
       });
 
       toast.success("Honeymoon image(s) deleted successfully.");
@@ -182,7 +218,7 @@ const HoneymoonGallery = () => {
                     }`}
                   >
                     <img
-                      src={`${BACKEND_URL}/${imgPath}`}
+                      src={imgPath}
                       className="h-32 w-full object-cover"
                     />
                     {isSelected && (

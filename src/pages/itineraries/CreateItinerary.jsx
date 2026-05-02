@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import {
@@ -21,7 +21,55 @@ import { extractDaysAndNights } from "../../utils/extractDaysFromDuration";
 import { apiClient } from "../../stores/authStores";
 
 const CreateItineriesPage = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
+
+    // ========================
+    // DATA FETCHING (FOR EDIT)
+    // ========================
+    useEffect(() => {
+        if (!id) return;
+
+        const fetchItinerary = async () => {
+            try {
+                const res = await apiClient.get(`/admin/itinerary/${id}`);
+                const data = res.data.data || res.data.itinerary;
+                
+                if (data) {
+                    setFormData({
+                        title: data.title || "",
+                        travel_type: data.travel_type || "honeymoon",
+                        itinerary_type: data.itinerary_type || "flexible",
+                        itinerary_visibility: data.itinerary_visibility || "public",
+                        classification: data.classification || [],
+                        itinerary_theme: data.itinerary_theme || [],
+                        destination_type: data.destination_type || "domestic",
+                        selected_destination_id: data.selected_destination?._id || data.selected_destination || "",
+                        duration: data.duration || "",
+                        days_information: data.days_information || [],
+                        destination_detail: data.destination_detail || "",
+                        destination_images: data.destination_images || [],
+                        destination_images_files: [],
+                        destination_thumbnails: data.destination_thumbnails || [],
+                        destination_thumbnails_files: [],
+                        inclusion: data.inclusion || "",
+                        exclusion: data.exclusion || "",
+                        hotel_as_per_category: data.hotel_as_per_category || "",
+                        pricing: data.pricing || "",
+                        terms_and_conditions: data.terms_and_conditions || "",
+                        payment_mode: data.payment_mode || "",
+                        cancellation_policy: data.cancellation_policy || "",
+                        video: null,
+                    });
+                }
+            } catch (error) {
+                console.error("Fetch Itinerary Error:", error);
+                toast.error("Failed to load itinerary data");
+            }
+        };
+
+        fetchItinerary();
+    }, [id]);
 
     // ========================
     // STATE
@@ -224,17 +272,19 @@ const CreateItineriesPage = () => {
             delete payload.destination_thumbnails_files;
             delete payload.video;
 
-            const res = await apiClient.post("/admin/itinerary", payload);
+            const res = id 
+                ? await apiClient.patch(`/admin/itinerary/${id}`, payload)
+                : await apiClient.post("/admin/itinerary", payload);
 
             toast.update(toastId, {
-                render: "Honeymoon itinerary created successfully 💍",
+                render: id ? "Itinerary updated successfully ✨" : "Honeymoon itinerary created successfully 💍",
                 type: "success",
                 isLoading: false,
                 autoClose: 3000,
             });
 
             setTimeout(() => {
-                navigate("/admin/itineraries");
+                navigate("/itineraries/list");
             }, 1200);
         } catch (err) {
             console.error("Submit Error:", err);
@@ -291,7 +341,7 @@ const CreateItineriesPage = () => {
         <div className="min-h-screen p-6 bg-gray-100 dark:bg-gray-900">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold mb-6 text-black dark:text-white">
-                    Create Honeymoon Itinerary 💕
+                    {id ? "Edit Honeymoon Itinerary ✨" : "Create Honeymoon Itinerary 💕"}
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-8">

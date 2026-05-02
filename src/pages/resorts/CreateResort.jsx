@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ENV } from "../../constants/api";
 
 // Custom alert function to replace Swal
 const showAlert = (type, title, message) => {
@@ -67,7 +68,7 @@ const HoneymoonResortForm = ({ editId }) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/admin/resort/get/${id}`, {
+      const response = await fetch(`${ENV.API_BASE_URL}/admin/resort/get/${id}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
@@ -185,7 +186,7 @@ const HoneymoonResortForm = ({ editId }) => {
       if (formData.images && formData.images.length > 0) {
         for (let i = 0; i < formData.images.length; i++) {
           const img = formData.images[i];
-          const presignedRes = await fetch("http://localhost:5000/admin/generate-presigned-url", {
+          const presignedRes = await fetch(`${ENV.API_BASE_URL}/admin/generate-presigned-url`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -221,8 +222,8 @@ const HoneymoonResortForm = ({ editId }) => {
 
       // Determine URL and method
       const url = id
-        ? `http://localhost:5000/admin/resort/update/${id}`
-        : "http://localhost:5000/admin/resort";
+        ? `${ENV.API_BASE_URL}/admin/resort/update/${id}`
+        : `${ENV.API_BASE_URL}/admin/resort`;
       const method = id ? "PATCH" : "POST";
 
       console.log("Submitting to:", url, "Method:", method);
@@ -435,7 +436,7 @@ const HoneymoonResortForm = ({ editId }) => {
               <div className="mt-4 flex gap-3 flex-wrap">
                 {existingImages.map((src, idx) => {
                   // Construct full image URL for existing images
-                  const baseUrl = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+                  const baseUrl = ENV.API_BASE_URL;
                   const fullImageUrl = src.startsWith("http") ? src : `${baseUrl}${src}`;
                   
                   return (

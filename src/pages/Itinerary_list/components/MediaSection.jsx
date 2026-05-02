@@ -11,42 +11,67 @@ import { apiClient } from "../../../stores/authStore";
 const MediaSection = ({ formData, setFormData, styles }) => {
   const { labelStyle, cardStyle } = styles;
 
-  const [galleryImages, setGalleryImages] = useState([]);
+  const [destinationImages, setDestinationImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchImages = async () => {
+    const fetchDestImages = async () => {
       if (!formData.selected_destination_id) {
-        setGalleryImages([]);
+        setDestinationImages([]);
         return;
       }
 
       try {
         setIsLoading(true);
+        // Fetch destination details to get title_image and show_image
         const res = await apiClient.get(
-          `/admin/image-Gallery/${formData.selected_destination_id}`
+          `/admin/destination/edit/${formData.selected_destination_id}`
         );
-        const apiImages = res?.data?.imageGalleryData?.image || [];
-
-        const mergedImages = Array.from(
-          new Set([...apiImages, ...(formData.destination_images || [])])
-        );
-        setGalleryImages(mergedImages);
-      } catch {
-        setGalleryImages(formData.destination_images || []);
+        const destData = res?.data?.destination;
+        const images = [
+          ...(destData?.title_image || []),
+          ...(destData?.show_image || [])
+        ];
+        // Remove duplicates if any
+        setDestinationImages([...new Set(images)]);
+      } catch (error) {
+        console.error("Error fetching destination images:", error);
+        setDestinationImages([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchImages();
-  }, [formData.selected_destination_id, formData.destination_images]);
+    fetchDestImages();
+  }, [formData.selected_destination_id]);
+
+  // Extract raw S3 key from presigned URL or return the key directly
+  const extractS3Key = (urlOrKey) => {
+    if (!urlOrKey || typeof urlOrKey !== "string") return urlOrKey;
+    if (!urlOrKey.startsWith("http")) return urlOrKey;
+    try {
+      const url = new URL(urlOrKey);
+      let key = decodeURIComponent(url.pathname);
+      if (key.startsWith("/")) key = key.substring(1);
+      return key;
+    } catch {
+      return urlOrKey;
+    }
+  };
+
+  const isImageSelected = (selectedList, imgUrl) => {
+    const imgKey = extractS3Key(imgUrl);
+    return selectedList.some((s) => extractS3Key(s) === imgKey);
+  };
 
   const handleImageToggle = (imgUrl) => {
-    const isSelected = formData.destination_images.includes(imgUrl);
+    const imgKey = extractS3Key(imgUrl);
+    const isSelected = isImageSelected(formData.destination_images, imgUrl);
     const updatedImages = isSelected
-      ? formData.destination_images.filter((url) => url !== imgUrl)
-      : [...formData.destination_images, imgUrl];
+      ? formData.destination_images.filter(
+          (url) => extractS3Key(url) !== imgKey
+        )
+      : [...formData.destination_images, imgKey];
 
     setFormData((prev) => ({
       ...prev,
@@ -55,10 +80,13 @@ const MediaSection = ({ formData, setFormData, styles }) => {
   };
 
   const handleThumbnailToggle = (thumbUrl) => {
-    const isSelected = formData.destination_thumbnails.includes(thumbUrl);
+    const thumbKey = extractS3Key(thumbUrl);
+    const isSelected = isImageSelected(formData.destination_thumbnails, thumbUrl);
     const updatedThumbnails = isSelected
-      ? formData.destination_thumbnails.filter((url) => url !== thumbUrl)
-      : [...formData.destination_thumbnails, thumbUrl];
+      ? formData.destination_thumbnails.filter(
+          (url) => extractS3Key(url) !== thumbKey
+        )
+      : [...formData.destination_thumbnails, thumbKey];
 
     setFormData((prev) => ({
       ...prev,
@@ -130,7 +158,7 @@ const MediaSection = ({ formData, setFormData, styles }) => {
     return (
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
         {images.map((imgUrl, idx) => {
-          const isSelected = selectedImages.includes(imgUrl);
+          const isSelected = isImageSelected(selectedImages, imgUrl);
           return (
             <div
               key={idx}
@@ -200,20 +228,50 @@ const MediaSection = ({ formData, setFormData, styles }) => {
           </div>
 
           {/* Thumbnails */}
-          <div className="space-y-3 pt-4">
+          <div className="space-y-3 pt-4 border-t border-gray-100">
             <label className={labelStyle}>
               <ImageIcon className="mr-2 inline text-pink-500" size={16} />
-              Honeymoon Thumbnail Images
+              Thumbnail Images (from Destination)
             </label>
             {renderImageGrid(
-              galleryImages,
+              destinationImages,
               formData.destination_thumbnails || [],
               handleThumbnailToggle
             )}
+
+            <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload New Thumbnails
+                </label>
+                <input 
+                    type="file" 
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleDirectImageUpload(e, "destination_thumbnails")}
+                    className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-blue-100 file:px-4 file:py-2 file:font-semibold file:text-blue-700 hover:file:bg-blue-200"
+                />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 pt-2">
+                {formData.destination_thumbnails
+                    .filter((i) => typeof i === 'string' && i.startsWith("data:"))
+                    .map((img, i) => (
+                        <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
+                            <img src={img} className="h-20 w-full object-cover" alt="Preview" />
+                            <button
+                                type="button"
+                                onClick={() => handleRemoveDirectImage(i, "destination_thumbnails")}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ))}
+            </div>
           </div>
 
-          {/* Gallery */}
-          <div className="space-y-3 pt-4">
+          {/* Gallery - Kept empty as requested */}
+          <div className="space-y-3 pt-4 border-t border-gray-100">
             <label className={labelStyle}>
               <GalleryHorizontal
                 className="mr-2 inline text-pink-500"
@@ -221,15 +279,13 @@ const MediaSection = ({ formData, setFormData, styles }) => {
               />
               Honeymoon Destination Images
             </label>
-            {renderImageGrid(
-              galleryImages,
-              formData.destination_images || [],
-              handleImageToggle
-            )}
+            <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
+                <p className="text-sm text-gray-400">Gallery images are currently hidden. You can upload custom images below.</p>
+            </div>
           </div>
 
           {/* Upload images */}
-          <div className="space-y-3 border-t border-gray-300 pt-4">
+          <div className="space-y-3 pt-4 border-t border-gray-100">
             <label className={labelStyle}>
               <ImageIcon className="mr-2 inline text-pink-500" size={16} />
               Upload Your Own Romantic Images
@@ -243,23 +299,23 @@ const MediaSection = ({ formData, setFormData, styles }) => {
               }
               className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-green-100 file:px-4 file:py-2 file:font-semibold file:text-green-700 hover:file:bg-green-200"
             />
-          </div>
-
-          {/* Upload thumbnails */}
-          <div className="space-y-3 border-t border-gray-300 pt-4">
-            <label className={labelStyle}>
-              <ImageIcon className="mr-2 inline text-pink-500" size={16} />
-              Upload Custom Thumbnail Images
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) =>
-                handleDirectImageUpload(e, "destination_thumbnails")
-              }
-              className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-blue-100 file:px-4 file:py-2 file:font-semibold file:text-blue-700 hover:file:bg-blue-200"
-            />
+            
+            <div className="grid grid-cols-3 gap-3 pt-2">
+                {formData.destination_images
+                    .filter((i) => typeof i === 'string' && i.startsWith("data:"))
+                    .map((img, i) => (
+                        <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
+                            <img src={img} className="h-20 w-full object-cover" alt="Preview" />
+                            <button
+                                type="button"
+                                onClick={() => handleRemoveDirectImage(i, "destination_images")}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ))}
+            </div>
           </div>
         </>
       ) : (
