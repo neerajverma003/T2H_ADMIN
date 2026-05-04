@@ -22,8 +22,10 @@ const HoneymoonHeroVideo = () => {
   const [isUploading, setIsUploading] = useState(false)
   const [visibility, setVisibility] = useState("public")
   const [activePage, setActivePage] = useState("home")
+  const [heading, setHeading] = useState("")
+  const [subHeading, setSubHeading] = useState("")
 
-  const { videos, isLoading, title, fetchVideos, deleteVideo, updateVisibility } =
+  const { videos, isLoading, title, fetchVideos, deleteVideo, updateVisibility, heading: storeHeading, subHeading: storeSubHeading } =
     useHeroVideoStore()
 
   const pageRef = useRef()
@@ -31,6 +33,12 @@ const HoneymoonHeroVideo = () => {
   useEffect(() => {
     fetchVideos(activePage)
   }, [activePage, fetchVideos])
+
+  // Sync local state with store when activePage changes or data is fetched
+  useEffect(() => {
+    setHeading(storeHeading || "")
+    setSubHeading(storeSubHeading || "")
+  }, [storeHeading, storeSubHeading, activePage])
 
   // Clean up local object URL on unmount / file change
   useEffect(() => {
@@ -68,48 +76,58 @@ const HoneymoonHeroVideo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!mediaFile) return toast.error("Please select an image or video.")
-
+    
     const page = pageRef.current?.value
     if (!page) return toast.error("Please select a destination page.")
 
+    // Check if we are updating text OR uploading a new file
+    if (!mediaFile && (!heading || !subHeading)) {
+        return toast.error("Please provide either a new media file or updated text content.")
+    }
+
     try {
       setIsUploading(true)
+      let key = null
 
-      // 1. Get presigned upload URL from backend
-      const heroFolder = `hero-section/${page.replace(/\s+/g, '_')}`
-      const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-        fileName: mediaFile.name,
-        fileType: mediaFile.type,
-        folder: heroFolder
-      })
-      const { uploadUrl, key } = presignedRes.data
+      // 1. If a NEW file is selected, upload to S3
+      if (mediaFile) {
+        const heroFolder = `hero-section/${page.replace(/\s+/g, '_')}`
+        const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+          fileName: mediaFile.name,
+          fileType: mediaFile.type,
+          folder: heroFolder
+        })
+        const { uploadUrl, key: uploadedKey } = presignedRes.data
+        key = uploadedKey
 
-      // 2. Upload directly to S3
-      await axios.put(uploadUrl, mediaFile, {
-        headers: { "Content-Type": mediaFile.type }
-      })
+        // 2. Upload directly to S3
+        await axios.put(uploadUrl, mediaFile, {
+          headers: { "Content-Type": mediaFile.type }
+        })
+      }
 
-      // 3. Send key to backend (backend auto-detects media_type from extension)
+      // 3. Send data to backend (key will be null if no new file)
       const payload = {
         title: page,
         visibility,
-        video_key: key   // field name kept for API compat
+        video_key: key,   // field name kept for API compat
+        heading,
+        sub_heading: subHeading
       }
 
       const response = await apiClient.post("/admin/hero-section", payload)
       if (response.data.success) {
-        toast.success(`Hero ${mediaType} uploaded successfully! 💕`)
+        toast.success(response.data.msg || "Hero updated successfully! 💕")
         handleRemoveMedia()
         setVisibility("public")
         fetchVideos(page)
         setActivePage(page)
       } else {
-        toast.error(response.data.msg || "Upload failed.")
+        toast.error(response.data.msg || "Update failed.")
       }
     } catch (err) {
       console.error(err)
-      toast.error("Something went wrong while uploading.")
+      toast.error("Something went wrong while updating.")
     } finally {
       setIsUploading(false)
     }
@@ -138,7 +156,7 @@ const HoneymoonHeroVideo = () => {
               💍 Hero Media Manager
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Upload one image <strong>or</strong> one video per page. Uploading replaces the current media for that page.
+              Upload one image <strong>or</strong> one video per page. Uploading replaces the current media and text for that page.
             </p>
           </div>
 
@@ -148,7 +166,12 @@ const HoneymoonHeroVideo = () => {
                 <LayoutTemplate size={16} className="inline mr-1" />
                 Select Page
               </label>
-              <select ref={pageRef} defaultValue="home" className={inputStyle}>
+              <select 
+                ref={pageRef} 
+                value={activePage} 
+                onChange={(e) => setActivePage(e.target.value)} 
+                className={inputStyle}
+              >
                 {pageOptions.map((p) => (
                   <option key={p} value={p} className="capitalize">{p}</option>
                 ))}
@@ -168,6 +191,30 @@ const HoneymoonHeroVideo = () => {
                 <option value="public">Public</option>
                 <option value="private">Private</option>
               </select>
+            </div>
+
+            {/* TEXT CONTENT INPUTS */}
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div>
+                <label className={labelStyle}>Heading Text</label>
+                <input
+                  type="text"
+                  value={heading}
+                  onChange={(e) => setHeading(e.target.value)}
+                  placeholder="e.g. Majestic Ladakh"
+                  className={inputStyle}
+                />
+              </div>
+              <div>
+                <label className={labelStyle}>Sub-heading / Description</label>
+                <textarea
+                  value={subHeading}
+                  onChange={(e) => setSubHeading(e.target.value)}
+                  placeholder="Enter a brief description..."
+                  rows={2}
+                  className={inputStyle}
+                />
+              </div>
             </div>
           </div>
 
@@ -248,10 +295,12 @@ const HoneymoonHeroVideo = () => {
 
           <button
             type="submit"
-            disabled={!mediaFile || isUploading}
+            disabled={isUploading || (!mediaFile && !heading && !subHeading)}
             className="w-full rounded-xl bg-pink-700 hover:bg-pink-800 text-white py-3 font-bold shadow-lg disabled:opacity-50"
           >
-            {isUploading ? "Uploading..." : `Upload ${mediaType === 'image' ? 'Image' : 'Video'} for ${pageRef.current?.value || 'Page'}`}
+            {isUploading 
+              ? (mediaFile ? "Uploading Media..." : "Updating Text...") 
+              : (mediaFile ? `Upload ${mediaType} & Save Text` : "Update Text Content Only")}
           </button>
         </form>
 

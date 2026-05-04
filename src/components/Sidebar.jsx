@@ -392,7 +392,7 @@ const Sidebar = ({ open, setOpen }) => {
 
         <NavLink to="/hero-video" onClick={() => setOpen(false)} className={linkClass}>
           <FiVideo size={18} />
-          Hero Video
+          Hero Media Manager 
         </NavLink>
 
         <Dropdown title="Blog" icon={FiImage} open={blogOpen} setOpen={setBlogOpen}>

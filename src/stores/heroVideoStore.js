@@ -101,6 +101,8 @@ export const useHeroVideoStore = create((set, get) => ({
   isLoading: false,
   error: null,
   title: null,
+  heading: "",
+  subHeading: "",
 
 
 
@@ -133,11 +135,15 @@ export const useHeroVideoStore = create((set, get) => ({
         set({
           videos: normalized,
           title: response.data.title || page,
+          heading: response.data.heading || "Majestic Ladakh",
+          subHeading: response.data.sub_heading || "Explore the breathtaking landscapes of Ladakh...",
         })
       } else {
         set({
           videos: [],
           title: page,
+          heading: "Majestic Ladakh",
+          subHeading: "Explore the breathtaking landscapes of Ladakh...",
         })
       }
     } catch (error) {

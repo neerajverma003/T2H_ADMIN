@@ -17,6 +17,8 @@ const EditDestination = () => {
     existingImages: [],     // presigned URLs from backend (for display)
     destination_type: [],
     show_image: [],
+    best_time: "",
+    ideal_duration: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
@@ -38,6 +40,8 @@ const EditDestination = () => {
             existingImages: res.data.destination.title_image || [],
             destination_type: res.data.destination.destination_type || [],
             show_image: res.data.destination.show_image || [],
+            best_time: res.data.destination.best_time || "",
+            ideal_duration: res.data.destination.ideal_duration || "",
           });
         } else {
           toast.error("Failed to load destination data.");
@@ -142,6 +146,8 @@ const EditDestination = () => {
         destination_type: data.destination_type,
         show_image: data.show_image,
         new_image_keys: newImageKeys,  // S3 keys of newly uploaded images
+        best_time: data.best_time,
+        ideal_duration: data.ideal_duration,
       };
 
       const response = await apiClient.patch(`/admin/destination/${id}`, payload);
@@ -199,6 +205,39 @@ const EditDestination = () => {
             className="mt-1 block w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2
               text-slate-100 focus:ring-2 focus:ring-pink-500 focus:outline-none"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* Best Time */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300">
+              Best Time to Visit
+            </label>
+            <input
+              type="text"
+              name="best_time"
+              value={data.best_time}
+              onChange={handleChange}
+              placeholder="e.g. Oct - March"
+              className="mt-1 block w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2
+                text-slate-100 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            />
+          </div>
+          {/* Ideal Duration */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300">
+              Ideal Duration
+            </label>
+            <input
+              type="text"
+              name="ideal_duration"
+              value={data.ideal_duration}
+              onChange={handleChange}
+              placeholder="e.g. 5-7 Days"
+              className="mt-1 block w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2
+                text-slate-100 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            />
+          </div>
         </div>
 
         {/* Categories */}

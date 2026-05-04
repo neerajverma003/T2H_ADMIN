@@ -1,4 +1,4 @@
-import { Heart, CalendarDays, MapPin } from "lucide-react";
+import { Heart, CalendarDays, MapPin, Image as ImageIcon } from "lucide-react";
 
 const DayInfoSection = ({
     formData,
@@ -107,6 +107,38 @@ const DayInfoSection = ({
                             maxLength={50000}
                         />
                     </div>
+
+                    {/* Day Image Upload */}
+                    <div className="mt-4">
+                        <label className={labelStyle}>
+                            <ImageIcon className="inline mr-2" size={16} />
+                            Day Image
+                        </label>
+                        <input
+                            type="file"
+                            name="day_image_file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const event = { target: { name: 'day_image_file', value: file } };
+                                    handleArrayChange(event, index, "days_information");
+                                }
+                            }}
+                            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 dark:text-slate-300 dark:file:bg-gray-700 dark:file:text-pink-400"
+                        />
+                        {/* Show existing image if it's a string (edit mode) */}
+                        {item.day_image && typeof item.day_image === 'string' && item.day_image.startsWith('http') && (
+                            <div className="mt-2 relative inline-block">
+                                <img src={item.day_image} alt={`Day ${index + 1}`} className="h-20 w-32 object-cover rounded-md shadow-sm border border-gray-200" />
+                                <span className="absolute top-1 left-1 bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded shadow">Existing</span>
+                            </div>
+                        )}
+                        {/* Show selected file name */}
+                        {item.day_image_file && item.day_image_file.name && (
+                            <p className="mt-1 text-xs text-blue-500 font-medium">Selected: {item.day_image_file.name}</p>
+                        )}
+                    </div>
                 </div>
             ))}
 
@@ -119,6 +151,8 @@ const DayInfoSection = ({
                             day: `${formData.days_information.length + 1}`,
                             locationName: "",
                             locationDetail: "",
+                            day_image: "",
+                            day_image_file: null,
                         })
                     }
                     className={buttonStyle}

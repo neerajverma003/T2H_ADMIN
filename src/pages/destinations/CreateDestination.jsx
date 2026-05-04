@@ -20,6 +20,8 @@ const CreateDestination = () => {
     destination_name: "",
     image: [],
     destination_type: [],
+    best_time: "",
+    ideal_duration: "",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -101,7 +103,9 @@ const CreateDestination = () => {
         type: data.type,
         destination_name: data.destination_name,
         destination_type: data.destination_type,
-        title_image: imageUrls
+        title_image: imageUrls,
+        best_time: data.best_time,
+        ideal_duration: data.ideal_duration
       }
 
       const result = await createDestination(payload)
@@ -113,7 +117,9 @@ const CreateDestination = () => {
           type: "domestic",
           destination_name: "",
           destination_type: [],
-          image: []
+          image: [],
+          best_time: "",
+          ideal_duration: "",
         })
         // Manually clear the file input
         const fileInput = document.querySelector('input[type="file"]');
@@ -188,6 +194,39 @@ const CreateDestination = () => {
               className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-3 text-sm
                 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-8">
+            {/* BEST TIME */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Best Time to Visit
+              </label>
+              <input
+                type="text"
+                name="best_time"
+                value={data.best_time}
+                onChange={handleChange}
+                placeholder="e.g. Oct - March"
+                className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-3 text-sm
+                  text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            {/* IDEAL DURATION */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Ideal Duration
+              </label>
+              <input
+                type="text"
+                name="ideal_duration"
+                value={data.ideal_duration}
+                onChange={handleChange}
+                placeholder="e.g. 5-7 Days"
+                className="w-full rounded-lg bg-slate-900 border border-slate-700 px-4 py-3 text-sm
+                  text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
           </div>
 
           {/* CATEGORIES */}

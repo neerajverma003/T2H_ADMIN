@@ -216,46 +216,82 @@ const CreateItineriesPage = () => {
             const uploadedImageKeys = [];
             for (const file of (formData.destination_images_files || [])) {
                 if (!file) continue;
-                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                    fileName: file.name,
-                    fileType: file.type,
-                    folder: `${itineraryFolder}/images`
-                });
-                const { uploadUrl, key } = presignedRes.data;
-                await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-                uploadedImageKeys.push(key);
+                try {
+                    const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                        fileName: file.name,
+                        fileType: file.type,
+                        folder: `${itineraryFolder}/images`
+                    });
+                    const { uploadUrl, key } = presignedRes.data;
+                    await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+                    uploadedImageKeys.push(key);
+                } catch (err) {
+                    console.error("Skipping image upload due to S3 error:", err);
+                }
             }
 
             // 2. Upload Thumbnails to S3
             const uploadedThumbnailKeys = [];
             for (const file of (formData.destination_thumbnails_files || [])) {
                 if (!file) continue;
-                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                    fileName: file.name,
-                    fileType: file.type,
-                    folder: `${itineraryFolder}/thumbnails`
-                });
-                const { uploadUrl, key } = presignedRes.data;
-                await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-                uploadedThumbnailKeys.push(key);
+                try {
+                    const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                        fileName: file.name,
+                        fileType: file.type,
+                        folder: `${itineraryFolder}/thumbnails`
+                    });
+                    const { uploadUrl, key } = presignedRes.data;
+                    await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+                    uploadedThumbnailKeys.push(key);
+                } catch (err) {
+                    console.error("Skipping thumbnail upload due to S3 error:", err);
+                }
             }
 
             // 3. Upload Video to S3
             let uploadedVideoKey = null;
             if (formData.video instanceof File) {
-                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                    fileName: formData.video.name,
-                    fileType: formData.video.type,
-                    folder: `${itineraryFolder}/videos`
-                });
-                const { uploadUrl, key } = presignedRes.data;
-                await fetch(uploadUrl, { method: "PUT", body: formData.video, headers: { "Content-Type": formData.video.type } });
-                uploadedVideoKey = key;
+                try {
+                    const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                        fileName: formData.video.name,
+                        fileType: formData.video.type,
+                        folder: `${itineraryFolder}/videos`
+                    });
+                    const { uploadUrl, key } = presignedRes.data;
+                    await fetch(uploadUrl, { method: "PUT", body: formData.video, headers: { "Content-Type": formData.video.type } });
+                    uploadedVideoKey = key;
+                } catch (err) {
+                    console.error("Skipping video upload due to S3 error:", err);
+                }
             }
 
-            // 4. Prepare JSON Payload
+            // 4. Upload Day Images to S3
+            const updatedDaysInfo = [];
+            for (let i = 0; i < formData.days_information.length; i++) {
+                const dayObj = { ...formData.days_information[i] };
+                if (dayObj.day_image_file) {
+                    try {
+                        const file = dayObj.day_image_file;
+                        const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                            fileName: file.name,
+                            fileType: file.type,
+                            folder: `${itineraryFolder}/days`
+                        });
+                        const { uploadUrl, key } = presignedRes.data;
+                        await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+                        dayObj.day_image = key;
+                    } catch (err) {
+                        console.error("Skipping day image upload due to S3 error:", err);
+                    }
+                }
+                delete dayObj.day_image_file;
+                updatedDaysInfo.push(dayObj);
+            }
+
+            // 5. Prepare JSON Payload
             const payload = {
                 ...formData,
+                days_information: updatedDaysInfo,
                 destination_images: [
                     ...formData.destination_images.filter(img => typeof img === 'string' && img.startsWith('http')),
                     ...uploadedImageKeys
@@ -314,6 +350,8 @@ const CreateItineriesPage = () => {
                 day: `${i + 1}`,
                 locationName: prev.days_information[i]?.locationName || "",
                 locationDetail: prev.days_information[i]?.locationDetail || "",
+                day_image: prev.days_information[i]?.day_image || "",
+                day_image_file: null,
             }));
 
             return { ...prev, days_information: updated };
