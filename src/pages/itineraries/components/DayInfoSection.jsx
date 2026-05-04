@@ -127,16 +127,29 @@ const DayInfoSection = ({
                             }}
                             className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 dark:text-slate-300 dark:file:bg-gray-700 dark:file:text-pink-400"
                         />
-                        {/* Show existing image if it's a string (edit mode) */}
-                        {item.day_image && typeof item.day_image === 'string' && item.day_image.startsWith('http') && (
+                        {/* Show selected file preview */}
+                        {item.day_image_file && (
+                            <div className="mt-2 relative inline-block">
+                                <img 
+                                    src={URL.createObjectURL(item.day_image_file)} 
+                                    alt="Preview" 
+                                    className="h-20 w-32 object-cover rounded-md shadow-sm border-2 border-blue-400" 
+                                />
+                                <span className="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded shadow">New</span>
+                            </div>
+                        )}
+
+                        {/* Show existing image if it's a string (edit mode) and NO new file is selected */}
+                        {!item.day_image_file && item.day_image && typeof item.day_image === 'string' && item.day_image.startsWith('http') && (
                             <div className="mt-2 relative inline-block">
                                 <img src={item.day_image} alt={`Day ${index + 1}`} className="h-20 w-32 object-cover rounded-md shadow-sm border border-gray-200" />
                                 <span className="absolute top-1 left-1 bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded shadow">Existing</span>
                             </div>
                         )}
+                        
                         {/* Show selected file name */}
                         {item.day_image_file && item.day_image_file.name && (
-                            <p className="mt-1 text-xs text-blue-500 font-medium">Selected: {item.day_image_file.name}</p>
+                            <p className="mt-1 text-xs text-blue-500 font-medium">Ready to upload: {item.day_image_file.name}</p>
                         )}
                     </div>
                 </div>
