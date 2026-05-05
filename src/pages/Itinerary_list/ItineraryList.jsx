@@ -3,133 +3,80 @@ import {
     MapPin,
     Calendar,
     Plus,
-    List,
     ArrowRight,
     Pencil,
     Trash2,
     Heart,
+    Search,
+    Filter,
+    Navigation,
+    Loader2,
+    Eye,
+    Sparkles
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 
-
-/* ===============================
-   Itinerary Card
-================================ */
 const ItineraryCard = ({ itinerary, onDelete }) => {
-    const {
-        title,
-        duration,
-        selected_destination,
-        destination_thumbnails,
-        itinerary_visibility,
-    } = itinerary;
-
+    const { title, duration, selected_destination, destination_thumbnails, itinerary_visibility } = itinerary;
     const navigate = useNavigate();
-    const destinationName =
-        selected_destination?.destination_name || "N/A";
-    const thumbnail =
-        destination_thumbnails?.[0] ||
-        itinerary.destination_images?.[0] ||
-        "https://via.placeholder.com/400x300";
-
-    const status =
-        itinerary_visibility === "public" ? "Published" : "Private";
+    const destinationName = selected_destination?.destination_name || "N/A";
+    const thumbnail = destination_thumbnails?.[0] || itinerary.destination_images?.[0] || "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800&auto=format&fit=crop";
+    const isPublic = itinerary_visibility === "public";
 
     return (
-        <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:border-gray-600 dark:bg-gray-800">
-            <div className="relative">
-                <div className="absolute right-3 top-3 z-10 flex gap-2">
-                    <button
-                        onClick={() =>
-                            navigate(
-                                `/itineraries/edit/${itinerary._id}`
-                            )
-                        }
-                        className="rounded-full bg-white/90 p-2 text-blue-600 hover:bg-white shadow-sm dark:bg-gray-700 dark:text-blue-400"
-                    >
-                        <Pencil size={16} />
-                    </button>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(itinerary._id);
-                        }}
-                        className="rounded-full bg-white/90 p-2 text-red-600 hover:bg-white shadow-sm dark:bg-gray-700 dark:text-red-400"
-                    >
-                        <Trash2 size={16} />
-                    </button>
+        <motion.div layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-500/10">
+            <div className="relative aspect-[4/3] overflow-hidden">
+                <img src={thumbnail} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                
+                <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
+                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md shadow-lg ${isPublic ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}`}>
+                        {isPublic ? 'Live' : 'Draft'}
+                    </div>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                        <button onClick={() => navigate(`/itineraries/edit/${itinerary._id}`)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white hover:text-indigo-600 shadow-xl transition-all border border-white/10">
+                            <Pencil size={18} />
+                        </button>
+                        <button onClick={() => onDelete(itinerary._id)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-red-500 shadow-xl transition-all border border-white/10">
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
                 </div>
 
-                <img
-                    src={thumbnail}
-                    alt={title}
-                    className="h-48 w-full object-cover transition-transform group-hover:scale-105"
-                />
+                <div className="absolute bottom-6 left-6 right-6">
+                    <p className="text-white/60 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                        <MapPin size={12} className="text-indigo-400" /> {destinationName}
+                    </p>
+                    <h3 className="text-white text-lg font-black leading-tight truncate">{title}</h3>
+                </div>
             </div>
 
-            <div className="p-4">
-                <h3 className="mb-2 truncate text-lg font-bold text-black dark:text-white">
-                    {title}
-                </h3>
-
-                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                    <p className="flex items-center">
-                        <MapPin size={14} className="mr-2 text-gray-500 dark:text-gray-400" />
-                        {destinationName}
-                    </p>
-                    <p className="flex items-center">
-                        <Calendar size={14} className="mr-2 text-gray-500 dark:text-gray-400" />
-                        {duration}
-                    </p>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-600">
-                    <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            status === "Published"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200"
-                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200"
-                        }`}
-                    >
-                        {status}
-                    </span>
-
-                    <button
-                        onClick={() =>
-                            navigate(
-                                `itinerary_details/${itinerary._id}`
-                            )
-                        }
-                        className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                        View Details
-                        <ArrowRight
-                            size={14}
-                            className="ml-1 transition-transform group-hover:translate-x-1"
-                        />
+            <div className="p-8 space-y-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
+                            <Calendar size={18} />
+                        </div>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{duration}</p>
+                    </div>
+                    <button onClick={() => navigate(`itinerary_details/${itinerary._id}`)} className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-indigo-600 transition-colors">
+                        <ArrowRight size={20} />
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
-
-/* ===============================
-   Honeymoon Itineraries List
-================================ */
 const ItinerariesListPage = () => {
     const navigate = useNavigate();
     const [itineraries, setItineraries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filters, setFilters] = useState({
-        type: "all",
-        status: "all",
-        destination: "all",
-    });
+    const [filters, setFilters] = useState({ type: "all", status: "all", destination: "all" });
 
     useEffect(() => {
         const fetchItineraries = async () => {
@@ -137,7 +84,7 @@ const ItinerariesListPage = () => {
                 const resp = await apiClient.get("/admin/itinerary");
                 setItineraries(resp.data?.data || []);
             } catch {
-                toast.error("Failed to load honeymoon itineraries.");
+                toast.error("Failed to load itineraries.");
             } finally {
                 setIsLoading(false);
             }
@@ -149,171 +96,100 @@ const ItinerariesListPage = () => {
         return itineraries
             .filter((it) => {
                 const q = searchQuery.toLowerCase();
-                return (
-                    it.title?.toLowerCase().includes(q) ||
-                    it.selected_destination?.destination_name
-                        ?.toLowerCase()
-                        .includes(q)
-                );
+                return it.title?.toLowerCase().includes(q) || it.selected_destination?.destination_name?.toLowerCase().includes(q);
             })
-            .filter((it) =>
-                filters.type === "all"
-                    ? true
-                    : it.itinerary_type === filters.type
-            )
-            .filter((it) =>
-                filters.status === "all"
-                    ? true
-                    : filters.status === "published"
-                    ? it.itinerary_visibility === "public"
-                    : it.itinerary_visibility === "private"
-            )
-            .filter((it) =>
-                filters.destination === "all"
-                    ? true
-                    : it.selected_destination?.destination_name
-                            ?.toLowerCase() ===
-                        filters.destination.toLowerCase()
-            );
+            .filter((it) => filters.type === "all" ? true : it.itinerary_type === filters.type)
+            .filter((it) => filters.status === "all" ? true : filters.status === "published" ? it.itinerary_visibility === "public" : it.itinerary_visibility === "private")
+            .filter((it) => filters.destination === "all" ? true : it.selected_destination?.destination_name?.toLowerCase() === filters.destination.toLowerCase());
     }, [searchQuery, filters, itineraries]);
 
     const handleDelete = async (id) => {
+        if (!window.confirm("Delete this itinerary permanently?")) return;
         try {
             await apiClient.delete(`/admin/itinerary/${id}`);
-            setItineraries((prev) =>
-                prev.filter((it) => it._id !== id)
-            );
-            toast.success("Honeymoon itinerary deleted 💔");
+            setItineraries((prev) => prev.filter((it) => it._id !== id));
+            toast.success("Itinerary removed");
         } catch {
-            toast.error("Failed to delete itinerary.");
+            toast.error("Failed to delete.");
         }
     };
 
-    const inputStyle =
-        "mt-4 block w-full rounded-md border border-gray-300 p-2 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white text-black";
+    const selectStyle = "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3.5 text-slate-900 dark:text-slate-100 text-xs font-bold uppercase tracking-widest focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all";
 
     return (
-        <div className="min-h-screen p-6 bg-gray-100 dark:bg-gray-900">
-            <div className="mx-auto max-w-7xl">
-                {/* Header */}
-                <div className="mb-8 flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+            {/* HEADER */}
+            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none"><Sparkles size={200} /></div>
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div>
-                        <h1 className="flex items-center text-3xl font-bold text-black dark:text-white">
-                            <Heart className="mr-2 h-8 w-8 text-red-500" />
-                            Honeymoon Itineraries
+                        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                            <Navigation className="text-indigo-600" size={36} /> ITINERARY HUB
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-300">
-                            Manage romantic travel experiences
-                        </p>
+                        <p className="text-slate-500 font-medium mt-2 text-lg">Orchestrating unforgettable honeymoon experiences</p>
                     </div>
-
-                    <button
-                        onClick={() => navigate("/itineraries/create")}
-                        className="flex items-center rounded-lg bg-blue-600 px-5 py-2.5 text-white shadow hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    >
-                        <Plus size={16} className="mr-1" />
-                        Create New
+                    <button onClick={() => navigate("/itineraries/create")} className="flex items-center gap-3 bg-indigo-600 text-white px-8 py-5 rounded-[2rem] font-black shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all transform hover:scale-105 active:scale-95">
+                        <Plus size={20} /> CRAFT NEW EXPERIENCE
                     </button>
                 </div>
+            </div>
 
-                {/* Filters */}
-                <div className="mb-8 rounded-xl bg-white p-6 shadow dark:bg-gray-800">
+            {/* CONTROLS */}
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-6">
+                <div className="relative flex-1">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                         type="search"
-                        placeholder="Search honeymoon trips..."
+                        placeholder="Search experiences, destinations..."
                         value={searchQuery}
-                        onChange={(e) =>
-                            setSearchQuery(e.target.value)
-                        }
-                        className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white md:mb-0 md:w-1/3"
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 pl-14 pr-6 py-4 text-slate-900 dark:text-slate-100 font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
                     />
-
-                    <div className="flex flex-wrap gap-4 mt-4">
-                        <select
-                            name="type"
-                            value={filters.type}
-                            onChange={(e) =>
-                                setFilters((p) => ({
-                                    ...p,
-                                    type: e.target.value,
-                                }))
-                            }
-                            className={inputStyle}
-                        >
-                            <option value="all">All Types</option>
-                            <option value="flexible">Flexible</option>
-                            <option value="fixed">Fixed</option>
-                        </select>
-
-                        <select
-                            name="status"
-                            value={filters.status}
-                            onChange={(e) =>
-                                setFilters((p) => ({
-                                    ...p,
-                                    status: e.target.value,
-                                }))
-                            }
-                            className={inputStyle}
-                        >
-                            <option value="all">All Status</option>
-                            <option value="published">Published</option>
-                            <option value="private">Private</option>
-                        </select>
-
-                        <select
-                            name="destination"
-                            value={filters.destination}
-                            onChange={(e) =>
-                                setFilters((p) => ({
-                                    ...p,
-                                    destination: e.target.value,
-                                }))
-                            }
-                            className={inputStyle}
-                        >
-                            <option value="all">All Destinations</option>
-                            {Array.from(
-                                new Set(
-                                    itineraries.map(
-                                        (it) =>
-                                            it.selected_destination
-                                                ?.destination_name
-                                    )
-                                )
-                            )
-                                .filter(Boolean)
-                                .map((d) => (
-                                    <option key={d} value={d.toLowerCase()}>
-                                        {d}
-                                    </option>
-                                ))}
-                        </select>
-                    </div>
                 </div>
-
-                {/* Grid */}
-                {isLoading ? (
-                    <p className="text-center text-gray-600 dark:text-gray-300">
-                        Loading honeymoon itineraries…
-                    </p>
-                ) : filteredItineraries.length === 0 ? (
-                    <p className="text-center text-gray-500 dark:text-gray-400">
-                        No honeymoon itineraries found 💔
-                    </p>
-                ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {filteredItineraries.map((it) => (
-                            <ItineraryCard
-                                key={it._id}
-                                itinerary={it}
-                                onDelete={handleDelete}
-                            />
-                        ))}
+                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
+                        <Filter size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Filters</span>
                     </div>
-                )}
+                    <select value={filters.type} onChange={(e) => setFilters(p => ({ ...p, type: e.target.value }))} className={selectStyle}>
+                        <option value="all">Types</option>
+                        <option value="flexible">Flexible</option>
+                        <option value="fixed">Fixed</option>
+                    </select>
+                    <select value={filters.status} onChange={(e) => setFilters(p => ({ ...p, status: e.target.value }))} className={selectStyle}>
+                        <option value="all">Status</option>
+                        <option value="published">Live</option>
+                        <option value="private">Draft</option>
+                    </select>
+                    <select value={filters.destination} onChange={(e) => setFilters(p => ({ ...p, destination: e.target.value }))} className={selectStyle}>
+                        <option value="all">Destinations</option>
+                        {Array.from(new Set(itineraries.map(it => it.selected_destination?.destination_name))).filter(Boolean).map(d => (
+                            <option key={d} value={d}>{d}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
-        </div>
+
+            {/* GRID */}
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-40 gap-4">
+                    <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Synchronizing Itineraries</p>
+                </div>
+            ) : filteredItineraries.length === 0 ? (
+                <div className="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 border-dashed">
+                    <Heart className="mx-auto mb-4 text-slate-200 dark:text-slate-800" size={64} strokeWidth={1} />
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No matching honeymoon experiences found</p>
+                </div>
+            ) : (
+                <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <AnimatePresence mode='popLayout'>
+                        {filteredItineraries.map((it) => (
+                            <ItineraryCard key={it._id} itinerary={it} onDelete={handleDelete} />
+                        ))}
+                    </AnimatePresence>
+                </div>
+            )}
+        </motion.div>
     );
 };
 

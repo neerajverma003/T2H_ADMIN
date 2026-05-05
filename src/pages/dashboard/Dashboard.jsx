@@ -1,147 +1,3 @@
-
-// import {
-//   Heart,
-//   Users,
-//   MapPin,
-//   DollarSign,
-//   TrendingUp,
-//   Star,
-// } from "lucide-react"
-// import { ReactNode } from "react" // can be removed if not needed
-
-// export default function Dashboard() {
-//   const bookings = [
-//     { name: "John & Emma", place: "Maldives", price: "$4,500" },
-//     { name: "Raj & Priya", place: "Bali", price: "$3,200" },
-//     { name: "Alex & Sara", place: "Paris", price: "$5,100" },
-//   ]
-
-//   const packages = [
-//     { d: "Maldives", p: "$5,200", t: "5 Nights", r: "4.9" },
-//     { d: "Bali", p: "$3,800", t: "6 Nights", r: "4.8" },
-//     { d: "Paris", p: "$6,000", t: "4 Nights", r: "4.7" },
-//   ]
-
-//   return (
-//     <div className="flex flex-col gap-6 p-4 md:p-6">
-
-//       {/* TITLE */}
-//       <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-//         Honeymoon Dashboard 💍
-//       </h1>
-
-//       {/* STATS */}
-//       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-//         <StatCard icon={<Heart size={26} />} title="Happy Couples" value="1,245" percent="18%" />
-//         <StatCard icon={<Users size={26} />} title="Total Bookings" value="860" percent="12%" />
-//         <StatCard icon={<MapPin size={26} />} title="Destinations" value="48" percent="6%" />
-//         <StatCard icon={<DollarSign size={26} />} title="Revenue" value="$124,000" percent="22%" />
-//       </div>
-
-//       {/* MAIN GRID */}
-//       <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
-
-//         {/* OVERVIEW */}
-//         <div className="card col-span-1 lg:col-span-4">
-//           <div className="card-header">
-//             <p className="card-title">Overview</p>
-//           </div>
-//           <div className="card-body">
-//             <p className="text-slate-600 dark:text-slate-400">
-//               This month shows a strong increase in honeymoon bookings with top
-//               destinations being Maldives, Bali, and Paris.
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* RECENT BOOKINGS */}
-//         <div className="card col-span-1 lg:col-span-3">
-//           <div className="card-header">
-//             <p className="card-title">Recent Bookings</p>
-//           </div>
-//           <div className="card-body space-y-4">
-//             {bookings.map((b, i) => (
-//               <div key={i} className="flex items-center justify-between">
-//                 <div>
-//                   <p className="font-medium text-slate-900 dark:text-slate-50">
-//                     {b.name}
-//                   </p>
-//                   <p className="text-sm text-slate-500">{b.place}</p>
-//                 </div>
-//                 <p className="font-medium text-slate-900 dark:text-slate-50">
-//                   {b.price}
-//                 </p>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* TOP PACKAGES */}
-//       <div className="card">
-//         <div className="card-header">
-//           <p className="card-title">Top Honeymoon Packages</p>
-//         </div>
-//         <div className="card-body overflow-auto p-0">
-//           <table className="w-full text-sm">
-//             <thead className="bg-slate-100 dark:bg-slate-800">
-//               <tr>
-//                 <th className="p-3 text-left">Destination</th>
-//                 <th className="p-3 text-left">Price</th>
-//                 <th className="p-3 text-left">Duration</th>
-//                 <th className="p-3 text-left">Rating</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {packages.map((p, i) => (
-//                 <tr key={i} className="border-t dark:border-slate-700">
-//                   <td className="p-3">{p.d}</td>
-//                   <td className="p-3">{p.p}</td>
-//                   <td className="p-3">{p.t}</td>
-//                   <td className="p-3 flex items-center gap-2">
-//                     <Star
-//                       size={16}
-//                       className="fill-yellow-500 stroke-yellow-500"
-//                     />
-//                     {p.r}
-//                   </td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-
-//     </div>
-//   )
-// }
-
-// /* =========================
-//    STAT CARD COMPONENT
-// ========================= */
-
-// function StatCard({ icon, title, value, percent }) {
-//   return (
-//     <div className="rounded-xl bg-white p-5 shadow transition-colors dark:bg-slate-900">
-//       <div className="flex items-center justify-between">
-//         <div className="rounded-lg bg-pink-500/20 p-2 text-pink-500">
-//           {icon}
-//         </div>
-//         <span className="flex items-center gap-1 text-green-500 text-sm">
-//           <TrendingUp size={16} /> {percent}
-//         </span>
-//       </div>
-
-//       <p className="mt-4 text-sm text-slate-500">{title}</p>
-//       <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-//         {value}
-//       </p>
-//     </div>
-//   )
-// }
-
-
-
 import {
   Heart,
   Users,
@@ -149,148 +5,255 @@ import {
   DollarSign,
   TrendingUp,
   Star,
+  Calendar,
+  ArrowRight,
+  TrendingDown,
+  Activity,
+  Zap,
+  MousePointer2,
+  Package,
+  CheckCircle2,
+  Clock
 } from "lucide-react"
-import { ReactNode } from "react"
+import { motion } from "framer-motion"
 
-export default function Dashboard() {
+const Dashboard = () => {
   const bookings = [
-    { name: "John & Emma", place: "Maldives", price: "$4,500" },
-    { name: "Raj & Priya", place: "Bali", price: "$3,200" },
-    { name: "Alex & Sara", place: "Paris", price: "$5,100" },
+    { name: "John & Emma", place: "Maldives", price: "$4,500", date: "2 mins ago" },
+    { name: "Raj & Priya", place: "Bali", price: "$3,200", date: "15 mins ago" },
+    { name: "Alex & Sara", place: "Paris", price: "$5,100", date: "1 hour ago" },
   ]
 
   const packages = [
-    { d: "Maldives", p: "$5,200", t: "5 Nights", r: "4.9" },
-    { d: "Bali", p: "$3,800", t: "6 Nights", r: "4.8" },
-    { d: "Paris", p: "$6,000", t: "4 Nights", r: "4.7" },
+    { d: "Maldives", p: "$5,200", t: "5 Nights", r: "4.9", status: "Hot" },
+    { d: "Bali", p: "$3,800", t: "6 Nights", r: "4.8", status: "Steady" },
+    { d: "Paris", p: "$6,000", t: "4 Nights", r: "4.7", status: "Hot" },
   ]
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  }
+
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-
-      {/* TITLE */}
-      <h1 className="text-3xl font-extrabold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-        Honeymoon Dashboard 💍
-      </h1>
-
-      {/* STATS */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={<Heart size={26} />} title="Happy Couples" value="1,245" percent="18%" />
-        <StatCard icon={<Users size={26} />} title="Total Bookings" value="860" percent="12%" />
-        <StatCard icon={<MapPin size={26} />} title="Destinations" value="48" percent="6%" />
-        <StatCard icon={<DollarSign size={26} />} title="Revenue" value="$124,000" percent="22%" />
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-12 pb-20"
+    >
+      {/* 4 STAT CARDS - MATERIAL STYLE */}
+      <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 pt-4">
+        <MaterialStatCard 
+          icon={<DollarSign size={20} />} 
+          title="Today's Money" 
+          value="$53k" 
+          trend="+55%" 
+          trendText="than last week"
+          isPositive={true}
+          color="bg-slate-800"
+        />
+        <MaterialStatCard 
+          icon={<Users size={20} />} 
+          title="Today's Users" 
+          value="2,300" 
+          trend="+3%" 
+          trendText="than last month"
+          isPositive={true}
+          color="bg-indigo-600"
+        />
+        <MaterialStatCard 
+          icon={<Activity size={20} />} 
+          title="Ads Views" 
+          value="3,462" 
+          trend="-2%" 
+          trendText="than yesterday"
+          isPositive={false}
+          color="bg-emerald-500"
+        />
+        <MaterialStatCard 
+          icon={<Package size={20} />} 
+          title="Sales" 
+          value="$103,430" 
+          trend="+5%" 
+          trendText="than yesterday"
+          isPositive={true}
+          color="bg-rose-500"
+        />
       </div>
 
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
-
-        {/* OVERVIEW */}
-        <div className="col-span-1 lg:col-span-4 rounded-2xl backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 shadow-lg border border-white/40 dark:border-slate-700">
-          <div className="p-5 border-b border-slate-200 dark:border-slate-700">
-            <p className="font-semibold text-lg text-slate-800 dark:text-slate-100">
-              Overview
-            </p>
-          </div>
-          <div className="p-5">
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-              This month shows a strong increase in honeymoon bookings with top
-              destinations being Maldives, Bali, and Paris.
-            </p>
-          </div>
-        </div>
-
-        {/* RECENT BOOKINGS */}
-        <div className="col-span-1 lg:col-span-3 rounded-2xl backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 shadow-lg border border-white/40 dark:border-slate-700">
-          <div className="p-5 border-b border-slate-200 dark:border-slate-700">
-            <p className="font-semibold text-lg text-slate-800 dark:text-slate-100">
-              Recent Bookings
-            </p>
-          </div>
-          <div className="p-5 space-y-4">
-            {bookings.map((b, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-pink-50 dark:hover:bg-slate-800 transition"
-              >
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-slate-50">
-                    {b.name}
-                  </p>
-                  <p className="text-sm text-pink-500">{b.place}</p>
-                </div>
-                <p className="font-semibold text-slate-900 dark:text-slate-50">
-                  {b.price}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* 3 CHARTS LAYOUT */}
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <ChartCard 
+            title="Website Views" 
+            subtitle="Last Campaign Performance" 
+            footer="campaign sent 2 days ago"
+            color="bg-emerald-500"
+            icon={<MousePointer2 size={16} />}
+        />
+        <ChartCard 
+            title="Daily Sales" 
+            subtitle="(+15%) increase in today sales" 
+            footer="updated 4 min ago"
+            color="bg-indigo-600"
+            icon={<TrendingUp size={16} />}
+        />
+        <ChartCard 
+            title="Completed Tasks" 
+            subtitle="Last Campaign Performance" 
+            footer="just updated"
+            color="bg-slate-800"
+            icon={<CheckCircle2 size={16} />}
+        />
       </div>
 
-      {/* TOP PACKAGES */}
-      <div className="rounded-2xl backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 shadow-lg border border-white/40 dark:border-slate-700">
-        <div className="p-5 border-b border-slate-200 dark:border-slate-700">
-          <p className="font-semibold text-lg text-slate-800 dark:text-slate-100">
-            Top Honeymoon Packages
-          </p>
-        </div>
-        <div className="overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-slate-800 dark:to-slate-700">
-              <tr>
-                <th className="p-4 text-left font-semibold">Destination</th>
-                <th className="p-4 text-left font-semibold">Price</th>
-                <th className="p-4 text-left font-semibold">Duration</th>
-                <th className="p-4 text-left font-semibold">Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packages.map((p, i) => (
-                <tr
-                  key={i}
-                  className="border-t dark:border-slate-700 hover:bg-pink-50 dark:hover:bg-slate-800 transition"
-                >
-                  <td className="p-4 font-medium">{p.d}</td>
-                  <td className="p-4 text-purple-600 dark:text-purple-400 font-semibold">{p.p}</td>
-                  <td className="p-4">{p.t}</td>
-                  <td className="p-4 flex items-center gap-2 font-medium">
-                    <Star
-                      size={16}
-                      className="fill-yellow-400 stroke-yellow-400"
-                    />
-                    {p.r}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {/* PROJECTS / PACKAGES */}
+        <motion.div variants={item} className="col-span-1 lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+           <div className="mb-8">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Active Packages</h3>
+              <p className="text-sm text-slate-500 font-medium mt-1 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-indigo-600" /> <span className="font-bold text-indigo-600">30 done</span> this month
+              </p>
+           </div>
+           
+           <div className="overflow-x-auto">
+             <table className="w-full">
+               <thead>
+                 <tr className="border-b border-slate-50 dark:border-slate-800">
+                   <th className="px-4 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Destination</th>
+                   <th className="px-4 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</th>
+                   <th className="px-4 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Completion</th>
+                 </tr>
+               </thead>
+               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                 {packages.map((p, i) => (
+                   <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                     <td className="px-4 py-6">
+                        <div className="flex items-center gap-3">
+                           <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">{p.d.charAt(0)}</div>
+                           <span className="font-bold text-slate-900 dark:text-white text-sm">{p.d}</span>
+                        </div>
+                     </td>
+                     <td className="px-4 py-6 text-sm font-bold text-slate-600 dark:text-slate-400">{p.p}</td>
+                     <td className="px-4 py-6">
+                        <div className="w-32">
+                           <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-[10px] font-black text-indigo-600 uppercase">60%</span>
+                           </div>
+                           <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                              <div className="h-full bg-indigo-600 rounded-full" style={{ width: '60%' }}></div>
+                           </div>
+                        </div>
+                     </td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+           </div>
+        </motion.div>
 
-    </div>
+        {/* ORDERS OVERVIEW */}
+        <motion.div variants={item} className="col-span-1 lg:col-span-4 bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Orders overview</h3>
+           <p className="text-sm text-slate-500 font-medium mb-8 flex items-center gap-2">
+              <TrendingUp size={16} className="text-emerald-500" /> <span className="font-bold text-emerald-500">24% this month</span>
+           </p>
+
+           <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-800">
+              <TimelineItem 
+                icon={<Bell size={14} className="text-emerald-500" />} 
+                title="$2400, Design changes" 
+                date="22 DEC 7:20 PM" 
+              />
+              <TimelineItem 
+                icon={<Zap size={14} className="text-rose-500" />} 
+                title="New order #1832412" 
+                date="21 DEC 11 PM" 
+              />
+              <TimelineItem 
+                icon={<DollarSign size={14} className="text-indigo-500" />} 
+                title="Server payments for April" 
+                date="21 DEC 9:34 PM" 
+              />
+              <TimelineItem 
+                icon={<Heart size={14} className="text-amber-500" />} 
+                title="New card added for order #4395133" 
+                date="20 DEC 2:20 AM" 
+              />
+           </div>
+        </motion.div>
+      </div>
+    </motion.div>
   )
 }
 
-/* =========================
-   STAT CARD COMPONENT
-========================= */
-
-function StatCard({ icon, title, value, percent }) {
-  return (
-    <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-5 shadow-lg border border-white/40 dark:border-slate-700 hover:shadow-xl transition duration-300">
-      <div className="flex items-center justify-between">
-        <div className="rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 p-3 text-white shadow-md">
-          {icon}
-        </div>
-        <span className="flex items-center gap-1 text-green-500 text-sm font-semibold">
-          <TrendingUp size={16} /> {percent}
-        </span>
-      </div>
-
-      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{title}</p>
-      <p className="text-2xl font-bold text-slate-900 dark:text-white">
-        {value}
+const MaterialStatCard = ({ icon, title, value, trend, trendText, isPositive, color }) => (
+  <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-50 dark:border-slate-800">
+    <div className={`absolute -top-6 left-6 size-14 ${color} rounded-xl flex items-center justify-center text-white shadow-xl shadow-black/20`}>
+      {icon}
+    </div>
+    <div className="text-right">
+      <p className="text-base font-bold text-slate-400 uppercase tracking-widest">{title}</p>
+      <h4 className="text-4xl font-black text-slate-900 dark:text-white mt-2">{value}</h4>
+    </div>
+    <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800">
+      <p className="text-base">
+        <span className={`font-black ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>{trend}</span>
+        <span className="text-slate-400 font-medium ml-2">{trendText}</span>
       </p>
     </div>
-  )
-}
+  </div>
+)
+
+const ChartCard = ({ title, subtitle, footer, color, icon }) => (
+  <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+    <div className={`-mt-12 mb-8 h-56 rounded-2xl ${color} shadow-lg flex items-center justify-center p-8 relative overflow-hidden group`}>
+        {/* Stylized CSS Chart Placeholder */}
+        <div className="flex items-end gap-3 h-full w-full justify-around pt-8">
+            {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+                <motion.div 
+                    key={i} 
+                    initial={{ height: 0 }} 
+                    animate={{ height: `${h}%` }} 
+                    transition={{ delay: i * 0.1, duration: 1 }}
+                    className="w-full bg-white/20 rounded-t-lg group-hover:bg-white/40 transition-colors"
+                />
+            ))}
+        </div>
+        <div className="absolute top-4 right-4 text-white/20">
+            {icon}
+        </div>
+    </div>
+    <div className="px-2">
+        <h4 className="text-xl font-black text-slate-900 dark:text-white">{title}</h4>
+        <p className="text-sm font-medium text-slate-500 mt-2">{subtitle}</p>
+        <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center gap-2 text-slate-400">
+            <Clock size={14} />
+            <span className="text-xs font-bold uppercase tracking-widest">{footer}</span>
+        </div>
+    </div>
+  </div>
+)
+
+const TimelineItem = ({ icon, title, date }) => (
+  <div className="relative pl-10">
+    <div className="absolute left-0 top-1.5 size-6 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 flex items-center justify-center z-10">
+      {icon}
+    </div>
+    <p className="text-sm font-bold text-slate-900 dark:text-white leading-none mb-1">{title}</p>
+    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{date}</p>
+  </div>
+)
+
+const Bell = ({ size, className }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+
+export default Dashboard

@@ -9,16 +9,26 @@ import {
   Eye,
   Trash2,
   UploadCloud,
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  AlertCircle,
+  Monitor,
+  Smartphone,
+  MousePointer2,
+  Type,
+  FileText
 } from "lucide-react"
 import { toast } from "react-toastify"
 import { apiClient } from "../../stores/authStores"
 import { useHeroVideoStore } from "../../stores/heroVideoStore"
 import axios from "axios"
+import { motion, AnimatePresence } from "framer-motion"
 
 const HoneymoonHeroVideo = () => {
-  const [mediaFile, setMediaFile] = useState(null)      // File object
-  const [mediaType, setMediaType] = useState(null)       // 'image' | 'video'
-  const [previewUrl, setPreviewUrl] = useState(null)     // local object URL for preview
+  const [mediaFile, setMediaFile] = useState(null)
+  const [mediaType, setMediaType] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [visibility, setVisibility] = useState("public")
   const [activePage, setActivePage] = useState("home")
@@ -34,13 +44,11 @@ const HoneymoonHeroVideo = () => {
     fetchVideos(activePage)
   }, [activePage, fetchVideos])
 
-  // Sync local state with store when activePage changes or data is fetched
   useEffect(() => {
     setHeading(storeHeading || "")
     setSubHeading(storeSubHeading || "")
   }, [storeHeading, storeSubHeading, activePage])
 
-  // Clean up local object URL on unmount / file change
   useEffect(() => {
     return () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }
   }, [previewUrl])
@@ -56,7 +64,7 @@ const HoneymoonHeroVideo = () => {
     const isVideo = file.type.startsWith('video/')
 
     if (!isImage && !isVideo) {
-      toast.error("Please upload a valid image or video file.")
+      toast.error("Invalid format. Sync aborted.")
       return
     }
 
@@ -76,20 +84,17 @@ const HoneymoonHeroVideo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    const page = pageRef.current?.value
-    if (!page) return toast.error("Please select a destination page.")
+    const page = activePage
+    if (!page) return toast.error("Selection required")
 
-    // Check if we are updating text OR uploading a new file
     if (!mediaFile && (!heading || !subHeading)) {
-        return toast.error("Please provide either a new media file or updated text content.")
+        return toast.error("Content required for synchronization")
     }
 
     try {
       setIsUploading(true)
       let key = null
 
-      // 1. If a NEW file is selected, upload to S3
       if (mediaFile) {
         const heroFolder = `hero-section/${page.replace(/\s+/g, '_')}`
         const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
@@ -100,34 +105,27 @@ const HoneymoonHeroVideo = () => {
         const { uploadUrl, key: uploadedKey } = presignedRes.data
         key = uploadedKey
 
-        // 2. Upload directly to S3
         await axios.put(uploadUrl, mediaFile, {
           headers: { "Content-Type": mediaFile.type }
         })
       }
 
-      // 3. Send data to backend (key will be null if no new file)
       const payload = {
         title: page,
         visibility,
-        video_key: key,   // field name kept for API compat
+        video_key: key,
         heading,
         sub_heading: subHeading
       }
 
       const response = await apiClient.post("/admin/hero-section", payload)
       if (response.data.success) {
-        toast.success(response.data.msg || "Hero updated successfully! 💕")
+        toast.success("Hero synchronized successfully! 💕")
         handleRemoveMedia()
-        setVisibility("public")
         fetchVideos(page)
-        setActivePage(page)
-      } else {
-        toast.error(response.data.msg || "Update failed.")
       }
     } catch (err) {
-      console.error(err)
-      toast.error("Something went wrong while updating.")
+      toast.error("Synchronization failure")
     } finally {
       setIsUploading(false)
     }
@@ -136,270 +134,219 @@ const HoneymoonHeroVideo = () => {
   const handleDelete = (id) => deleteVideo(id, activePage)
   const handleVisibilityChange = (id) => updateVisibility(id, activePage)
 
-  const inputStyle =
-    "block w-full rounded-lg border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white shadow focus:border-pink-500 focus:ring-pink-500"
-  const labelStyle =
-    "block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1"
   const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
 
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-slate-950 p-6">
-      <div className="max-w-7xl mx-auto space-y-10">
-
-        {/* UPLOAD FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 space-y-8 border-2 border-slate-400 dark:border-slate-700"
-        >
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white border-b pb-3">
-              💍 Hero Media Manager
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Upload one image <strong>or</strong> one video per page. Uploading replaces the current media and text for that page.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+      {/* HEADER HUB */}
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><Monitor size={200} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
-              <label className={labelStyle}>
-                <LayoutTemplate size={16} className="inline mr-1" />
-                Select Page
-              </label>
-              <select 
-                ref={pageRef} 
-                value={activePage} 
-                onChange={(e) => setActivePage(e.target.value)} 
-                className={inputStyle}
-              >
-                {pageOptions.map((p) => (
-                  <option key={p} value={p} className="capitalize">{p}</option>
-                ))}
-              </select>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                    <Zap className="text-indigo-600" size={36} /> HERO REGISTRY
+                </h1>
+                <p className="text-slate-500 font-medium mt-2 text-lg italic">Cinematic visuals and strategic messaging for landing portals</p>
             </div>
-
-            <div>
-              <label className={labelStyle}>
-                <Eye size={16} className="inline mr-1" />
-                Visibility
-              </label>
-              <select
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
-                className={inputStyle}
-              >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-              </select>
-            </div>
-
-            {/* TEXT CONTENT INPUTS */}
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <div>
-                <label className={labelStyle}>Heading Text</label>
-                <input
-                  type="text"
-                  value={heading}
-                  onChange={(e) => setHeading(e.target.value)}
-                  placeholder="e.g. Majestic Ladakh"
-                  className={inputStyle}
-                />
-              </div>
-              <div>
-                <label className={labelStyle}>Sub-heading / Description</label>
-                <textarea
-                  value={subHeading}
-                  onChange={(e) => setSubHeading(e.target.value)}
-                  placeholder="Enter a brief description..."
-                  rows={2}
-                  className={inputStyle}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* MEDIA UPLOAD AREA */}
-          <div>
-            <label className={labelStyle}>
-              Hero Media (Image or Video)
-            </label>
-
-            {mediaFile ? (
-              <div className="relative rounded-xl border-2 border-slate-400 dark:border-slate-700 overflow-hidden bg-black shadow">
-                {/* Preview */}
-                {mediaType === 'video' ? (
-                  <video
-                    src={previewUrl}
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    className="w-full max-h-96 object-cover"
-                  />
-                ) : (
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="w-full max-h-96 object-cover"
-                  />
-                )}
-
-                {/* Type badge */}
-                <span className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full capitalize">
-                  {mediaType === 'video' ? <Video size={12} className="inline mr-1" /> : <ImageIcon size={12} className="inline mr-1" />}
-                  {mediaType}
-                </span>
-
-                {/* Replace / Remove buttons */}
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <label
-                    htmlFor="mediaUpload"
-                    className="bg-pink-600 hover:bg-pink-700 text-white rounded-full p-2 cursor-pointer"
-                    title="Replace"
-                  >
-                    <Replace size={18} />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleRemoveMedia}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-2"
-                    title="Remove"
-                  >
-                    <X size={18} />
-                  </button>
+            <div className="flex items-center gap-3">
+                <div className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-indigo-500/30">
+                    <Sparkles size={16} /> HIGH FIDELITY MEDIA
                 </div>
-              </div>
-            ) : (
-              <label
-                htmlFor="mediaUpload"
-                className="flex flex-col items-center justify-center gap-3 cursor-pointer rounded-xl border-2 border-dashed border-pink-400 bg-pink-50 dark:bg-slate-800 p-10 hover:bg-pink-100 dark:hover:bg-slate-700 transition"
-              >
-                <UploadCloud size={44} className="text-pink-500" />
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-200 text-center">
-                  Click to upload an Image or Video
-                </span>
-                <span className="text-xs text-slate-500">
-                  JPG, PNG, WebP, GIF • MP4, WebM, Ogg
-                </span>
-              </label>
-            )}
-
-            <input
-              id="mediaUpload"
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
-              className="hidden"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isUploading || (!mediaFile && !heading && !subHeading)}
-            className="w-full rounded-xl bg-pink-700 hover:bg-pink-800 text-white py-3 font-bold shadow-lg disabled:opacity-50"
-          >
-            {isUploading 
-              ? (mediaFile ? "Uploading Media..." : "Updating Text...") 
-              : (mediaFile ? `Upload ${mediaType} & Save Text` : "Update Text Content Only")}
-          </button>
-        </form>
-
-        {/* CURRENT MEDIA LIST */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 border-2 border-slate-400 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Current Hero Media</h2>
-
-          {/* Page tabs */}
-          <div className="flex flex-wrap gap-3 mb-6">
-            {pageOptions.map((page) => (
-              <button
-                key={page}
-                onClick={() => setActivePage(page)}
-                className={`px-4 py-2 rounded-lg font-semibold capitalize ${
-                  activePage === page
-                    ? "bg-pink-700 text-white shadow"
-                    : "bg-slate-300 dark:bg-slate-800 text-slate-800 dark:text-slate-300"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-
-          {isLoading ? (
-            <div className="flex justify-center py-10">
-              <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
             </div>
-          ) : videos?.length ? (
-            <div className="space-y-4">
-              {videos.map((v) => (
-                <div
-                  key={v._id}
-                  className="flex flex-col md:flex-row gap-4 p-4 border-2 border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800"
-                >
-                  {/* Render image or video based on media_type */}
-                  {v.media_type === 'image' ? (
-                    <img
-                      src={v.url}
-                      alt="Hero media"
-                      className="w-full md:w-1/3 rounded-lg object-cover max-h-48"
-                    />
-                  ) : (
-                    <video
-                      src={v.url}
-                      controls
-                      muted
-                      className="w-full md:w-1/3 rounded-lg bg-black max-h-48"
-                    />
-                  )}
-
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="capitalize text-lg font-bold text-slate-800 dark:text-white">
-                        {title}
-                      </span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        v.media_type === 'image'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-purple-100 text-purple-700'
-                      }`}>
-                        {v.media_type === 'image' ? '🖼 Image' : '🎬 Video'}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-500">ID: {v._id}</p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => handleVisibilityChange(v._id)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold ${
-                        v.visibility === "Public"
-                          ? "bg-green-600 text-white"
-                          : "bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-slate-300"
-                      }`}
-                    >
-                      {v.visibility}
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(v._id)}
-                      className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-slate-600 dark:text-slate-400 py-10">
-              No media set for <strong className="capitalize">{activePage}</strong> page yet.
-            </p>
-          )}
         </div>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* CONFIGURATION PANEL */}
+        <div className="lg:col-span-5 space-y-8">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-8">
+                <div className="space-y-6">
+                    <div>
+                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Target Portal</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {pageOptions.map((p) => (
+                                <button
+                                    key={p}
+                                    type="button"
+                                    onClick={() => setActivePage(p)}
+                                    className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        activePage === p 
+                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" 
+                                        : "bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600"
+                                    }`}
+                                >
+                                    {p}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <div>
+                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Visibility</label>
+                            <select
+                                value={visibility}
+                                onChange={(e) => setVisibility(e.target.value)}
+                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-600 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+                            >
+                                <option value="public">Public</option>
+                                <option value="private">Private Access</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <div>
+                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Heading Typography</label>
+                            <div className="relative group">
+                                <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
+                                <input
+                                    type="text"
+                                    value={heading}
+                                    onChange={(e) => setHeading(e.target.value)}
+                                    placeholder="Majestic Ladakh Experience"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Narrative Context</label>
+                            <div className="relative group">
+                                <FileText className="absolute left-4 top-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
+                                <textarea
+                                    value={subHeading}
+                                    onChange={(e) => setSubHeading(e.target.value)}
+                                    placeholder="Enter strategic brand narrative..."
+                                    rows={3}
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Media Acquisition</label>
+                        {mediaFile ? (
+                            <div className="relative group/media rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl shadow-black/20 aspect-video flex items-center justify-center">
+                                {mediaType === 'video' ? (
+                                    <video src={previewUrl} className="w-full h-full object-cover opacity-80" autoPlay muted loop />
+                                ) : (
+                                    <img src={previewUrl} className="w-full h-full object-cover opacity-80" alt="Preview" />
+                                )}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                    <label htmlFor="mediaUpload" className="p-4 bg-white text-indigo-600 rounded-2xl cursor-pointer hover:scale-110 transition-transform"><Replace size={20} /></label>
+                                    <button type="button" onClick={handleRemoveMedia} className="p-4 bg-rose-500 text-white rounded-2xl hover:scale-110 transition-transform"><X size={20} /></button>
+                                </div>
+                            </div>
+                        ) : (
+                            <label htmlFor="mediaUpload" className="flex flex-col items-center justify-center gap-4 cursor-pointer rounded-[2.5rem] border-2 border-dashed border-indigo-100 dark:border-indigo-900/30 bg-slate-50 dark:bg-slate-800/50 p-12 hover:border-indigo-300 transition-all group">
+                                <div className="size-16 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center text-indigo-600 shadow-lg group-hover:scale-110 transition-transform">
+                                    <UploadCloud size={32} />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">Acquire Media</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">JPG, PNG, MP4, WEBM</p>
+                                </div>
+                            </label>
+                        )}
+                        <input id="mediaUpload" type="file" accept="image/*,video/*" onChange={handleMediaChange} className="hidden" />
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={isUploading || (!mediaFile && !heading && !subHeading)}
+                    className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-30"
+                >
+                    {isUploading ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
+                    {isUploading ? "Synchronizing..." : "Update Hero Registry"}
+                </button>
+            </form>
+        </div>
+
+        {/* REGISTRY PREVIEW */}
+        <div className="lg:col-span-7 space-y-8">
+            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[600px]">
+                <div className="flex items-center justify-between mb-10">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <Monitor size={20} className="text-indigo-600" /> Active Media: <span className="text-indigo-600 capitalize">{activePage}</span>
+                    </h2>
+                </div>
+
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-40 gap-4">
+                        <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Syncing Active Registry</p>
+                    </div>
+                ) : videos?.length ? (
+                    <div className="space-y-8">
+                        {videos.map((v) => (
+                            <motion.div key={v._id} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-2xl">
+                                <div className="flex flex-col xl:flex-row h-full">
+                                    <div className="xl:w-1/2 aspect-video xl:aspect-auto bg-slate-900 relative">
+                                        {v.url ? (
+                                            v.media_type === 'image' ? (
+                                                <img src={v.url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Hero" />
+                                            ) : (
+                                                <video src={v.url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" controls muted />
+                                            )
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-slate-500 gap-2">
+                                                <AlertCircle size={32} />
+                                                <p className="text-[10px] font-black uppercase tracking-widest">Media Pending Sync</p>
+                                            </div>
+                                        )}
+                                        <div className="absolute top-6 left-6 flex gap-2">
+                                            <div className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2 shadow-lg">
+                                                {v.media_type === 'image' ? <ImageIcon size={14} /> : <Video size={14} />} {v.media_type}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="xl:w-1/2 p-8 flex flex-col justify-between">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Global Identity</p>
+                                                <button onClick={() => handleVisibilityChange(v._id)} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                                                    v.visibility === "Public" ? "bg-emerald-50 text-emerald-600" : "bg-slate-200 text-slate-500"
+                                                }`}>
+                                                    {v.visibility}
+                                                </button>
+                                            </div>
+                                            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">{v.heading || "No Heading"}</h3>
+                                            <p className="text-sm font-bold text-slate-500 italic leading-relaxed">"{v.sub_heading || "No narrative set."}"</p>
+                                        </div>
+
+                                        <div className="pt-8 mt-8 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                            <div className="flex items-center gap-2 text-slate-300">
+                                                <MousePointer2 size={14} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Portal Lead</span>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <button onClick={() => handleDelete(v._id)} className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                                    <Trash2 size={18} />
+                                                </button>
+                                                <button className="p-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                                    <ArrowUpRight size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="py-40 text-center bg-slate-50 dark:bg-slate-800/50 rounded-[3rem] border border-slate-100 dark:border-slate-800 border-dashed">
+                        <Zap className="mx-auto mb-4 text-slate-100" size={80} strokeWidth={1} />
+                        <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs">The media registry for {activePage} is empty</p>
+                    </div>
+                )}
+            </div>
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
 export default HoneymoonHeroVideo
-

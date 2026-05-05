@@ -4,18 +4,23 @@ import {
   PlusCircle,
   Edit,
   Loader2,
+  FileText,
+  Eye,
+  Type,
+  Layout
 } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "../../contexts/ThemeProvider"; // 👈 Fixed Import
 import { useParams, useNavigate } from "react-router-dom";
 import { useBlogStore } from "../../stores/blogStore";
 import { toast } from "react-toastify";
 import { ENV } from "../../constants/api";
+import { motion } from "framer-motion";
 
 const inputStyle =
-  "block w-full rounded-lg border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 p-3 text-slate-900 dark:text-slate-100 shadow-sm focus:border-pink-600 focus:ring-pink-600";
+  "block w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400";
 
 const labelStyle =
-  "block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1";
+  "flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2";
 
 const CreateBlog = () => {
   const { theme } = useTheme();
@@ -69,7 +74,6 @@ const CreateBlog = () => {
     try {
       let finalCoverImage = blogToEdit?.cover_image || null;
 
-      // 1. If a new image is selected, upload to S3 first
       if (coverImage) {
         const blogFolder = `blog/${title.replace(/\s+/g, '_')}`;
         const presignedRes = await fetch(`${ENV.API_BASE_URL}/admin/generate-presigned-url`, {
@@ -96,7 +100,6 @@ const CreateBlog = () => {
         finalCoverImage = key;
       }
 
-      // 2. Prepare JSON payload
       const payload = {
         title,
         content,
@@ -108,149 +111,135 @@ const CreateBlog = () => {
       if (isEditMode) {
         const res = await updateBlog(id, payload, navigate);
         if (res?.success) {
-          toast.success("💍 Story updated successfully!");
-        } else {
-          toast.error(res?.msg || "Failed to update story.");
+          toast.success("Story updated successfully!");
         }
       } else {
         const res = await createBlog(payload, navigate);
         if (res?.success) {
-          toast.success("✨ Story published successfully!");
-        } else {
-          toast.error(res?.msg || "Failed to publish story.");
+          toast.success("Story published successfully!");
         }
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong while saving the story");
+      toast.error("Failed to save the story");
     }
   };
 
   if (isFetchingDetails) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-10 h-10 animate-spin text-pink-600" />
-        <p className="ml-3 text-lg font-bold text-slate-800 dark:text-slate-200">
-          Loading Story...
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Retrieving Story Data...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-slate-950 p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-6xl mx-auto space-y-8 pb-12"
+    >
+      {/* HEADER SECTION */}
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+              {isEditMode ? <Edit className="text-indigo-600" /> : <PlusCircle className="text-indigo-600" />}
+              {isEditMode ? "EDIT STORY" : "WRITE A NEW STORY"}
+            </h1>
+            <p className="text-slate-500 font-medium mt-1">Share your honeymoon wisdom with the world</p>
+          </div>
+          <div className="flex items-center gap-3">
+             <button onClick={() => navigate('/blogs/list')} className="px-6 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition-all text-sm">Cancel</button>
+             <button onClick={handleSubmit} disabled={isLoading} className="bg-indigo-600 text-white px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all disabled:opacity-50 flex items-center gap-2">
+                {isLoading ? <Loader2 className="animate-spin" size={18} /> : (isEditMode ? <Edit size={18} /> : <PlusCircle size={18} />)}
+                {isEditMode ? "Save Changes" : "Publish Story"}
+             </button>
+          </div>
+        </div>
+      </div>
 
-        {/* HEADER */}
-        <div className="bg-white dark:bg-slate-900 border-2 border-slate-400 dark:border-slate-700 rounded-xl p-5 shadow">
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-            {isEditMode ? <Edit /> : <PlusCircle />}
-            {isEditMode ? "Edit Story" : "Create Story"}
-          </h1>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* MAIN CONTENT AREA */}
+        <div className="lg:col-span-8 space-y-8">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <label className={labelStyle}><Type size={14} /> Story Title</label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={`${inputStyle} text-xl font-bold h-16`}
+              placeholder="Give your story a catchy title..."
+              required
+            />
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <label className={labelStyle}><FileText size={14} /> Body Content</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className={`${inputStyle} min-h-[500px] leading-relaxed resize-none`}
+              placeholder="Tell your story here... (Rich text formatting supported)"
+              required
+            />
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* SIDEBAR OPTIONS */}
+        <div className="lg:col-span-4 space-y-8">
+          {/* COVER IMAGE */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <label className={labelStyle}><Layout size={14} /> Featured Image</label>
+            <label className="group relative block w-full h-56 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-500">
+              {imagePreview ? (
+                <>
+                  <img src={imagePreview} alt="preview" className="h-full w-full object-cover rounded-[1.4rem]" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                     <p className="text-white text-xs font-black uppercase tracking-widest">Change Image</p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                  <UploadCloud size={40} strokeWidth={1.5} />
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-widest">Drag & Drop Image</p>
+                </div>
+              )}
+              <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+            </label>
+          </div>
 
-          {/* DETAILS */}
-          <div className="bg-white dark:bg-slate-900 border-2 border-slate-400 dark:border-slate-700 rounded-xl p-6 shadow space-y-4">
+          {/* SETTINGS */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
             <div>
-              <label className={labelStyle}>Title</label>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={inputStyle}
-                placeholder="Enter story title"
-                required
-              />
-            </div>
-
-            <div>
-              <label className={labelStyle}>Category</label>
+              <label className={labelStyle}><Layout size={14} /> Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className={inputStyle}
               >
-                <option value="honeymoon">Honeymoon</option>
-                <option value="travel">Travel</option>
-                <option value="adventure">Adventure</option>
-                <option value="other">Other</option>
+                <option value="honeymoon">Honeymoon Hub</option>
+                <option value="travel">Travel Guides</option>
+                <option value="adventure">Adventures</option>
+                <option value="other">Other Stories</option>
               </select>
             </div>
 
             <div>
-              <label className={labelStyle}>Visibility</label>
+              <label className={labelStyle}><Eye size={14} /> Visibility</label>
               <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value)}
                 className={inputStyle}
               >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
+                <option value="public">Live on Site</option>
+                <option value="private">Draft Mode</option>
               </select>
             </div>
           </div>
-
-          {/* COVER IMAGE */}
-          <div className="bg-white dark:bg-slate-900 border-2 border-slate-400 dark:border-slate-700 rounded-xl p-6 shadow">
-            <label className={labelStyle}>Cover Image</label>
-            <label className="mt-2 flex items-center justify-center h-64 border-2 border-dashed border-slate-400 dark:border-slate-600 rounded-lg cursor-pointer bg-slate-100 dark:bg-slate-800">
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="preview"
-                  className="h-full w-full object-cover rounded-lg"
-                />
-              ) : (
-                <div className="text-center text-slate-700 dark:text-slate-300">
-                  <UploadCloud className="mx-auto" size={40} />
-                  <p className="mt-2 text-sm font-semibold">
-                    Upload cover image
-                  </p>
-                </div>
-              )}
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </label>
-          </div>
-
-          {/* CONTENT */}
-          <div className="bg-white dark:bg-slate-900 border-2 border-slate-400 dark:border-slate-700 rounded-xl p-6 shadow">
-            <label className={labelStyle}>Story Content</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className={`${inputStyle} min-h-[300px] bg-slate-50 dark:bg-slate-800 font-mono`}
-              placeholder="Write your story here... (Markdown supported)"
-              required
-            />
-          </div>
-
-          {/* SUBMIT */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="bg-pink-700 hover:bg-pink-800 disabled:bg-pink-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg"
-            >
-              {isLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : isEditMode ? (
-                <Edit />
-              ) : (
-                <PlusCircle />
-              )}
-              {isEditMode ? "Update Story" : "Publish"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </motion.div>
   );
 };
 

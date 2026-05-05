@@ -1,4 +1,4 @@
-import { FileText, Heart } from "lucide-react";
+import { FileText, Heart, ShieldCheck, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiClient } from "../../../stores/authStores";
 import { toast } from "react-toastify";
@@ -17,32 +17,14 @@ const TermsSection = ({ formData, handleInputChange, styles }) => {
 
         try {
             const res = await apiClient.get(`/admin/tnc/${callDestId}`);
-
-            if (
-                res?.data?.success &&
-                res?.data?.tnc &&
-                formData.selected_destination_id === callDestId
-            ) {
-                handleInputChange({
-                    target: {
-                        name: "terms_and_conditions",
-                        value: res.data.tnc.terms_And_condition || "",
-                    },
-                });
+            if (res?.data?.success && res?.data?.tnc && formData.selected_destination_id === callDestId) {
+                handleInputChange({ target: { name: "terms_and_conditions", value: res.data.tnc.terms_And_condition || "" } });
                 setLoadError("");
                 return;
             }
-
-            const msg = "No Terms & Conditions found for this destination.";
-            setLoadError(msg);
-            toast.info(msg);
+            setLoadError("No pre-defined Terms & Conditions found for this location.");
         } catch (err) {
-            const message =
-                err?.response?.data?.message ||
-                err.message ||
-                "Failed to load Terms & Conditions";
-            setLoadError(message);
-            toast.error(message);
+            setLoadError("Failed to auto-load Terms & Conditions");
         } finally {
             setLoading(false);
         }
@@ -50,49 +32,44 @@ const TermsSection = ({ formData, handleInputChange, styles }) => {
 
     useEffect(() => {
         fetchTerms(formData.selected_destination_id);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData.selected_destination_id]);
 
     return (
         <div className={cardStyle}>
-            <h2 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
-                <Heart className="text-pink-500" size={20} />
-                Honeymoon Terms & Conditions
-            </h2>
-
-            <label className={labelStyle}>
-                <FileText className="inline mr-2" size={16} />
-                Booking Terms
-            </label>
-
-            <textarea
-                name="terms_and_conditions"
-                rows={4}
-                value={formData.terms_and_conditions || ""}
-                onChange={handleInputChange}
-                className={inputStyle}
-                placeholder={
-                    loading
-                        ? "Loading honeymoon terms..."
-                        : "Terms & conditions for this honeymoon itinerary"
-                }
-                maxLength={50000}
-            />
-
-            {loadError && (
-                <div className="mt-2">
-                    <p className="text-red-500 text-sm">{loadError}</p>
-                    <button
-                        type="button"
-                        onClick={() =>
-                            fetchTerms(formData.selected_destination_id)
-                        }
-                        className="mt-2 inline-block rounded bg-pink-600 px-3 py-1 text-white text-sm"
-                    >
-                        Retry
-                    </button>
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="text-indigo-600" size={20} />
+                    TERMS & CONDITIONS
+                </h2>
+                <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+                   Legal Framework
                 </div>
-            )}
+            </div>
+
+            <div className="space-y-4">
+                <label className={labelStyle}>Booking & Travel Terms</label>
+
+                <textarea
+                    name="terms_and_conditions"
+                    value={formData.terms_and_conditions || ""}
+                    onChange={handleInputChange}
+                    className={`${inputStyle} min-h-[150px] leading-relaxed`}
+                    placeholder={loading ? "Synchronizing with destination database..." : "Enter the specific terms for this honeymoon package..."}
+                />
+
+                {loadError && (
+                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{loadError}</p>
+                        <button
+                            type="button"
+                            onClick={() => fetchTerms(formData.selected_destination_id)}
+                            className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors"
+                        >
+                            <RefreshCw size={12} /> Retry Fetch
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

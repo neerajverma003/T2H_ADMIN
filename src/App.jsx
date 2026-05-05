@@ -111,6 +111,8 @@ import HoneymoonPaymentMode from "./pages/payment-mode/page"
 import HoneymoonTermsAndCondition from "./pages/terms-and-conditions/page"
 import Reports from "./pages/reports/Reports"
 import Settings from "./pages/settings/Settings"
+import AuditLogs from "./pages/audit/AuditLogs"
+
 // Store
 // import useAuthStore from "./stores/authStores"
 
@@ -188,6 +190,7 @@ function App() {
 
             {/* Reports & Settings */}
             <Route path="reports" element={<Reports />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>

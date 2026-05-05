@@ -1,5 +1,19 @@
 import { useState, useEffect } from "react";
-import { FiSettings, FiSave, FiMail, FiPhone, FiMapPin, FiFacebook, FiInstagram, FiTwitter, FiLoader } from "react-icons/fi";
+import { 
+    FiSettings, 
+    FiSave, 
+    FiMail, 
+    FiPhone, 
+    FiMapPin, 
+    FiFacebook, 
+    FiInstagram, 
+    FiTwitter, 
+    FiLoader,
+    FiCheckCircle,
+    FiGlobe,
+    FiShield,
+    FiLink
+} from "react-icons/fi";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -43,182 +57,178 @@ const Settings = () => {
     setSaving(true);
     try {
       await apiClient.put("/admin/global-settings", formData);
-      toast.success("Settings updated successfully! ✨");
+      toast.success("Registry synchronized successfully! ✨");
     } catch (error) {
       console.error("Error saving settings:", error);
-      toast.error("Failed to update settings");
+      toast.error("Failed to update registry");
     } finally {
       setSaving(false);
     }
   };
 
+  const styleProps = {
+    inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 pl-12 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400",
+    labelStyle: "flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2",
+    cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
+  }
+
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <FiLoader className="h-10 w-10 animate-spin text-blue-600" />
+      <div className="flex flex-col items-center justify-center py-40 gap-4">
+        <FiLoader className="h-10 w-10 animate-spin text-indigo-600" />
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Portal Configuration</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-y-8 p-4 md:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
-          <FiSettings className="text-slate-700" /> Global Site Settings
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Manage your contact information and social media links across the entire platform.
-        </p>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto space-y-10 pb-20 px-4">
+      {/* HEADER */}
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><FiSettings size={200} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                    <FiShield className="text-indigo-600" /> PORTAL REGISTRY
+                </h1>
+                <p className="text-slate-500 font-medium mt-2 text-lg italic">Global configuration and brand connectivity</p>
+            </div>
+            <div className="px-6 py-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm">
+                <FiCheckCircle size={16} /> Verified Store
+            </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSave} className="max-w-4xl space-y-8">
-        {/* Contact Info Section */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        >
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-6 flex items-center gap-2">
-            <FiMail className="text-blue-500" /> Contact Information
-          </h2>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <form onSubmit={handleSave} className="space-y-10">
+        {/* CONTACT HUB */}
+        <div className={styleProps.cardStyle}>
+          <div className="flex items-center gap-3 mb-10">
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400"><FiGlobe size={24} /></div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Contact Synchronization</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Support Email
-              </label>
+              <label className={styleProps.labelStyle}>Support Email Address</label>
               <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
                   name="supportEmail"
                   value={formData.supportEmail}
                   onChange={handleChange}
-                  placeholder="info@example.com"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  placeholder="info@trip2honeymoon.com"
+                  className={styleProps.inputStyle}
                   required
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Support Phone
-              </label>
+              <label className={styleProps.labelStyle}>Official Support Line</label>
               <div className="relative">
-                <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   name="supportPhone"
                   value={formData.supportPhone}
                   onChange={handleChange}
                   placeholder="+91 0000 000 000"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  className={styleProps.inputStyle}
                   required
                 />
               </div>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Office Address
-              </label>
+              <label className={styleProps.labelStyle}>Corporate Headquarters</label>
               <div className="relative">
-                <FiMapPin className="absolute left-3 top-3 text-slate-400" />
+                <FiMapPin className="absolute left-4 top-5 text-slate-400" />
                 <textarea
                   name="officeAddress"
                   value={formData.officeAddress}
                   onChange={handleChange}
-                  placeholder="Enter full office address..."
+                  placeholder="Enter full physical address..."
                   rows="3"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  className={`${styleProps.inputStyle} h-32 pt-4 resize-none`}
                   required
                 />
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Social Links Section */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        >
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-6 flex items-center gap-2">
-            <FiFacebook className="text-blue-600" /> Social Media Links
-          </h2>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* SOCIAL CONNECTIVITY */}
+        <div className={styleProps.cardStyle}>
+          <div className="flex items-center gap-3 mb-10">
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400"><FiLink size={24} /></div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Social Graph</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Facebook URL
-              </label>
+              <label className={styleProps.labelStyle}>Facebook Profile</label>
               <div className="relative">
-                <FiFacebook className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiFacebook className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="url"
                   name="facebookUrl"
                   value={formData.facebookUrl}
                   onChange={handleChange}
-                  placeholder="https://facebook.com/your-page"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  placeholder="https://facebook.com/trip2honeymoon"
+                  className={styleProps.inputStyle}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Instagram URL
-              </label>
+              <label className={styleProps.labelStyle}>Instagram Profile</label>
               <div className="relative">
-                <FiInstagram className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiInstagram className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="url"
                   name="instagramUrl"
                   value={formData.instagramUrl}
                   onChange={handleChange}
-                  placeholder="https://instagram.com/your-handle"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  placeholder="https://instagram.com/trip2honeymoon"
+                  className={styleProps.inputStyle}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Twitter URL
-              </label>
+              <label className={styleProps.labelStyle}>Twitter Profile</label>
               <div className="relative">
-                <FiTwitter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FiTwitter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="url"
                   name="twitterUrl"
                   value={formData.twitterUrl}
                   onChange={handleChange}
-                  placeholder="https://twitter.com/your-handle"
-                  className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:text-slate-50"
+                  placeholder="https://twitter.com/trip2honeymoon"
+                  className={styleProps.inputStyle}
                 />
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* SUBMIT */}
+        <div className="flex justify-end pt-4">
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-3 rounded-[2rem] bg-indigo-600 px-12 py-5 text-lg font-black text-white shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 hover:shadow-indigo-500/60 transition-all active:scale-95 disabled:opacity-50"
           >
             {saving ? (
               <>
-                <FiLoader className="animate-spin" /> Saving Changes...
+                <FiLoader className="animate-spin" /> SYNCING...
               </>
             ) : (
               <>
-                <FiSave /> Save All Settings
+                <FiSave /> PUSH GLOBAL UPDATES
               </>
             )}
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

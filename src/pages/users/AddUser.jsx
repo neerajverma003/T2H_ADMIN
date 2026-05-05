@@ -1,221 +1,8 @@
-// import { useState, useEffect } from "react"
-// import { User, Lock, Loader2, Users, Trash2, HeartHandshake } from "lucide-react"
-// import useAuthStore from "../../stores/authStores"
-// import ConfirmationModel from "../../newComponents/ConfirmationModel"
-
-// const AddUser = () => {
-//   const {
-//     users,
-//     isLoadingUsers,
-//     isSubmitting,
-//     isDeleting,
-//     fetchUsers,
-//     addUser,
-//     deleteUser,
-//   } = useAuthStore()
-
-//   const [formData, setFormData] = useState({
-//     username: "",
-//     password: "",
-//   })
-
-//   const [isModalOpen, setIsModalOpen] = useState(false)
-//   const [userToDelete, setUserToDelete] = useState(null)
-
-//   useEffect(() => {
-//     fetchUsers()
-//   }, [fetchUsers])
-
-//   const handleChange = (e) => {
-//     setFormData((prev) => ({
-//       ...prev,
-//       [e.target.name]: e.target.value,
-//     }))
-//   }
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault()
-//     if (!formData.username || !formData.password) return
-//     await addUser(formData)
-//     setFormData({ username: "", password: "" })
-//   }
-
-//   const handleDeleteClick = (user) => {
-//     setUserToDelete(user)
-//     setIsModalOpen(true)
-//   }
-
-//   const handleCloseModal = () => {
-//     if (isDeleting) return
-//     setUserToDelete(null)
-//     setIsModalOpen(false)
-//   }
-
-//   const handleConfirmDelete = async () => {
-//     if (!userToDelete) return
-//     await deleteUser(userToDelete._id, userToDelete.username)
-//     handleCloseModal()
-//   }
-
-//   return (
-//     <>
-//       <div className="flex flex-col gap-y-8">
-
-//         {/* PAGE HEADER */}
-//         <div>
-//           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-//             💍 Admin Users
-//           </h1>
-//           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-//             Manage administrators for Trip to Honeymoon
-//           </p>
-//         </div>
-
-//         {/* ADD USER */}
-//         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-//           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
-//             Add New Admin User
-//           </h2>
-
-//           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-//             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-//               <div className="space-y-2">
-//                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-//                   Username
-//                 </label>
-//                 <div className="relative">
-//                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-//                   <input
-//                     type="text"
-//                     name="username"
-//                     value={formData.username}
-//                     onChange={handleChange}
-//                     placeholder="Enter admin username"
-//                     className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm
-//                       focus:ring-2 focus:ring-pink-500 focus:outline-none
-//                       dark:border-slate-700 dark:text-white"
-//                   />
-//                 </div>
-//               </div>
-
-//               <div className="space-y-2">
-//                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-//                   Password
-//                 </label>
-//                 <div className="relative">
-//                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-//                   <input
-//                     type="password"
-//                     name="password"
-//                     value={formData.password}
-//                     onChange={handleChange}
-//                     placeholder="Create secure password"
-//                     className="w-full rounded-lg border border-slate-300 bg-transparent py-2 pl-10 pr-3 text-sm
-//                       focus:ring-2 focus:ring-pink-500 focus:outline-none
-//                       dark:border-slate-700 dark:text-white"
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-
-//             <button
-//               type="submit"
-//               disabled={isSubmitting}
-//               className="inline-flex items-center gap-2 rounded-md bg-pink-600 px-4 py-2.5 text-sm font-semibold text-white
-//                 hover:bg-pink-700 transition disabled:opacity-50"
-//             >
-//               {isSubmitting ? (
-//                 <>
-//                   <Loader2 className="h-5 w-5 animate-spin" />
-//                   Adding...
-//                 </>
-//               ) : (
-//                 <>
-//                   <HeartHandshake size={18} />
-//                   Add Admin
-//                 </>
-//               )}
-//             </button>
-//           </form>
-//         </div>
-
-//         {/* USER LIST */}
-//         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-//           <div className="flex items-center gap-2">
-//             <Users className="h-6 w-6 text-slate-700 dark:text-slate-300" />
-//             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
-//               Admin Users
-//             </h2>
-//           </div>
-
-//           <div className="mt-6 overflow-x-auto">
-//             {isLoadingUsers ? (
-//               <div className="flex justify-center py-10">
-//                 <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-//               </div>
-//             ) : users?.length ? (
-//               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-//                 <thead>
-//                   <tr>
-//                     <th className="px-4 py-3 text-left text-sm font-semibold">
-//                       Username
-//                     </th>
-//                     <th className="px-4 py-3 text-right text-sm font-semibold">
-//                       Actions
-//                     </th>
-//                   </tr>
-//                 </thead>
-//                 <tbody>
-//                   {users?.map((user) => (
-//                     <tr key={user._id} className="border-t">
-//                       <td className="px-4 py-3 text-sm">{user.username}</td>
-//                       <td className="px-4 py-3 text-right">
-//                         <button
-//                           onClick={() => handleDeleteClick(user)}
-//                           className="text-red-600 hover:text-red-700"
-//                         >
-//                           <Trash2 size={18} />
-//                         </button>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             ) : (
-//               <p className="text-center py-10 text-slate-500">
-//                 No admin users found.
-//               </p>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* CONFIRMATION MODAL */}
-//       <ConfirmationModel
-//         isOpen={isModalOpen}
-//         onClose={handleCloseModal}
-//         onConfirm={handleConfirmDelete}
-//         isLoading={isDeleting}
-//         title="Delete Admin User"
-//       >
-//         <p className="text-sm">
-//           Are you sure you want to permanently delete{" "}
-//           <strong>{userToDelete?.username}</strong>?  
-//           This action cannot be undone.
-//         </p>
-//       </ConfirmationModel>
-//     </>
-//   )
-// }
-
-// export default AddUser
-
-
 import { useState, useEffect } from "react"
-import { User, Lock, Loader2, Users, Trash2, HeartHandshake } from "lucide-react"
+import { User, Lock, Loader2, Users, Trash2, UserPlus, ShieldCheck, Sparkles } from "lucide-react"
 import useAuthStore from "../../stores/authStores"
 import ConfirmationModel from "../../newComponents/ConfirmationModel"
+import { motion } from "framer-motion"
 
 const AddUser = () => {
   const {
@@ -250,8 +37,11 @@ const AddUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.username || !formData.password) return
-    await addUser(formData)
-    setFormData({ username: "", password: "" })
+    
+    const success = await addUser(formData)
+    if (success) {
+      setFormData({ username: "", password: "" })
+    }
   }
 
   const handleDeleteClick = (user) => {
@@ -272,160 +62,127 @@ const AddUser = () => {
   }
 
   return (
-    <>
-      <div className="flex flex-col gap-y-10">
-
-        {/* PAGE HEADER */}
-        <div>
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            💍 Admin Users
-          </h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Manage administrators for Trip to Honeymoon
-          </p>
-        </div>
-
-        {/* ADD USER */}
-        <div className="rounded-3xl border border-blue-200/60 dark:border-blue-800/50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 shadow-2xl">
-          <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300">
-            Add New Admin User
-          </h2>
-
-          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* Username */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                  Username
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-400" />
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="Enter admin username"
-                    className="w-full rounded-xl border border-blue-300/60 bg-white/80 dark:bg-slate-800 py-3 pl-10 pr-3 text-sm
-                      focus:ring-2 focus:ring-blue-400 focus:outline-none
-                      dark:border-blue-700 dark:text-white transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-400" />
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Create secure password"
-                    className="w-full rounded-xl border border-blue-300/60 bg-white/80 dark:bg-slate-800 py-3 pl-10 pr-3 text-sm
-                      focus:ring-2 focus:ring-blue-400 focus:outline-none
-                      dark:border-blue-700 dark:text-white transition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white
-                hover:opacity-90 shadow-lg transition-all duration-300 disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <HeartHandshake size={18} />
-                  Add Admin
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-
-        {/* USER LIST */}
-        <div className="rounded-3xl border border-blue-200/60 dark:border-blue-800/50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-8 shadow-2xl">
-          <div className="flex items-center gap-3">
-            <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300">
-              Admin Users
-            </h2>
-          </div>
-
-          <div className="mt-8 overflow-x-auto">
-            {isLoadingUsers ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              </div>
-            ) : users?.length ? (
-              <table className="min-w-full divide-y divide-blue-200/50 dark:divide-blue-800/40">
-                <thead>
-                  <tr className="text-blue-700 dark:text-blue-300">
-                    <th className="px-4 py-3 text-left text-sm font-semibold">
-                      Username
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users?.map((user) => (
-                    <tr
-                      key={user._id}
-                      className="border-t border-blue-200/40 dark:border-blue-800/40 hover:bg-blue-50/50 dark:hover:bg-slate-800 transition"
-                    >
-                      <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
-                        {user.username}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleDeleteClick(user)}
-                          className="text-red-500 hover:text-red-600 transition"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-center py-12 text-slate-500 dark:text-slate-400">
-                No admin users found.
-              </p>
-            )}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-6xl mx-auto space-y-8 pb-12"
+    >
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+              <ShieldCheck className="text-indigo-600" />
+              STAFF ACCOUNTS
+            </h1>
+            <p className="text-slate-500 font-medium mt-1">Manage administrators and system access</p>
           </div>
         </div>
       </div>
 
-      <ConfirmationModel
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmDelete}
-        isLoading={isDeleting}
-        title="Delete Admin User"
-      >
-        <p className="text-sm text-slate-700 dark:text-slate-300">
-          Are you sure you want to permanently delete{" "}
-          <strong>{userToDelete?.username}</strong>?  
-          This action cannot be undone.
-        </p>
+      {/* HORIZONTAL ADD FORM */}
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-8 flex items-center gap-2">
+          <UserPlus size={20} className="text-indigo-600" /> Quick Add Account
+        </h2>
+
+        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row items-end gap-6">
+          <div className="flex-1 w-full">
+            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Admin username"
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 w-full">
+            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="h-[60px] px-10 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 whitespace-nowrap lg:mb-0.5"
+          >
+            {isSubmitting ? <Loader2 className="animate-spin" size={24} /> : <UserPlus size={24} />}
+            {isSubmitting ? "Saving..." : "Create Account"}
+          </button>
+        </form>
+      </div>
+
+      {/* FULL WIDTH LIST */}
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[400px]">
+        <div className="flex items-center justify-between mb-10">
+          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-3">
+            <Users size={24} className="text-indigo-600" /> Active Staff Directory
+          </h2>
+          <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 text-xs font-black uppercase tracking-widest">
+            {users?.length || 0} Total Members
+          </div>
+        </div>
+
+        {isLoadingUsers ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
+            <p className="text-sm font-black text-slate-400 uppercase tracking-widest text-center">Syncing Database...</p>
+          </div>
+        ) : users?.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {users.map((user) => (
+              <div key={user._id} className="group flex items-center justify-between p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all hover:shadow-lg hover:shadow-indigo-500/5">
+                <div className="flex items-center gap-5">
+                  <div className="size-16 rounded-[1.25rem] bg-white dark:bg-slate-900 flex items-center justify-center text-indigo-600 font-black text-2xl shadow-sm group-hover:scale-110 transition-transform border border-slate-100 dark:border-slate-800">
+                    {(user.username || 'A').charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{user.username}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="size-2 rounded-full bg-emerald-500"></div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">{user.role || 'Admin'}</p>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleDeleteClick(user)} 
+                  className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-32 text-center">
+            <div className="size-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-200 mb-8">
+              <Sparkles size={48} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter">No Other Admins</h3>
+            <p className="text-slate-500 font-medium max-w-[300px] text-lg">Other administrative accounts will appear here once created.</p>
+          </div>
+        )}
+      </div>
+
+      <ConfirmationModel isOpen={isModalOpen} onClose={handleCloseModal} onConfirm={handleConfirmDelete} isLoading={isDeleting} title="Delete Admin Account">
+        <p className="text-slate-600 dark:text-slate-400 py-4">Are you sure you want to permanently delete <strong>{userToDelete?.username}</strong>?</p>
       </ConfirmationModel>
-    </>
+    </motion.div>
   )
 }
 

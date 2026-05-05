@@ -1,22 +1,33 @@
 import { useEffect, useState, useMemo } from "react";
 import { apiClient } from "../../../stores/authStores";
+import { 
+    Mail, 
+    Phone, 
+    Trash2, 
+    User, 
+    Loader2, 
+    Sparkles, 
+    Search, 
+    ChevronLeft, 
+    ChevronRight,
+    BellRing,
+    Inbox,
+    Heart
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 12;
 
 const Subscribe = () => {
   const [subscribers, setSubscribers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalSubscribers, setTotalSubscribers] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const totalPages = useMemo(
-    () => Math.ceil(totalSubscribers / ITEMS_PER_PAGE),
-    [totalSubscribers]
-  );
+  const totalPages = useMemo(() => Math.ceil(totalSubscribers / ITEMS_PER_PAGE), [totalSubscribers]);
 
-  // --- Fetch subscribers ---
   const fetchSubscribers = async () => {
     setIsLoading(true);
     setError(null);
@@ -24,11 +35,10 @@ const Subscribe = () => {
       const response = await apiClient.get("/admin/get-subscribe");
       const data = response.data.Data || [];
       setTotalSubscribers(data.length);
-
       const start = (currentPage - 1) * ITEMS_PER_PAGE;
       setSubscribers(data.slice(start, start + ITEMS_PER_PAGE));
     } catch (err) {
-      setError("Failed to load honeymoon newsletter subscribers. Please try again.");
+      setError("Failed to synchronize subscriber vault.");
     } finally {
       setIsLoading(false);
     }
@@ -38,127 +48,132 @@ const Subscribe = () => {
     fetchSubscribers();
   }, [currentPage]);
 
-  // --- Delete subscriber ---
   const handleDelete = async (subscriberId) => {
-    if (!window.confirm("Are you sure you want to delete this honeymoon subscriber?")) return;
-
+    if (!window.confirm("Permanently remove this subscriber from the newsletter?")) return;
     try {
       await apiClient.delete(`/admin/get-subscribe/${subscriberId}`);
-      setSubscribers((prev) => prev.filter((sub) => sub._id !== subscriberId));
-      setTotalSubscribers((prev) => prev - 1);
-
-      if (subscribers.length === 1 && currentPage > 1) {
-        setCurrentPage((prev) => prev - 1);
-      }
+      fetchSubscribers();
     } catch (err) {
-      alert("Failed to delete honeymoon subscriber. Please try again.");
+      alert("Removal failed.");
     }
   };
 
-  const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const goToPreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const filtered = subscribers.filter(s => 
+    s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="flex flex-col gap-y-8 p-4 md:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-          Trip to Honeymoon – Newsletter Subscribers
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Manage couples and users subscribed to honeymoon offers, deals, and updates.
-        </p>
-      </div>
-
-      <div className="space-y-6">
-        {isLoading ? (
-          <p className="text-center p-8 text-slate-600 dark:text-slate-400">
-            Loading honeymoon subscribers...
-          </p>
-        ) : error ? (
-          <div className="text-center p-8 bg-red-50 dark:bg-red-900/10 rounded-xl">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        ) : subscribers.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {subscribers.map((sub) => (
-                <div
-                  key={sub._id}
-                  className="rounded-xl border border-slate-200 bg-white shadow-sm
-                  transition-all duration-300 hover:shadow-md
-                  dark:border-slate-800 dark:bg-slate-900 p-6 flex flex-col"
-                >
-                  <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                      {sub.name}
-                    </h2>
-
-                    <div className="mt-2 text-sm text-slate-500 dark:text-slate-400 space-y-1">
-                      <p>
-                        Email:{" "}
-                        <a
-                          href={`mailto:${sub.email}`}
-                          className="text-pink-600 hover:underline"
-                        >
-                          {sub.email}
-                        </a>
-                      </p>
-                      <p>Phone: {sub.phone}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <button
-                      onClick={() => handleDelete(sub._id)}
-                      className="w-full inline-flex items-center justify-center rounded-lg
-                      border border-red-600/30 px-4 py-2 text-sm font-semibold
-                      text-red-600 shadow-sm transition-colors hover:bg-red-50
-                      focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-                      dark:text-red-400 dark:border-red-500/30 dark:hover:bg-red-500/10"
-                    >
-                      Delete Subscriber
-                    </button>
-                  </div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+      {/* HEADER HUB */}
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><BellRing size={200} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                    <Inbox className="text-indigo-600" size={36} /> SUBSCRIBER REGISTRY
+                </h1>
+                <p className="text-slate-500 font-medium mt-2 text-lg italic">Newsletter audience and potential honeymoon seekers</p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                    <input 
+                        type="text" 
+                        placeholder="Filter subscribers..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/50 border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900/30 rounded-2xl text-sm font-bold w-full sm:w-64 outline-none transition-all shadow-sm"
+                    />
                 </div>
-              ))}
+                <div className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-indigo-500/30">
+                    <Sparkles size={16} /> {totalSubscribers} AUDIENCE
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* SUBSCRIBER GRID */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-40 gap-4">
+            <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Synchronizing Audience Vault</p>
+        </div>
+      ) : error ? (
+        <div className="py-20 text-center bg-red-50 dark:bg-red-950/20 rounded-[3rem] border border-red-100 dark:border-red-900/30 text-red-500 font-bold uppercase tracking-widest text-xs">
+            {error}
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <AnimatePresence mode='popLayout'>
+                    {filtered.map((sub) => (
+                        <motion.div 
+                            layout key={sub._id} 
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="group bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-2xl"
+                        >
+                            <div className="p-6 flex flex-col h-full justify-between">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg">
+                                            {sub.name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight leading-tight truncate w-32 md:w-40">{sub.name || 'Anonymous'}</h2>
+                                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Subscriber</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <a href={`mailto:${sub.email}`} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors group/link overflow-hidden">
+                                            <Mail size={12} className="shrink-0" />
+                                            <span className="text-[10px] font-bold truncate">{sub.email}</span>
+                                        </a>
+                                        {sub.phone && (
+                                            <div className="flex items-center gap-2 text-slate-500">
+                                                <Phone size={12} className="shrink-0" />
+                                                <span className="text-[10px] font-bold">{sub.phone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="pt-6 mt-6 border-t border-slate-50 dark:border-slate-800">
+                                    <button onClick={() => handleDelete(sub._id)} className="w-full p-3 bg-red-50 dark:bg-red-950/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm text-[10px] font-black uppercase tracking-widest">
+                                        Remove Entry
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Page {currentPage} of {totalPages}
-              </p>
-              <div className="flex gap-x-2">
-                <button
-                  onClick={goToPreviousPage}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={goToNextPage}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border rounded-lg disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
+            {/* PAGINATION */}
+            <div className="flex items-center justify-between px-8 py-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Audience Page {currentPage} <span className="mx-2 text-slate-200">/</span> {totalPages}
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 transition-all text-slate-600">
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 transition-all text-slate-600">
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
             </div>
-          </>
-        ) : (
-          <div className="text-center py-16 px-6 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700">
-            <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200">
-              No Honeymoon Subscribers Yet
-            </h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              When users subscribe for honeymoon updates, they will appear here.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      ) : (
+        <div className="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 border-dashed">
+            <Heart className="mx-auto mb-4 text-slate-100" size={80} strokeWidth={1} />
+            <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs">The subscriber vault is currently clear</p>
+        </div>
+      )}
+    </motion.div>
   );
 };
 

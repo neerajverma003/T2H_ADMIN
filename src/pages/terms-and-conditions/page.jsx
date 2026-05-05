@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { FiFileText, FiSave, FiEdit, FiLoader, FiGlobe, FiMapPin } from "react-icons/fi";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
+import { 
+    FileText, 
+    Save, 
+    Edit, 
+    Loader2, 
+    Globe, 
+    MapPin, 
+    ShieldCheck, 
+    Zap, 
+    Sparkles, 
+    Info, 
+    AlertCircle,
+    CheckCircle2
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const HoneymoonTermsAndCondition = () => {
-  const [activeTab, setActiveTab] = useState("domestic"); // 'domestic' or 'international'
+  const [activeTab, setActiveTab] = useState("domestic");
   const [textContent, setTextContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch global honeymoon terms based on active tab
   useEffect(() => {
     const fetchTerms = async () => {
       try {
@@ -19,17 +31,15 @@ const HoneymoonTermsAndCondition = () => {
         const res = await apiClient.get(`/admin/global-tnc?type=${activeTab}`);
         setTextContent(res.data?.data?.terms_And_condition || "");
       } catch (error) {
-        console.error("Fetch Global TNC error:", error);
-        toast.error(`Failed to load ${activeTab} terms.`);
+        toast.error(`Failed to synchronize ${activeTab} registry.`);
       } finally {
         setLoading(false);
       }
     };
     fetchTerms();
-    setIsEditing(false); // Reset editing state on tab change
+    setIsEditing(false);
   }, [activeTab]);
 
-  // Save terms for the specific category
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -37,141 +47,134 @@ const HoneymoonTermsAndCondition = () => {
         type: activeTab,
         terms_And_condition: textContent,
       });
-      toast.success(`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} terms saved successfully! ✨`);
+      toast.success(`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} registry updated! ✨`);
       setIsEditing(false);
     } catch (error) {
-      console.error("Update Global TNC error:", error);
-      toast.error("Something went wrong while saving.");
+      toast.error("Synchronization failure");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-y-8 p-4 md:p-8 max-w-5xl mx-auto">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
-            Honeymoon Terms Management <span className="text-pink-500">❤️</span>
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Manage global terms & conditions separately for Domestic and International honeymoon trips.
-          </p>
-        </div>
-      </div>
-
-      {/* Tabs Switcher */}
-      <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
-        <button
-          onClick={() => setActiveTab("domestic")}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === "domestic"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-          }`}
-        >
-          <FiMapPin /> Domestic Terms
-        </button>
-        <button
-          onClick={() => setActiveTab("international")}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === "international"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-          }`}
-        >
-          <FiGlobe /> International Terms
-        </button>
-      </div>
-
-      {/* Editor Section */}
-      <motion.div 
-        layout
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
-      >
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${activeTab === 'domestic' ? 'bg-green-50 dark:bg-green-900/30' : 'bg-purple-50 dark:bg-purple-900/30'}`}>
-              <FiFileText className={activeTab === 'domestic' ? 'text-green-600' : 'text-purple-600'} size={20} />
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+      {/* HEADER HUB */}
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><FileText size={200} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                    <ShieldCheck className="text-indigo-600" size={36} /> COMPLIANCE REGISTRY
+                </h1>
+                <p className="text-slate-500 font-medium mt-2 text-lg italic">Global terms & conditions for destination engagement</p>
             </div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
-              {activeTab === 'domestic' ? 'Domestic' : 'International'} Booking Terms
-            </h2>
-          </div>
-          {!isEditing && !loading && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
-            >
-              <FiEdit /> Edit Content
-            </button>
-          )}
-        </div>
-
-        <div className="p-6 min-h-[400px] flex flex-col">
-          {loading ? (
-            <div className="flex flex-1 items-center justify-center py-20">
-              <FiLoader className="h-10 w-10 animate-spin text-blue-600" />
-            </div>
-          ) : isEditing ? (
-            <div className="space-y-6 flex-1 flex flex-col">
-              <textarea
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                className="w-full flex-1 min-h-[400px] rounded-xl border border-slate-200 bg-slate-50 p-6 text-sm leading-relaxed
-                focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none
-                dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                placeholder={`Write your global ${activeTab} honeymoon terms and conditions here...`}
-              />
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-6 py-2.5 rounded-lg border border-slate-200 text-sm font-medium 
-                  text-slate-700 hover:bg-slate-50 transition dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 px-8 py-2.5 rounded-lg bg-blue-600 text-white 
-                  text-sm font-semibold shadow-lg hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition"
-                >
-                  {isSaving ? <FiLoader className="animate-spin" /> : <FiSave />}
-                  Save {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Terms
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-8 flex-1">
-              {textContent ? (
-                <div className="prose prose-slate max-w-none dark:prose-invert">
-                  <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 leading-relaxed">
-                    {textContent}
-                  </p>
+            <div className="flex items-center gap-3">
+                <div className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-indigo-500/30">
+                    <Sparkles size={16} /> GOVERNANCE READY
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full py-20 text-slate-400">
-                  <FiFileText size={48} className="mb-4 opacity-20" />
-                  <p>No terms defined for {activeTab}. Click edit to get started.</p>
-                </div>
-              )}
             </div>
-          )}
         </div>
-      </motion.div>
-
-      {/* Helpful Info */}
-      <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 border border-blue-100 dark:border-blue-800 flex gap-3">
-        <div className="text-blue-600 mt-0.5">ℹ️</div>
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          The <strong>{activeTab}</strong> terms will be shown when users select the "{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}" tab on the website's Terms & Conditions page.
-        </p>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* SELECTION PANEL */}
+        <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-8">
+                <div>
+                    <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Regional Governance</label>
+                    <div className="space-y-3">
+                        {[
+                            { id: "domestic", label: "Domestic Registry", icon: MapPin },
+                            { id: "international", label: "Global Registry", icon: Globe }
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`w-full flex items-center justify-between p-5 rounded-2xl border transition-all group ${
+                                    activeTab === tab.id 
+                                    ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/20" 
+                                    : "bg-slate-50 dark:bg-slate-800 border-transparent text-slate-400 hover:border-indigo-100"
+                                }`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`size-10 rounded-xl flex items-center justify-center transition-all ${
+                                        activeTab === tab.id ? "bg-white/20" : "bg-white dark:bg-slate-900 text-indigo-600"
+                                    }`}>
+                                        <tab.icon size={20} />
+                                    </div>
+                                    <span className="text-sm font-black uppercase tracking-widest">{tab.label}</span>
+                                </div>
+                                <Zap size={14} className={activeTab === tab.id ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"} />
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="pt-8 border-t border-slate-50 dark:border-slate-800">
+                    <div className="flex items-start gap-4 p-6 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20">
+                        <CheckCircle2 size={20} className="text-indigo-600 shrink-0" />
+                        <p className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-widest leading-relaxed">
+                            Terms synchronized here reflect globally across the website's destination portals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* EDITOR PANEL */}
+        <div className="lg:col-span-8">
+            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[600px] flex flex-col">
+                <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-50 dark:border-slate-800">
+                    <div className="flex items-center gap-4">
+                        <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
+                            <FileText size={24} />
+                        </div>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{activeTab} Compliance Context</h2>
+                    </div>
+
+                    {!isEditing ? (
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            disabled={loading}
+                            className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-black/10 disabled:opacity-30"
+                        >
+                            <Edit className="inline mr-2" size={14} /> Edit Terms
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                        >
+                            {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                            {isSaving ? "Syncing..." : "Commit Registry"}
+                        </button>
+                    )}
+                </div>
+
+                <div className="flex-1">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-40 gap-4">
+                            <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Registry Context</p>
+                        </div>
+                    ) : isEditing ? (
+                        <textarea
+                            value={textContent}
+                            onChange={(e) => setTextContent(e.target.value)}
+                            className="w-full min-h-[450px] bg-slate-50 dark:bg-slate-800/50 border-none rounded-[2rem] p-8 text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/10 transition-all no-scrollbar"
+                            placeholder={`Drafting global ${activeTab} terms and conditions...`}
+                        />
+                    ) : (
+                        <div className="p-8 text-slate-600 dark:text-slate-300 text-sm font-bold leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-800/20 rounded-[2rem] border border-slate-50 dark:border-slate-800/40">
+                            {textContent || "Compliance registry is currently empty."}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 

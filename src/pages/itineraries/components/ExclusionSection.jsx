@@ -10,36 +10,36 @@ const ExclusionSection = ({
 
     return (
         <div className={cardStyle}>
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <HeartCrack className="text-red-500" size={20} />
-                Honeymoon Exclusions
-            </h2>
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <Ban className="text-red-500" size={20} />
+                    EXCLUSIONS
+                </h2>
+                <div className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+                   Not Included
+                </div>
+            </div>
 
-            <label className={labelStyle}>
-                <Ban className="inline mr-2" size={16} />
-                What’s Not Included
-                <span className="ml-1 text-xs text-muted-foreground">
-                    (comma separated)
-                </span>
-            </label>
+            <div className="space-y-4">
+                <label className={labelStyle}>
+                    Honeymoon Exclusions
+                    <span className="ml-2 text-slate-400 lowercase italic tracking-normal">(Separate with commas)</span>
+                </label>
 
-            <textarea
-                name="exclusion"
-                rows={4}
-                value={formData.exclusion}
-                onChange={handleInputChange}
-                className={`${inputStyle} ${
-                    errors.exclusion ? "border-red-500 focus:ring-red-500" : ""
-                }`}
-                placeholder="Airfare, personal expenses, travel insurance, optional activities"
-                maxLength={50000}
-            />
+                <textarea
+                    name="exclusion"
+                    value={formData.exclusion}
+                    onChange={handleInputChange}
+                    className={`${inputStyle} min-h-[150px] leading-relaxed ${errors.exclusion ? "ring-2 ring-red-500" : ""}`}
+                    placeholder="e.g. International Airfare, Personal Laundry, Travel Insurance..."
+                />
 
-            {errors.exclusion && (
-                <p className="text-red-500 text-sm mt-1">
-                    {errors.exclusion}
-                </p>
-            )}
+                {errors.exclusion && (
+                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2">
+                        {errors.exclusion}
+                    </p>
+                )}
+            </div>
         </div>
     );
 };

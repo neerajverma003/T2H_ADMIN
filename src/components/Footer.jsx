@@ -1,29 +1,32 @@
 const Footer = () => {
   return (
-    <footer className="mt-auto border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-700 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <footer className="mt-auto border-t border-slate-100 bg-white/50 dark:border-slate-900 dark:bg-black px-8 py-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-7xl mx-auto">
         
         {/* LEFT TEXT */}
-        <p className="text-sm font-medium text-slate-900 dark:text-slate-50">
-          © 2025 Admire Group. All Rights Reserved.
+        <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">
+          © 2025 T2H ADMIN — POWERED BY ADMIRE GROUP.
         </p>
 
         {/* LINKS */}
-        <div className="flex gap-3 text-sm">
+        <div className="flex gap-6 text-[9px] font-black uppercase tracking-[0.2em]">
           <a
             href="#"
-            className="text-slate-600 hover:text-blue-600 transition dark:text-slate-400 dark:hover:text-blue-400"
+            className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
-            Privacy Policy
+            Privacy
           </a>
-
-          <span className="text-slate-400">|</span>
-
           <a
             href="#"
-            className="text-slate-600 hover:text-blue-600 transition dark:text-slate-400 dark:hover:text-blue-400"
+            className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
-            Terms of Service
+            Terms
+          </a>
+          <a
+            href="#"
+            className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            Documentation
           </a>
         </div>
 

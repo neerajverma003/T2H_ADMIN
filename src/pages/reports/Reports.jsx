@@ -19,6 +19,18 @@ import {
 import { apiClient } from "../../stores/authStores";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { 
+  ResponsiveContainer, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from "recharts";
 
 const Reports = () => {
   const [stats, setStats] = useState(null);
@@ -140,6 +152,110 @@ const Reports = () => {
             subtext="Newsletter growth"
           />
         </div>
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Lead Generation Trends</h3>
+            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-1.5"><div className="size-2 rounded-full bg-blue-600" /> Leads</div>
+              <div className="flex items-center gap-1.5"><div className="size-2 rounded-full bg-indigo-300" /> Subscribers</div>
+            </div>
+          </div>
+          
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats?.leadTrends || []}>
+                <defs>
+                  <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} 
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} 
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    borderRadius: '12px', 
+                    border: 'none', 
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }} 
+                />
+                <Area type="monotone" dataKey="leads" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorLeads)" />
+                <Area type="monotone" dataKey="subscribers" stroke="#a5b4fc" strokeWidth={2} fill="transparent" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-6">Inquiry Distribution</h3>
+            <div className="h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Consultations', value: stats?.leads?.consultations },
+                      { name: 'Trip Requests', value: stats?.leads?.tripRequests },
+                      { name: 'Contacts', value: stats?.leads?.contacts },
+                      { name: 'Subscribers', value: stats?.leads?.subscribers },
+                    ]}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    <Cell fill="#7c3aed" />
+                    <Cell fill="#db2777" />
+                    <Cell fill="#ea580c" />
+                    <Cell fill="#0891b2" />
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="space-y-3 mt-4">
+            <div className="flex items-center justify-between text-xs font-bold">
+              <span className="text-slate-500">Consultations</span>
+              <span className="text-slate-900">{((stats?.leads?.consultations / stats?.leads?.total) * 100).toFixed(1)}%</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold">
+              <span className="text-slate-500">Trip Requests</span>
+              <span className="text-slate-900">{((stats?.leads?.tripRequests / stats?.leads?.total) * 100).toFixed(1)}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden flex">
+               <div style={{ width: `${(stats?.leads?.consultations / stats?.leads?.total) * 100}%` }} className="bg-purple-600 h-full" />
+               <div style={{ width: `${(stats?.leads?.tripRequests / stats?.leads?.total) * 100}%` }} className="bg-pink-600 h-full" />
+               <div style={{ width: `${(stats?.leads?.contacts / stats?.leads?.total) * 100}%` }} className="bg-orange-600 h-full" />
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">

@@ -1,7 +1,25 @@
 import { useEffect, useState, useMemo } from "react";
-import { apiClient } from "@/stores/authStores";
-import { Trash2, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
+import { apiClient } from "../../../stores/authStores";
+import { 
+    Trash2, 
+    MessageSquare, 
+    Phone, 
+    Mail, 
+    MapPin, 
+    Calendar, 
+    User, 
+    Loader2, 
+    Sparkles, 
+    Search, 
+    ChevronLeft, 
+    ChevronRight,
+    ArrowUpRight,
+    Inbox,
+    Target,
+    Navigation
+} from "lucide-react";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -13,12 +31,8 @@ const ConsultationLeads = () => {
   const [totalLeads, setTotalLeads] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const totalPages = useMemo(
-    () => Math.ceil(totalLeads / ITEMS_PER_PAGE),
-    [totalLeads]
-  );
+  const totalPages = useMemo(() => Math.ceil(totalLeads / ITEMS_PER_PAGE), [totalLeads]);
 
-  // Fetch consultation leads
   useEffect(() => {
     const loadLeads = async () => {
       setIsLoading(true);
@@ -30,237 +44,182 @@ const ConsultationLeads = () => {
           setTotalLeads(response.data.Data.length);
         }
       } catch (err) {
-        console.error("Error fetching consultation leads:", err);
-        setError("Failed to fetch honeymoon consultation requests");
-        toast.error("Failed to fetch honeymoon consultation requests");
+        setError("Failed to synchronize consultation vault.");
       } finally {
         setIsLoading(false);
       }
     };
-
     loadLeads();
   }, []);
 
-  // Filter leads
   const filteredLeads = useMemo(() => {
-    return leads.filter(
-      (lead) =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm) ||
-        lead.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.state.toLowerCase().includes(searchTerm.toLowerCase())
+    return leads.filter(lead =>
+      lead.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.phone?.includes(searchTerm) ||
+      lead.city?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [leads, searchTerm]);
 
-  // Paginate
   const paginatedLeads = useMemo(() => {
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredLeads.slice(startIdx, startIdx + ITEMS_PER_PAGE);
   }, [filteredLeads, currentPage]);
 
-  // Delete lead
   const handleDelete = async (leadId) => {
-    if (!window.confirm("Are you sure you want to delete this honeymoon consultation request?")) {
-      return;
-    }
-
+    if (!window.confirm("Permanently remove this consultation request?")) return;
     try {
       const response = await apiClient.delete(`/admin/consultation-leads/${leadId}`);
       if (response.data.success) {
         setLeads((prev) => prev.filter((lead) => lead._id !== leadId));
         setTotalLeads((prev) => prev - 1);
-        toast.success("Honeymoon consultation deleted successfully");
+        toast.success("Consultation archived");
       }
     } catch (err) {
-      console.error("Error deleting consultation lead:", err);
-      toast.error("Failed to delete honeymoon consultation");
+      toast.error("Removal failed");
     }
   };
 
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
     });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">
-            Loading honeymoon consultation requests...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full max-w-6xl mx-auto p-6">
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-          <MessageSquare className="text-pink-600" />
-          Trip to Honeymoon – Consultation Requests
-        </h1>
-        <p className="text-gray-600">
-          Manage consultation requests from couples planning their perfect honeymoon.
-        </p>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* SEARCH */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search couples by name, email, phone, city, or state..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl
-          focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-      </div>
-
-      {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-pink-50 border border-pink-200 rounded-xl p-4">
-          <p className="text-sm text-gray-600">Total Honeymoon Leads</p>
-          <p className="text-2xl font-bold text-pink-600">{totalLeads}</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <p className="text-sm text-gray-600">Leads This Month</p>
-          <p className="text-2xl font-bold text-green-600">
-            {leads.filter((lead) => {
-              const d = new Date(lead.createdAt);
-              const now = new Date();
-              return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            }).length}
-          </p>
-        </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-          <p className="text-sm text-gray-600">Matching Results</p>
-          <p className="text-2xl font-bold text-purple-600">{filteredLeads.length}</p>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+      {/* HEADER HUB */}
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><Target size={200} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                    <MessageSquare className="text-indigo-600" size={36} /> CONSULTATION HUB
+                </h1>
+                <p className="text-slate-500 font-medium mt-2 text-lg italic">High-intent consultation requests from destination seekers</p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
+                    <input 
+                        type="text" 
+                        placeholder="Filter consultants..." 
+                        value={searchTerm}
+                        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                        className="pl-12 pr-6 py-4 bg-slate-50 dark:bg-slate-800/50 border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900/30 rounded-2xl text-sm font-bold w-full sm:w-64 outline-none transition-all shadow-sm"
+                    />
+                </div>
+                <div className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-indigo-500/30">
+                    <Sparkles size={16} /> {totalLeads} PORTAL LEADS
+                </div>
+            </div>
         </div>
       </div>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
-        {paginatedLeads.length === 0 ? (
-          <div className="text-center py-12">
-            <MessageSquare className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-            <p className="text-gray-500">
-              No honeymoon consultation requests found
-            </p>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead className="bg-gray-100 border-b">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Couple Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Contact</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Location</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Selected Package</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Requested On</th>
-                <th className="px-6 py-3 text-center text-sm font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {paginatedLeads.map((lead) => (
-                <tr key={lead._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium">{lead.name}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" /> {lead.email}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Phone className="w-4 h-4 text-gray-400" /> {lead.phone}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-pink-600 mt-0.5" />
-                      <div>
-                        <p>{lead.city}</p>
-                        <p className="text-gray-500">{lead.state}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
-                      {lead.itineraryTitle || "Custom Honeymoon"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatDate(lead.createdAt)}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleDelete(lead._id)}
-                      className="inline-flex items-center px-3 py-2 text-red-600
-                      hover:bg-red-50 rounded-lg"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
+      {/* LEAD GRID */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-40 gap-4">
+            <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Syncing Consultation Archive</p>
+        </div>
+      ) : error ? (
+        <div className="py-20 text-center bg-red-50 dark:bg-red-950/20 rounded-[3rem] border border-red-100 dark:border-red-900/30 text-red-500 font-bold uppercase tracking-widest text-xs">
+            {error}
+        </div>
+      ) : paginatedLeads.length > 0 ? (
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <AnimatePresence mode='popLayout'>
+                    {paginatedLeads.map((lead) => (
+                        <motion.div 
+                            layout key={lead._id} 
+                            initial={{ opacity: 0, scale: 0.95 }} 
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-2xl"
+                        >
+                            <div className="p-8 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="size-14 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">
+                                        {lead.name?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                        Active Inquiry
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{lead.name}</h2>
+                                    <div className="flex flex-col gap-3 mt-4">
+                                        <a href={`mailto:${lead.email}`} className="flex items-center gap-3 text-slate-500 hover:text-indigo-600 transition-colors group/link">
+                                            <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center group-hover/link:bg-indigo-600 group-hover/link:text-white transition-all"><Mail size={14} /></div>
+                                            <span className="text-xs font-bold">{lead.email}</span>
+                                        </a>
+                                        <div className="flex items-center gap-3 text-slate-500">
+                                            <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center"><Phone size={14} /></div>
+                                            <span className="text-xs font-bold">{lead.phone}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-6 border-t border-slate-50 dark:border-slate-800">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <MapPin className="text-indigo-600" size={14} />
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Request Context</p>
+                                    </div>
+                                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2">
+                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Selected Itinerary</p>
+                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed italic">
+                                            "{lead.itineraryTitle || 'Custom Honeymoon Sequence'}"
+                                        </p>
+                                        <div className="pt-2 flex items-center gap-2 text-slate-400">
+                                            <Navigation size={12} />
+                                            <span className="text-[10px] font-bold uppercase">{lead.city}, {lead.state}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-4">
+                                    <div className="flex items-center gap-2 text-slate-300">
+                                        <Calendar size={14} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">{formatDate(lead.createdAt)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => handleDelete(lead._id)} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <button className="p-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                            <ArrowUpRight size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
+
+            {/* PAGINATION */}
+            <div className="flex items-center justify-between px-8 py-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Showing Page {currentPage} <span className="mx-2 text-slate-200">/</span> {totalPages}
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 transition-all text-slate-600">
+                        <ChevronLeft size={20} />
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
-          </p>
-          <div className="space-x-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-4 py-2 rounded-lg ${
-                  currentPage === page
-                    ? "bg-pink-600 text-white"
-                    : "border hover:bg-gray-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 border rounded-lg disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+                    <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-50 transition-all text-slate-600">
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            </div>
+        </div>
+      ) : (
+        <div className="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 border-dashed">
+            <Inbox className="mx-auto mb-4 text-slate-100" size={80} strokeWidth={1} />
+            <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs">The consultation hub is empty</p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
