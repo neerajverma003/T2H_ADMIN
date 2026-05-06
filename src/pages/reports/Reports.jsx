@@ -16,6 +16,16 @@ import {
   FiGlobe,
   FiLoader
 } from "react-icons/fi";
+import { 
+  ShieldCheck, 
+  Sparkles, 
+  Target, 
+  ArrowUpRight, 
+  Zap, 
+  Box,
+  PieChart as PieIcon,
+  LineChart as LineIcon
+} from "lucide-react";
 import { apiClient } from "../../stores/authStores";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -52,156 +62,166 @@ const Reports = () => {
 
   const StatCard = ({ title, value, icon: Icon, color, delay, subtext }) => (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ delay }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 group cursor-default"
+      whileHover={{ y: -8 }}
+      className="rounded-[2.5rem] border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 group cursor-default text-left"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{title}</p>
-          <h3 className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-50">{value}</h3>
-          {subtext && <p className="mt-2 text-xs text-slate-500">{subtext}</p>}
+      <div className="flex items-center justify-between gap-6">
+        <div className="text-left">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-4">{title}</p>
+          <h3 className="text-4xl font-black text-slate-950 dark:text-slate-50 tracking-tighter">{value}</h3>
+          {subtext && <p className="mt-4 text-[10px] font-black text-indigo-700 uppercase tracking-widest italic">{subtext}</p>}
         </div>
-        <div className={`rounded-lg p-3 transition-transform group-hover:scale-110 ${color}`}>
-          <Icon className="size-6 text-white" />
+        <div className={`size-16 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12 shadow-2xl ${color}`}>
+          <Icon className="size-8 text-white" />
         </div>
       </div>
     </motion.div>
   );
 
-  const exportData = (type) => {
-    alert(`Generating ${type} CSV report... This feature is now ready for production link.`);
-  };
-
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <FiLoader className="h-10 w-10 animate-spin text-blue-600" />
+      <div className="flex min-h-[600px] flex-col items-center justify-center gap-8">
+        <FiLoader className="h-16 w-16 animate-spin text-indigo-700" strokeWidth={1} />
+        <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Syncing Intelligence Core...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-y-8 p-4 md:p-8 max-w-[1600px] mx-auto">
+    <div className="flex flex-col gap-y-12 p-6 max-w-full mx-auto pb-24 text-left">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-3">
-            <FiBarChart2 className="text-blue-600" /> Executive Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Performance overview and inventory distribution for TriptoHoneymoon.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button 
-            onClick={() => exportData('Leads')}
-            className="flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition shadow-sm"
-          >
-            <FiDownload /> Export Leads
-          </button>
+      <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-700"><Zap size={240} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
+            <div>
+                <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-5">
+                    <Target className="text-indigo-700" size={44} /> INTELLIGENCE HUB
+                </h1>
+                <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic text-left">Performance overview and inventory distribution analytics</p>
+            </div>
+            <div className="flex items-center gap-5">
+                <button 
+                    onClick={() => alert('Exporting Logic Store...')}
+                    className="px-8 py-5 bg-indigo-700 text-white rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3 shadow-2xl shadow-indigo-500/40 hover:bg-indigo-800 transition-all active:scale-95"
+                >
+                    <FiDownload size={20} /> Export Dataset
+                </button>
+            </div>
         </div>
       </div>
 
       {/* Leads Statistics */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-          <FiTrendingUp className="text-green-500" /> Conversion Funnel
-        </h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="space-y-10">
+        <div className="flex items-center gap-4">
+            <div className="h-[2px] w-12 bg-indigo-700" />
+            <h2 className="text-xs font-black text-slate-950 dark:text-slate-50 uppercase tracking-[0.4em]">Strategic Conversion Funnel</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard 
-            title="Total Inquiries" 
+            title="Total Flux" 
             value={stats?.leads?.total} 
             icon={FiActivity} 
-            color="bg-blue-600" 
+            color="bg-slate-950 shadow-black/20" 
             delay={0}
-            subtext="Combined business leads"
+            subtext="Combined Engine Leads"
           />
           <StatCard 
-            title="Consultations" 
+            title="Advisory" 
             value={stats?.leads?.consultations} 
             icon={FiUsers} 
-            color="bg-purple-600" 
+            color="bg-indigo-700 shadow-indigo-500/20" 
             delay={0.1}
-            subtext="Direct advisor requests"
+            subtext="Direct Sync Requests"
           />
           <StatCard 
-            title="Trip Requests" 
+            title="Drafts" 
             value={stats?.leads?.tripRequests} 
             icon={FiCalendar} 
-            color="bg-pink-600" 
+            color="bg-indigo-600 shadow-indigo-500/20" 
             delay={0.2}
-            subtext="Customized packages"
+            subtext="Customized Blueprints"
           />
           <StatCard 
-            title="Contacts" 
+            title="Inquiries" 
             value={stats?.leads?.contacts} 
             icon={FiMessageSquare} 
-            color="bg-orange-600" 
+            color="bg-slate-800 shadow-black/20" 
             delay={0.3}
-            subtext="General inquiries"
+            subtext="General Comms"
           />
           <StatCard 
-            title="Subscribers" 
+            title="Audience" 
             value={stats?.leads?.subscribers} 
             icon={FiMail} 
-            color="bg-cyan-600" 
+            color="bg-indigo-900 shadow-indigo-900/20" 
             delay={0.4}
-            subtext="Newsletter growth"
+            subtext="Registry Growth"
           />
         </div>
       </div>
 
       {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+          className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 p-12 shadow-2xl shadow-slate-200/50"
         >
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Lead Generation Trends</h3>
-            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
-              <div className="flex items-center gap-1.5"><div className="size-2 rounded-full bg-blue-600" /> Leads</div>
-              <div className="flex items-center gap-1.5"><div className="size-2 rounded-full bg-indigo-300" /> Subscribers</div>
+          <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center gap-5">
+                <div className="size-14 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                    <LineIcon size={28} />
+                </div>
+                <div className="text-left">
+                    <h3 className="text-2xl font-black text-slate-950 dark:text-slate-50 uppercase tracking-tight">Generation Trends</h3>
+                    <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Real-time engagement velocity</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.25em]">
+              <div className="flex items-center gap-3"><div className="size-3 rounded-full bg-indigo-700 shadow-lg" /> Leads</div>
+              <div className="flex items-center gap-3"><div className="size-3 rounded-full bg-slate-200 shadow-inner" /> Audience</div>
             </div>
           </div>
           
-          <div className="h-[350px] w-full">
+          <div className="h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats?.leadTrends || []}>
                 <defs>
                   <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#4338ca" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#4338ca" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="#f1f5f9" />
                 <XAxis 
                   dataKey="month" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} 
-                  dy={10}
+                  tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b', letterSpacing: '0.2em' }} 
+                  dy={20}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} 
+                  tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b' }} 
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    borderRadius: '12px', 
+                    borderRadius: '24px', 
                     border: 'none', 
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
+                    boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+                    fontSize: '14px',
+                    fontWeight: '900',
+                    padding: '20px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em'
                   }} 
                 />
-                <Area type="monotone" dataKey="leads" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorLeads)" />
-                <Area type="monotone" dataKey="subscribers" stroke="#a5b4fc" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="leads" stroke="#4338ca" strokeWidth={5} fillOpacity={1} fill="url(#colorLeads)" />
+                <Area type="monotone" dataKey="subscribers" stroke="#e2e8f0" strokeWidth={3} fill="transparent" strokeDasharray="10 10" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -211,95 +231,109 @@ const Reports = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col justify-between"
+          className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 p-12 shadow-2xl shadow-slate-200/50 flex flex-col"
         >
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-6">Inquiry Distribution</h3>
-            <div className="h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'Consultations', value: stats?.leads?.consultations },
-                      { name: 'Trip Requests', value: stats?.leads?.tripRequests },
-                      { name: 'Contacts', value: stats?.leads?.contacts },
-                      { name: 'Subscribers', value: stats?.leads?.subscribers },
-                    ]}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    <Cell fill="#7c3aed" />
-                    <Cell fill="#db2777" />
-                    <Cell fill="#ea580c" />
-                    <Cell fill="#0891b2" />
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+          <div className="flex items-center gap-5 mb-12">
+            <div className="size-14 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                <PieIcon size={28} />
+            </div>
+            <div className="text-left">
+                <h3 className="text-2xl font-black text-slate-950 dark:text-slate-50 uppercase tracking-tight">Distribution</h3>
+                <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Asset Segmentation</p>
             </div>
           </div>
-          <div className="space-y-3 mt-4">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-slate-500">Consultations</span>
-              <span className="text-slate-900">{((stats?.leads?.consultations / stats?.leads?.total) * 100).toFixed(1)}%</span>
+          
+          <div className="h-[350px] relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Advisory', value: stats?.leads?.consultations },
+                    { name: 'Drafts', value: stats?.leads?.tripRequests },
+                    { name: 'Inquiries', value: stats?.leads?.contacts },
+                    { name: 'Audience', value: stats?.leads?.subscribers },
+                  ]}
+                  innerRadius={90}
+                  outerRadius={120}
+                  paddingAngle={8}
+                  dataKey="value"
+                >
+                  <Cell fill="#4338ca" />
+                  <Cell fill="#0f172a" />
+                  <Cell fill="#6366f1" />
+                  <Cell fill="#94a3b8" />
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <p className="text-4xl font-black text-slate-950">{stats?.leads?.total}</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Hub</p>
             </div>
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-slate-500">Trip Requests</span>
-              <span className="text-slate-900">{((stats?.leads?.tripRequests / stats?.leads?.total) * 100).toFixed(1)}%</span>
+          </div>
+
+          <div className="space-y-6 mt-12 text-left">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Consultation Yield</span>
+              <span className="text-sm font-black text-slate-950 uppercase tracking-widest">{((stats?.leads?.consultations / stats?.leads?.total) * 100).toFixed(1)}%</span>
             </div>
-            <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden flex">
-               <div style={{ width: `${(stats?.leads?.consultations / stats?.leads?.total) * 100}%` }} className="bg-purple-600 h-full" />
-               <div style={{ width: `${(stats?.leads?.tripRequests / stats?.leads?.total) * 100}%` }} className="bg-pink-600 h-full" />
-               <div style={{ width: `${(stats?.leads?.contacts / stats?.leads?.total) * 100}%` }} className="bg-orange-600 h-full" />
+            <div className="w-full h-4 bg-slate-50 rounded-full overflow-hidden flex shadow-inner border border-slate-100">
+               <div style={{ width: `${(stats?.leads?.consultations / stats?.leads?.total) * 100}%` }} className="bg-indigo-700 h-full" />
+               <div style={{ width: `${(stats?.leads?.tripRequests / stats?.leads?.total) * 100}%` }} className="bg-slate-950 h-full" />
+               <div style={{ width: `${(stats?.leads?.contacts / stats?.leads?.total) * 100}%` }} className="bg-indigo-500 h-full" />
             </div>
           </div>
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
         {/* Recent Activity Table */}
         <motion.div 
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          className="xl:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
+          className="xl:col-span-2 rounded-[3.5rem] border border-slate-100 bg-white shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 overflow-hidden"
         >
-          <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-              <FiClock className="text-blue-500" /> Recent Activity Feed
-            </h2>
-            <span className="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-600 rounded-full">Live Updates</span>
+          <div className="p-10 border-b-2 border-slate-50 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-5">
+                <div className="size-14 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                    <FiClock size={28} />
+                </div>
+                <div className="text-left">
+                    <h2 className="text-2xl font-black text-slate-950 dark:text-slate-50 uppercase tracking-tight">Activity Stream</h2>
+                    <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Real-time sync feed</p>
+                </div>
+            </div>
+            <span className="text-[10px] font-black px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full uppercase tracking-widest animate-pulse border border-indigo-100">Live Relay</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 dark:bg-slate-800/50">
-                <tr>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Customer Name</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Category</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Date</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Action</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50">
+                  <th className="px-10 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Customer Entity</th>
+                  <th className="px-10 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Category</th>
+                  <th className="px-10 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</th>
+                  <th className="px-10 py-6 text-xs font-black text-slate-400 uppercase tracking-[0.2em] text-right">Operation</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y-2 divide-slate-50 dark:divide-slate-800">
                 {stats?.recentActivity?.map((activity, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition">
-                    <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">{activity.name}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${
-                        activity.type === 'Contact' ? 'bg-orange-100 text-orange-600' :
-                        activity.type === 'Trip Request' ? 'bg-pink-100 text-pink-600' :
-                        'bg-purple-100 text-purple-600'
+                  <tr key={idx} className="hover:bg-indigo-50/30 transition-all duration-300">
+                    <td className="px-10 py-8 text-lg font-black text-slate-950 dark:text-slate-100">{activity.name}</td>
+                    <td className="px-10 py-8">
+                      <span className={`text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border shadow-sm ${
+                        activity.type === 'Contact' ? 'bg-slate-50 border-slate-200 text-slate-600' :
+                        activity.type === 'Trip Request' ? 'bg-indigo-700 border-indigo-700 text-white shadow-indigo-500/20' :
+                        'bg-slate-950 border-slate-950 text-white shadow-black/20'
                       }`}>
                         {activity.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">
+                    <td className="px-10 py-8 text-sm font-black text-slate-400 uppercase tracking-widest">
                       {new Date(activity.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center justify-end gap-1">
-                        View <FiArrowRight size={12} />
+                    <td className="px-10 py-8 text-right">
+                      <button className="px-6 py-3 bg-white text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white font-black text-xs uppercase tracking-widest flex items-center justify-end gap-2 ml-auto shadow-xl border border-slate-100 transition-all active:scale-95">
+                        Inspect <ArrowUpRight size={14} />
                       </button>
                     </td>
                   </tr>
@@ -311,51 +345,59 @@ const Reports = () => {
 
         {/* Content Distribution */}
         <motion.div 
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-6"
+          className="rounded-[3.5rem] border border-slate-100 bg-white p-12 shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 flex flex-col"
         >
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-            <FiGlobe className="text-blue-500" /> Inventory Distribution
-          </h2>
+          <div className="flex items-center gap-5 mb-12">
+            <div className="size-14 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                <FiGlobe size={28} />
+            </div>
+            <div className="text-left">
+                <h2 className="text-2xl font-black text-slate-950 dark:text-slate-50 uppercase tracking-tight">Inventory Distribution</h2>
+                <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Global content footprint</p>
+            </div>
+          </div>
           
-          <div className="space-y-6">
+          <div className="space-y-10 text-left flex-1">
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-slate-600 font-medium">Domestic Destinations</span>
-                <span className="text-slate-900 font-bold">{stats?.content?.domestic}</span>
+              <div className="flex justify-between text-xs font-black uppercase tracking-[0.2em] mb-4">
+                <span className="text-slate-400">Domestic Nodes</span>
+                <span className="text-slate-950 dark:text-white">{stats?.content?.domestic} Registry Entries</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-blue-600 rounded-full" 
-                  style={{ width: `${(stats?.content?.domestic / stats?.content?.destinations) * 100}%` }}
+              <div className="h-6 bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(stats?.content?.domestic / stats?.content?.destinations) * 100}%` }}
+                  className="h-full bg-indigo-700 rounded-full shadow-lg" 
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-slate-600 font-medium">International Destinations</span>
-                <span className="text-slate-900 font-bold">{stats?.content?.international}</span>
+              <div className="flex justify-between text-xs font-black uppercase tracking-[0.2em] mb-4">
+                <span className="text-slate-400">International Nodes</span>
+                <span className="text-slate-950 dark:text-white">{stats?.content?.international} Registry Entries</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-indigo-500 rounded-full" 
-                  style={{ width: `${(stats?.content?.international / stats?.content?.destinations) * 100}%` }}
+              <div className="h-6 bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(stats?.content?.international / stats?.content?.destinations) * 100}%` }}
+                  className="h-full bg-slate-950 rounded-full shadow-lg" 
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-50">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Content Totals</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                  <p className="text-[10px] text-slate-500 uppercase font-bold">Resorts</p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-slate-50">{stats?.content?.resorts}</p>
+            <div className="pt-10 border-t-2 border-slate-50 mt-10">
+              <h3 className="text-xs font-black text-indigo-700 uppercase tracking-[0.3em] mb-8">Registry Totals</h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm text-left">
+                  <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Honeymoon Resorts</p>
+                  <p className="text-4xl font-black text-slate-950 dark:text-slate-50 tracking-tighter">{stats?.content?.resorts}</p>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                  <p className="text-[10px] text-slate-500 uppercase font-bold">Itineraries</p>
-                  <p className="text-xl font-bold text-slate-900 dark:text-slate-50">{stats?.content?.itineraries}</p>
+                <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm text-left">
+                  <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Active Itineraries</p>
+                  <p className="text-4xl font-black text-slate-950 dark:text-slate-50 tracking-tighter">{stats?.content?.itineraries}</p>
                 </div>
               </div>
             </div>
@@ -363,9 +405,9 @@ const Reports = () => {
           
           <Link 
             to="/destinations/create" 
-            className="w-full mt-4 flex items-center justify-center gap-2 py-3 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition shadow-md"
+            className="w-full mt-12 flex items-center justify-center gap-4 py-6 rounded-[2rem] bg-indigo-700 text-white text-sm font-black uppercase tracking-[0.2em] hover:bg-indigo-800 transition shadow-2xl shadow-indigo-500/40 active:scale-95"
           >
-            <FiEdit /> Manage Inventory
+            <Box size={24} /> Sync Logic Vault
           </Link>
         </motion.div>
       </div>

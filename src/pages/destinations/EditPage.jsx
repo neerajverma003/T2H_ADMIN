@@ -170,7 +170,7 @@ const EditDestination = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto space-y-8 pb-12">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-8 pb-12">
       {/* HEADER */}
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -181,14 +181,6 @@ const EditDestination = () => {
             <p className="text-slate-500 font-medium mt-1">Modifying {data.destination_name || 'Destination'}</p>
           </div>
           <div className="flex items-center gap-3">
-             <a 
-               href={`${import.meta.env.VITE_FRONTEND_SITE_URL}/destination/${id}`} 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30"
-             >
-               <Eye size={14} /> View Live
-             </a>
              <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl flex">
                {["domestic", "international"].map((t) => (
                  <button key={t} type="button" onClick={() => setData({...data, type: t})} className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${data.type === t ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400'}`}>

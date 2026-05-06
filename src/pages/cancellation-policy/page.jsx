@@ -41,102 +41,103 @@ const HoneymoonCancellationPolicy = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6 text-left">
       {/* HEADER HUB */}
-      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><ShieldX size={200} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-700"><ShieldX size={240} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
             <div>
-                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
-                    <ShieldCheck className="text-indigo-600" size={36} /> CANCELLATION VAULT
+                <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-5">
+                    <ShieldCheck className="text-indigo-700" size={44} /> CANCELLATION VAULT
                 </h1>
-                <p className="text-slate-500 font-medium mt-2 text-lg italic">Strategic revocation terms and risk mitigation protocols</p>
+                <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic text-left">Strategic revocation terms and risk mitigation protocols</p>
             </div>
-            <div className="flex items-center gap-3">
-                <div className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-indigo-500/30">
-                    <Sparkles size={16} /> COMPLIANCE READY
+            <div className="flex items-center gap-5">
+                <div className="px-8 py-5 bg-indigo-700 text-white rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3 shadow-2xl shadow-indigo-500/40">
+                    <Sparkles size={20} /> COMPLIANCE READY
                 </div>
             </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="space-y-12">
         {/* INFO PANEL */}
-        <div className="lg:col-span-4 space-y-6">
-            <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden group">
-                <Zap className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform" size={120} />
-                <h3 className="text-xl font-black uppercase tracking-wider mb-4">Risk Protocol</h3>
-                <p className="text-indigo-100 font-medium leading-relaxed">
-                    Clear cancellation terms protect both the brand and the couple. Ensure all non-refundable deposits are explicitly stated.
-                </p>
-                <div className="mt-8 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 w-fit px-4 py-2 rounded-full backdrop-blur-md">
-                    <AlertCircle size={14} /> Strict Compliance
+        <div className="bg-indigo-700 rounded-[3rem] p-12 text-white shadow-2xl shadow-indigo-500/40 relative overflow-hidden group">
+            <Zap className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform" size={200} />
+            <h3 className="text-3xl font-black uppercase tracking-wider mb-8 flex items-center gap-4">
+                <AlertCircle size={32} /> Operational Risk Protocol
+            </h3>
+            <p className="text-indigo-100 text-2xl font-black leading-relaxed italic max-w-4xl">
+                "Precision in cancellation governance mitigates transactional friction and secures brand integrity. Ensure every fiscal penalty is explicitly documented."
+            </p>
+            <div className="mt-12 flex items-center justify-between">
+                <div className="flex items-center gap-5 text-sm font-black uppercase tracking-[0.3em] bg-white/10 w-fit px-8 py-4 rounded-2xl backdrop-blur-md border border-white/20">
+                    <ShieldCheck size={20} /> Strict Compliance Framework
                 </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Last Synchronized</h4>
-                <div className="flex items-center gap-4">
-                    <div className="size-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-indigo-600">
-                        <Info size={24} />
+                <div className="flex items-center gap-6">
+                    <div className="size-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md shadow-xl border border-white/10">
+                        <Info size={32} />
                     </div>
-                    <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">Active Version</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">v2.4.0 • Live</p>
+                    <div className="text-left">
+                        <p className="text-lg font-black text-white uppercase tracking-tight">Active Engine</p>
+                        <p className="text-[10px] font-black text-indigo-200 uppercase tracking-[0.4em] mt-1">v2.4.0 • STABLE</p>
                     </div>
                 </div>
             </div>
         </div>
 
         {/* EDITOR PANEL */}
-        <div className="lg:col-span-8">
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[600px] flex flex-col">
-                <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-50 dark:border-slate-800">
-                    <div className="flex items-center gap-4">
-                        <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
-                            <FileText size={24} />
-                        </div>
-                        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Honeymoon Policy Context</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none min-h-[700px] flex flex-col">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-12 pb-12 border-b-4 border-slate-50 dark:border-slate-800">
+                <div className="flex items-center gap-6">
+                    <div className="size-20 bg-indigo-700 rounded-[1.5rem] flex items-center justify-center text-white shadow-2xl shadow-indigo-500/30">
+                        <FileText size={40} />
                     </div>
+                    <div className="text-left">
+                       <h2 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight uppercase">Revocation Policy</h2>
+                       <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-2">Authorized Governance Registry Engine</p>
+                    </div>
+                </div>
 
+                <div className="flex items-center gap-5 w-full md:w-auto">
                     {!isEditing ? (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-black/10"
+                            className="w-full md:w-auto px-12 py-6 bg-slate-950 text-white rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-2xl shadow-black/20 flex items-center justify-center gap-4"
                         >
-                            <Edit className="inline mr-2" size={14} /> Edit Registry
+                            <Edit size={22} /> Edit Revocation Framework
                         </button>
                     ) : (
                         <button
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                            className="w-full md:w-auto px-12 py-6 bg-indigo-700 text-white rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] hover:bg-indigo-800 transition-all shadow-2xl shadow-indigo-500/40 flex items-center justify-center gap-4"
                         >
-                            {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
-                            {isSaving ? "Syncing..." : "Commit Changes"}
+                            {isSaving ? <Loader2 className="animate-spin" size={22} /> : <Save size={22} />}
+                            {isSaving ? "Syncing Logic..." : "Commit Protocol"}
                         </button>
                     )}
                 </div>
+            </div>
 
-                <div className="flex-1">
-                    {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-40 gap-4">
-                            <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Registry</p>
-                        </div>
-                    ) : isEditing ? (
-                        <textarea
-                            value={textContent}
-                            onChange={(e) => setTextContent(e.target.value)}
-                            className="w-full min-h-[450px] bg-slate-50 dark:bg-slate-800/50 border-none rounded-[2rem] p-8 text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/10 transition-all no-scrollbar"
-                            placeholder="Drafting honeymoon revocation terms..."
-                        />
-                    ) : (
-                        <div className="p-8 text-slate-600 dark:text-slate-300 text-sm font-bold leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-800/20 rounded-[2rem] border border-slate-50 dark:border-slate-800/40">
-                            {textContent || "Registry is currently empty."}
-                        </div>
-                    )}
-                </div>
+            <div className="flex-1 flex flex-col">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-48 gap-8">
+                        <Loader2 className="animate-spin text-indigo-700" size={64} strokeWidth={1.5} />
+                        <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Loading Revocation Assets...</p>
+                    </div>
+                ) : isEditing ? (
+                    <textarea
+                        value={textContent}
+                        onChange={(e) => setTextContent(e.target.value)}
+                        className="flex-1 w-full bg-slate-50 dark:bg-slate-800/50 border-4 border-transparent focus:border-indigo-700/10 rounded-[3rem] p-12 text-2xl font-black text-slate-950 dark:text-slate-200 leading-relaxed placeholder:text-slate-300 outline-none transition-all no-scrollbar shadow-inner min-h-[500px]"
+                        placeholder="Drafting honeymoon revocation terms..."
+                    />
+                ) : (
+                    <div className="flex-1 p-12 text-slate-950 dark:text-slate-300 text-2xl font-black leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-800/30 rounded-[3rem] border-4 border-slate-100 dark:border-slate-800/50 shadow-inner text-left italic min-h-[500px]">
+                        {textContent || "Revocation terms are currently undefined in the registry."}
+                    </div>
+                )}
             </div>
         </div>
       </div>

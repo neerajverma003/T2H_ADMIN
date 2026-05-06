@@ -83,6 +83,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/testimonials')) toggleMenu('testimonials', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
     if (path.includes('/leads')) toggleMenu('leads', true)
+    if (path.includes('/hero')) toggleMenu('hero', true)
     if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
   }, [location])
 
@@ -206,10 +207,16 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/testimonials/list" onClick={() => setOpen(false)} className={subLinkClass}>Written Reviews</NavLink>
           </NavDropdown>
 
-          <NavLink to="/hero-video" onClick={() => setOpen(false)} className={navLinkClass}>
-             <Video size={18} strokeWidth={2} />
-             Hero Media
-          </NavLink>
+          <NavDropdown 
+            title="Hero Media" 
+            icon={Video} 
+            isOpen={openMenus.hero} 
+            onClick={() => toggleMenu('hero')}
+            isActive={location.pathname.includes("hero")}
+          >
+            <NavLink to="/hero-content" onClick={() => setOpen(false)} className={subLinkClass}>Hero Content</NavLink>
+            <NavLink to="/hero-media" onClick={() => setOpen(false)} className={subLinkClass}>Hero Media</NavLink>
+          </NavDropdown>
 
           <NavDropdown 
             title="Blog" 

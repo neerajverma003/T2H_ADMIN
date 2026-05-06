@@ -77,7 +77,9 @@ import AdminLayout from "./layouts/AdminLayout"
 // Pages
 import Login from "./pages/auth/Login"
 import Dashboard from "./pages/dashboard/Dashboard"
-import HoneymoonHeroVideo from "./routes/hero_video/page"
+import HeroContent from './pages/hero/HeroContent';
+import HeroMedia from './pages/hero/HeroMedia';
+
 import AddUser from "./pages/users/AddUser"
 import UserList from "./pages/users/UsersList"
 import CreateDestination from "./pages/destinations/CreateDestination"
@@ -157,8 +159,9 @@ function App() {
             <Route path="resorts/list" element={<HoneymoonResortList />} />
             <Route path="resorts/edit/:id" element={<EditPage />} />
 
-            {/* Hero Video */}
-            <Route path="hero-video" element={<HoneymoonHeroVideo />} />
+            {/* Hero Section Management */}
+            <Route path="hero-content" element={<HeroContent />} />
+            <Route path="hero-media" element={<HeroMedia />} />
 
             {/* Blog (when ready) */}
             <Route path="blogs/create" element={<CreateBlog />} />

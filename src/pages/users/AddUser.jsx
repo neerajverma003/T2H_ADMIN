@@ -37,7 +37,7 @@ const AddUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.username || !formData.password) return
-    
+
     const success = await addUser(formData)
     if (success) {
       setFormData({ username: "", password: "" })
@@ -62,12 +62,12 @@ const AddUser = () => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto space-y-8 pb-12"
+      className="w-full space-y-6 pb-12"
     >
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
@@ -128,7 +128,7 @@ const AddUser = () => {
       </div>
 
       {/* FULL WIDTH LIST */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[400px]">
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[400px]">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-3">
             <Users size={24} className="text-indigo-600" /> Active Staff Directory
@@ -144,7 +144,7 @@ const AddUser = () => {
             <p className="text-sm font-black text-slate-400 uppercase tracking-widest text-center">Syncing Database...</p>
           </div>
         ) : users?.length ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-6">
             {users.map((user) => (
               <div key={user._id} className="group flex items-center justify-between p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all hover:shadow-lg hover:shadow-indigo-500/5">
                 <div className="flex items-center gap-5">
@@ -159,8 +159,8 @@ const AddUser = () => {
                     </div>
                   </div>
                 </div>
-                <button 
-                  onClick={() => handleDeleteClick(user)} 
+                <button
+                  onClick={() => handleDeleteClick(user)}
                   className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
                 >
                   <Trash2 size={20} />

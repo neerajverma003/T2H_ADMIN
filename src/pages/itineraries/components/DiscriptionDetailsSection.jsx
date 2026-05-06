@@ -100,13 +100,13 @@ const DescriptionsSection = ({
                         name="destination_detail"
                         value={formData.destination_detail}
                         onChange={handleInputChange}
-                        className={`${inputStyle} min-h-[180px] text-lg leading-relaxed ${errors.destination_detail ? "ring-2 ring-red-500" : ""}`}
+                        className={`${inputStyle} min-h-[180px] leading-relaxed ${errors.destination_detail ? "ring-2 ring-red-500" : ""}`}
                         placeholder="Craft a romantic story about this destination..."
                     />
                     {errors.destination_detail && <p className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">{errors.destination_detail}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-50 dark:border-slate-800">
+                <div className="flex flex-col gap-8 pt-4 border-t border-slate-50 dark:border-slate-800">
                     {/* Terms & Conditions */}
                     <div>
                         <label htmlFor="terms_and_conditions" className={labelStyle}><FileText size={14} /> Quick Terms</label>
@@ -115,7 +115,7 @@ const DescriptionsSection = ({
                             name="terms_and_conditions"
                             value={formData.terms_and_conditions || ""}
                             onChange={handleInputChange}
-                            className={`${inputStyle} min-h-[100px] text-xs`}
+                            className={`${inputStyle} min-h-[100px] placeholder:text-slate-400`}
                             placeholder={loading.terms ? "Syncing..." : "Booking terms..."}
                         />
                     </div>
@@ -128,7 +128,7 @@ const DescriptionsSection = ({
                             name="payment_mode"
                             value={formData.payment_mode || ""}
                             onChange={handleInputChange}
-                            className={`${inputStyle} min-h-[100px] text-xs`}
+                            className={`${inputStyle} min-h-[100px] placeholder:text-slate-400`}
                             placeholder={loading.payment ? "Syncing..." : "Collection terms..."}
                         />
                     </div>
@@ -142,7 +142,7 @@ const DescriptionsSection = ({
                         name="cancellation_policy"
                         value={formData.cancellation_policy || ""}
                         onChange={handleInputChange}
-                        className={`${inputStyle} min-h-[100px] text-xs`}
+                        className={`${inputStyle} min-h-[100px] placeholder:text-slate-400`}
                         placeholder={loading.cancellation ? "Syncing..." : "Cancellation rules..."}
                     />
                 </div>

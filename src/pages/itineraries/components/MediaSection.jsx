@@ -99,7 +99,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
 
     const renderGrid = (images, selected, key) => {
         if (isLoading) return <div className="py-12 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>;
-        if (!images || !images.length) return <div className="p-10 rounded-3xl bg-slate-50 dark:bg-slate-800/50 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">No destination assets found.</div>;
+        if (!images || !images.length) return <div className="p-10 rounded-3xl bg-slate-50 dark:bg-slate-800/50 text-center text-[10px] font-black uppercase tracking-widest text-slate-700">No destination assets found.</div>;
 
         return (
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
@@ -146,27 +146,37 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
             {!formData.selected_destination_id ? (
                 <div className="p-12 text-center bg-slate-50 dark:bg-slate-800/50 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                     <ImageIcon className="mx-auto mb-4 text-slate-300" size={48} strokeWidth={1} />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Select a destination to unlock media manager</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Select a destination to unlock media manager</p>
                 </div>
             ) : (
                 <div className="space-y-12">
                     {/* VIDEO SECTION */}
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-8 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all">
-                        <label className={labelStyle}><Film size={14} /> Highlight Reel</label>
+                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-10 border-2 border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all shadow-inner">
+                        <label className={labelStyle}><Film size={18} className="text-indigo-600" /> Cinematic Highlight Reel</label>
                         {formData.video ? (
-                            <div className="mt-4 group relative aspect-video max-w-md rounded-3xl overflow-hidden border-4 border-white dark:border-slate-900 shadow-2xl">
+                            <div className="mt-8 group relative aspect-video w-full rounded-[2.5rem] overflow-hidden border-8 border-white dark:border-slate-900 shadow-2xl">
                                 <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center">
-                                    <div className="bg-white/20 backdrop-blur-md p-4 rounded-full"><Play size={32} className="text-white fill-white" /></div>
+                                    <div className="bg-white/20 backdrop-blur-xl p-8 rounded-full shadow-2xl group-hover:scale-110 transition-transform"><Play size={64} className="text-white fill-white" /></div>
                                 </div>
-                                <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
-                                   <p className="text-white text-[10px] font-black uppercase tracking-widest truncate">{formData.video.name}</p>
-                                   <button onClick={removeVideo} className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all"><X size={14} /></button>
+                                <div className="absolute bottom-0 inset-x-0 p-10 bg-gradient-to-t from-black/90 to-transparent flex items-center justify-between">
+                                   <div>
+                                     <p className="text-white text-xs font-black uppercase tracking-[0.3em] mb-1">Live Preview</p>
+                                     <p className="text-indigo-300 text-sm font-bold truncate max-w-md">{formData.video.name}</p>
+                                   </div>
+                                   <button onClick={removeVideo} className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all shadow-xl shadow-red-500/40 font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                     <X size={16} /> Discard Asset
+                                   </button>
                                 </div>
                             </div>
                         ) : (
-                            <label className="mt-4 group relative block w-full h-32 rounded-[1.5rem] border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400">
-                               <Film size={24} strokeWidth={1.5} />
-                               <p className="mt-2 text-[9px] font-black uppercase tracking-widest">Upload Cinematic Preview</p>
+                            <label className="mt-8 group relative block w-full aspect-video rounded-[2rem] border-4 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400 shadow-inner">
+                               <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
+                                 <Film size={40} strokeWidth={1.5} className="text-indigo-600" />
+                               </div>
+                               <div className="text-center">
+                                 <p className="text-base font-black uppercase tracking-[0.3em] text-slate-950 dark:text-white mb-1">Sync Cinematic Preview</p>
+                                 <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest italic opacity-60">High-Resolution Video Ingest Pipeline</p>
+                               </div>
                                <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} hidden />
                             </label>
                         )}

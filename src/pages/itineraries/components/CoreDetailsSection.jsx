@@ -45,7 +45,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                     CORE DETAILS
                 </h2>
                 <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
-                   Itinerary DNA
+                    Itinerary DNA
                 </div>
             </div>
 
@@ -60,15 +60,15 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                         value={formData.title}
                         onChange={handleInputChange}
                         placeholder="e.g. Romantic Bali Honeymoon Escape"
-                        className={`${inputStyle} text-xl font-bold h-16 ${errors.title ? "ring-2 ring-red-500" : ""}`}
+                        className={`${inputStyle} ${errors.title ? "ring-2 ring-red-500" : ""}`}
                     />
                     {errors.title && <p className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">{errors.title}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-10">
                     {/* Destination */}
                     <div>
-                        <label htmlFor="selected_destination_id" className={labelStyle}><MapPin size={14} /> Destination</label>
+                        <label htmlFor="selected_destination_id" className={labelStyle}><MapPin size={16} className="text-indigo-600" /> Target Destination</label>
                         <select
                             id="selected_destination_id"
                             name="selected_destination_id"
@@ -77,7 +77,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                             className={`${inputStyle} ${errors.selected_destination_id ? "ring-2 ring-red-500" : ""}`}
                             disabled={isListLoading}
                         >
-                            <option value="">{isListLoading ? "Loading..." : "-- Select Destination --"}</option>
+                            <option value="">{isListLoading ? "Synchronizing destinations..." : "-- Select Destination Territory --"}</option>
                             {destinationList.map((place) => (
                                 <option key={place._id} value={place._id}>{place.destination_name}</option>
                             ))}
@@ -87,7 +87,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
 
                     {/* Duration */}
                     <div>
-                        <label htmlFor="duration" className={labelStyle}><Calendar size={14} /> Duration</label>
+                        <label htmlFor="duration" className={labelStyle}><Calendar size={16} className="text-indigo-600" /> Experience Duration</label>
                         <select
                             id="duration"
                             name="duration"
@@ -95,7 +95,7 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                             onChange={handleInputChange}
                             className={`${inputStyle} ${errors.duration ? "ring-2 ring-red-500" : ""}`}
                         >
-                            <option value="">-- Select Duration --</option>
+                            <option value="">-- Select Timeline --</option>
                             {["3 Days / 2 Nights", "4 Days / 3 Nights", "5 Days / 4 Nights", "6 Days / 5 Nights", "7 Days / 6 Nights", "Custom"].map(d => (
                                 <option key={d} value={d}>{d}</option>
                             ))}
@@ -105,47 +105,46 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                 </div>
 
                 {/* Themes */}
-                <div>
-                    <label className={labelStyle}><ListChecks size={14} /> Honeymoon Themes</label>
-                    <div className="flex flex-wrap gap-3 mt-4">
+                <div className="pt-10 border-t-4 border-slate-50 dark:border-slate-800">
+                    <label className={labelStyle}><ListChecks size={16} className="text-indigo-600" /> Honeymoon Themes</label>
+                    <div className="flex flex-wrap gap-4 mt-6">
                         {themes.map((theme) => (
-                            <label key={theme} className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all cursor-pointer ${formData.itinerary_theme.includes(theme) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800' : 'border-transparent bg-slate-50 dark:bg-slate-800/50'}`}>
-                                <input type="checkbox" value={theme} checked={formData.itinerary_theme.includes(theme)} onChange={handleThemeChange} className="accent-indigo-600 size-4" />
-                                <span className={`text-xs font-bold ${formData.itinerary_theme.includes(theme) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{theme}</span>
+                            <label key={theme} className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all cursor-pointer ${formData.itinerary_theme.includes(theme) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800 shadow-lg' : 'border-transparent bg-slate-50 dark:bg-slate-800/50 hover:border-slate-100'}`}>
+                                <input type="checkbox" value={theme} checked={formData.itinerary_theme.includes(theme)} onChange={handleThemeChange} className="accent-indigo-600 size-4 rounded" />
+                                <span className={`text-xs font-bold uppercase tracking-tight ${formData.itinerary_theme.includes(theme) ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>{theme}</span>
                             </label>
                         ))}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Classification */}
-                    <div className="md:col-span-2">
-                        <label className={labelStyle}><Layers size={14} /> Classification</label>
-                        <div className="flex flex-wrap gap-3 mt-4">
-                            {classificationTypes.map((c) => (
-                                <label key={c} className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all cursor-pointer ${formData.classification.includes(c) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800' : 'border-transparent bg-slate-50 dark:bg-slate-800/50'}`}>
-                                    <input type="checkbox" value={c} checked={formData.classification.includes(c)} onChange={handleClassificationChange} className="accent-indigo-600 size-4" />
-                                    <span className={`text-xs font-bold ${formData.classification.includes(c) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{c}</span>
-                                </label>
-                            ))}
-                        </div>
+                {/* Classification */}
+                <div className="pt-10 border-t-4 border-slate-50 dark:border-slate-800">
+                    <label className={labelStyle}><Layers size={16} className="text-indigo-600" /> Strategic Classification</label>
+                    <div className="flex flex-wrap gap-4 mt-6">
+                        {classificationTypes.map((c) => (
+                            <label key={c} className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all cursor-pointer ${formData.classification.includes(c) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800 shadow-lg' : 'border-transparent bg-slate-50 dark:bg-slate-800/50 hover:border-slate-100'}`}>
+                                <input type="checkbox" value={c} checked={formData.classification.includes(c)} onChange={handleClassificationChange} className="accent-indigo-600 size-4 rounded" />
+                                <span className={`text-xs font-bold uppercase tracking-tight ${formData.classification.includes(c) ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>{c}</span>
+                            </label>
+                        ))}
                     </div>
+                </div>
 
-                    <div className="space-y-8">
-                        <div>
-                            <label className={labelStyle}><Sparkles size={14} /> Flow Type</label>
-                            <select name="itinerary_type" value={formData.itinerary_type} onChange={handleInputChange} className={inputStyle}>
-                                <option value="flexible">Flexible Flow</option>
-                                <option value="fixed">Fixed Schedule</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className={labelStyle}><Eye size={14} /> Visibility</label>
-                            <select name="itinerary_visibility" value={formData.itinerary_visibility} onChange={handleInputChange} className={inputStyle}>
-                                <option value="public">Live on Portal</option>
-                                <option value="private">Hidden / Draft</option>
-                            </select>
-                        </div>
+                {/* SETTINGS */}
+                <div className="pt-10 border-t-4 border-slate-50 dark:border-slate-800 space-y-10">
+                    <div>
+                        <label className={labelStyle}><Sparkles size={16} className="text-indigo-600" /> Operational Flow</label>
+                        <select name="itinerary_type" value={formData.itinerary_type} onChange={handleInputChange} className={inputStyle}>
+                            <option value="flexible">Flexible Narrative Flow</option>
+                            <option value="fixed">Fixed Structural Schedule</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelStyle}><Eye size={16} className="text-indigo-600" /> Broadcast Visibility</label>
+                        <select name="itinerary_visibility" value={formData.itinerary_visibility} onChange={handleInputChange} className={inputStyle}>
+                            <option value="public">Live Broadcast (Public)</option>
+                            <option value="private">Internal Archive (Draft)</option>
+                        </select>
                     </div>
                 </div>
             </div>

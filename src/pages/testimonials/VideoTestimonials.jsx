@@ -72,16 +72,23 @@ const VideoTestimonials = () => {
 
     try {
       setIsLoading(true)
-      const testimonialFolder = `testimonials/${name.replace(/\s+/g, '_')}`
-      
+      // 1. Request a secure, short-lived 'Presigned URL' from the backend
       const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
         fileName: videoFile.name,
         fileType: videoFile.type,
         folder: testimonialFolder
       })
       const { uploadUrl, key } = presignedRes.data
-      await fetch(uploadUrl, { method: "PUT", body: videoFile, headers: { "Content-Type": videoFile.type } })
 
+      // 2. Upload the file directly to S3 using the Presigned URL (Method: PUT)
+      // This reduces server load as the file never passes through your backend.
+      await fetch(uploadUrl, { 
+        method: "PUT", 
+        body: videoFile, 
+        headers: { "Content-Type": videoFile.type } 
+      })
+
+      // 3. Save only the 'S3 Key' to your database for future retrieval via CDN
       const payload = { title: name, location, visibility, video_key: key }
       const res = await apiClient.post("/admin/testimonial-video", payload)
       if (res.data.success) {
@@ -115,149 +122,157 @@ const VideoTestimonials = () => {
     }
   }
 
-  const styleProps = {
-    inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400",
-    labelStyle: "flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2",
+  const { inputStyle, labelStyle, cardStyle } = {
+    inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500",
+    labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
     cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto space-y-10 pb-20 px-4">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-4 text-left">
       {/* HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><Video size={200} /></div>
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><Video size={160} /></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                    <Film className="text-indigo-600" /> VIDEO TESTIMONIALS
+                <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
+                    <Film className="text-indigo-600" size={32} /> VIDEO STORIES
                 </h1>
-                <p className="text-slate-500 font-medium mt-1 italic">Capturing the joy of perfectly planned honeymoons</p>
+                <p className="text-slate-500 dark:text-slate-400 font-bold mt-1 text-sm italic text-left">Capturing the joy of perfectly planned honeymoons</p>
             </div>
-            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-2xl">
-                <div className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles size={12} /> {testimonials.length} Stories Shared
+            <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl shadow-inner border border-slate-100 dark:border-slate-800">
+                <div className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/30">
+                    <Sparkles size={16} /> {testimonials.length} Official Memories
                 </div>
             </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="flex flex-col gap-12">
         {/* UPLOAD FORM */}
-        <div className="lg:col-span-5">
-            <form onSubmit={handleSubmit} className={styleProps.cardStyle}>
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400"><UploadCloud size={20} /></div>
-                    <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Onboard Story</h2>
+        <div className="w-full">
+            <form onSubmit={handleSubmit} className={cardStyle}>
+                <div className="flex items-center gap-4 mb-10">
+                    <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><UploadCloud size={24} /></div>
+                    <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Onboard Story</h2>
                 </div>
 
-                <div className="space-y-6">
+                <div className="flex flex-col gap-12">
+                    {/* TOP: MASTER ASSET (FULL WIDTH) */}
                     <div>
-                        <label className={styleProps.labelStyle}>Cinematic Video</label>
+                        <label className={labelStyle}>Cinematic Master Asset</label>
                         {previewUrl ? (
-                            <div className="relative aspect-video rounded-3xl overflow-hidden bg-black shadow-2xl">
+                            <div className="relative w-full aspect-[21/9] rounded-3xl overflow-hidden bg-slate-950 shadow-2xl border-4 border-slate-900">
                                 <video src={previewUrl} controls className="w-full h-full object-contain" />
-                                <div className="absolute top-4 right-4 flex gap-2">
-                                    <label htmlFor="videoUpload" className="size-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white cursor-pointer hover:bg-indigo-600 transition-all">
-                                        <Replace size={18} />
+                                <div className="absolute top-6 right-6 flex gap-3">
+                                    <label htmlFor="videoUpload" className="px-5 py-2.5 bg-slate-900/80 backdrop-blur-xl rounded-xl flex items-center gap-2 text-white cursor-pointer hover:bg-indigo-600 transition-all border border-white/10 shadow-xl text-[10px] font-black uppercase tracking-widest">
+                                        <Replace size={16} /> Change Video
                                     </label>
-                                    <button type="button" onClick={handleRemoveVideo} className="size-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-red-500 transition-all">
-                                        <X size={18} />
+                                    <button type="button" onClick={handleRemoveVideo} className="size-10 bg-red-600/80 backdrop-blur-xl rounded-xl flex items-center justify-center text-white hover:bg-red-600 transition-all border border-white/10 shadow-xl">
+                                        <X size={20} />
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <label htmlFor="videoUpload" className="group flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2.5rem] cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all">
-                                <div className="flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="size-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 transition-transform group-hover:scale-110">
+                            <label htmlFor="videoUpload" className="group flex flex-col items-center justify-center w-full aspect-[21/7] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all hover:border-indigo-600">
+                                <div className="flex flex-col items-center justify-center p-8 text-center">
+                                    <div className="size-16 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-indigo-600 mb-6 transition-transform group-hover:scale-110 shadow-lg shadow-indigo-500/10">
                                         <UploadCloud size={32} />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Sync Customer Video</p>
-                                    <p className="text-[10px] text-slate-300 mt-1 italic">Direct-to-S3 Processing</p>
+                                    <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-950 dark:text-white">Sync Customer Video</p>
+                                    <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-widest italic opacity-70">Direct-to-S3 Core Processing Pipeline</p>
                                 </div>
                                 <input id="videoUpload" type="file" hidden accept="video/*" onChange={handleVideoFileChange} />
                             </label>
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6">
-                        <div>
-                            <label className={styleProps.labelStyle}>Couple Name / Title</label>
-                            <input ref={nameRef} className={styleProps.inputStyle} placeholder="e.g. John & Emma's Maldives Escape" />
-                        </div>
-                        <div>
-                            <label className={styleProps.labelStyle}>Honeymoon Location</label>
-                            <div className="relative">
-                                <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input ref={locationRef} className={`${styleProps.inputStyle} pl-12`} placeholder="e.g. Maldives" />
+                    {/* BOTTOM: DATA INPUTS (STACKED) */}
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelStyle}>Couple Identity / Story Title</label>
+                                <input ref={nameRef} className={inputStyle} placeholder="e.g. John & Emma's Maldives Escape" />
+                            </div>
+                            <div>
+                                <label className={labelStyle}>Honeymoon Destination</label>
+                                <div className="relative group">
+                                    <MapPin size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                                    <input ref={locationRef} className={`${inputStyle} pl-16`} placeholder="e.g. Maldives, Switzerland" />
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <label className={styleProps.labelStyle}>Visibility Priority</label>
-                            <div className="flex gap-4">
-                                <button type="button" onClick={() => setVisibility("public")} className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${visibility === "public" ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400'}`}>
-                                    <Eye size={14} /> Public
-                                </button>
-                                <button type="button" onClick={() => setVisibility("private")} className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${visibility === "private" ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-black/20' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400'}`}>
-                                    <EyeOff size={14} /> Private
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="pt-6 border-t border-slate-50 dark:border-slate-800">
-                        <button disabled={!videoFile || isLoading} className="w-full bg-indigo-600 text-white py-5 rounded-[1.5rem] font-black text-sm shadow-2xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50">
-                            {isLoading ? <Loader2 className="animate-spin" size={20} /> : <ShieldCheck size={20} />}
-                            {isLoading ? "Syncing Store..." : "FINALIZE TESTIMONIAL"}
-                        </button>
+                        <div>
+                            <label className={labelStyle}>Visibility & Publishing Priority</label>
+                            <div className="flex gap-4">
+                                <button type="button" onClick={() => setVisibility("public")} className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-3 ${visibility === "public" ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-200'}`}>
+                                    <Eye size={18} /> Public
+                                </button>
+                                <button type="button" onClick={() => setVisibility("private")} className={`flex-1 py-4 rounded-xl text-xs font-black uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-3 ${visibility === "private" ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-200'}`}>
+                                    <EyeOff size={18} /> Private
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <button disabled={!videoFile || isLoading} className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg uppercase tracking-widest shadow-xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-4 active:scale-[0.99] disabled:opacity-50">
+                                {isLoading ? <Loader2 className="animate-spin" size={24} /> : <ShieldCheck size={24} />}
+                                {isLoading ? "Synchronizing Asset..." : "FINALIZE & PUBLISH MEMORY"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
 
         {/* LIST HUB */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="w-full bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
             <div className="flex items-center justify-between mb-10">
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider">Story Registry</h2>
-                    <p className="text-xs text-slate-500 font-medium mt-1">Managed social proof and video assets</p>
+                    <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Story Registry</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-bold mt-1 italic">Managed social proof and video assets</p>
                 </div>
-                <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <div className="size-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                     <Play size={20} />
                 </div>
             </div>
 
             {isFetching ? (
-                <div className="flex flex-col items-center justify-center py-40 gap-4">
-                    <Loader2 className="animate-spin text-indigo-600" size={48} strokeWidth={1} />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Assets</p>
+                <div className="flex flex-col items-center justify-center py-48 gap-8">
+                    <Loader2 className="animate-spin text-indigo-700" size={64} strokeWidth={1.5} />
+                    <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Loading High-Res Assets...</p>
                 </div>
             ) : testimonials.length === 0 ? (
-                <div className="py-40 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[3rem]">
-                    <Video className="mx-auto mb-4 text-slate-200" size={64} strokeWidth={1} />
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No video stories onboarded yet</p>
+                <div className="py-48 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[3.5rem]">
+                    <Video className="mx-auto mb-6 text-slate-200 dark:text-slate-800" size={100} strokeWidth={1} />
+                    <h3 className="text-3xl font-black text-slate-950 dark:text-white uppercase tracking-tight mb-4">No Stories Onboarded</h3>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-xs italic">Capture your first couple memory to begin</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <AnimatePresence>
                         {testimonials.map((t) => (
-                            <motion.div layout key={t._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/5 transition-all hover:shadow-2xl">
+                            <motion.div layout key={t._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg transition-all hover:shadow-xl hover:shadow-indigo-500/10">
                                 <div className="relative aspect-video overflow-hidden">
-                                    <video src={t.video_url} muted className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
-                                        <Play className="text-white scale-75 group-hover:scale-100 transition-transform" size={48} />
+                                    <video src={t.video_url} muted className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
+                                        <div className="size-20 bg-white rounded-full flex items-center justify-center text-indigo-700 shadow-2xl scale-75 group-hover:scale-100 transition-transform">
+                                            <Play className="ml-1" size={36} fill="currentColor" />
+                                        </div>
                                     </div>
-                                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest backdrop-blur-md ${t.visibility === 'public' ? 'bg-emerald-500/80 text-white' : 'bg-black/50 text-slate-300'}`}>
-                                        {t.visibility}
+                                    <div className={`absolute top-6 left-6 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md shadow-2xl ${t.visibility === 'public' ? 'bg-emerald-600 text-white' : 'bg-slate-950 text-slate-300'}`}>
+                                        {t.visibility} Portal
                                     </div>
                                 </div>
                                 <div className="p-6">
-                                    <h3 className="font-black text-slate-900 dark:text-white truncate tracking-tight">{t.title}</h3>
+                                    <h3 className="text-lg font-black text-slate-950 dark:text-white truncate tracking-tight mb-2">{t.title}</h3>
                                     <div className="flex items-center justify-between mt-4">
-                                        <div className="flex items-center gap-2 text-slate-400">
-                                            <MapPin size={12} />
+                                        <div className="flex items-center gap-3 text-slate-500">
+                                            <MapPin size={14} className="text-indigo-600" />
                                             <span className="text-[10px] font-black uppercase tracking-widest">{t.location}</span>
                                         </div>
-                                        <button onClick={() => handleDeleteTestimonial(t._id)} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                        <button onClick={() => handleDeleteTestimonial(t._id)} className="p-3 bg-white text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-50">
                                             {deletingId === t._id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
                                         </button>
                                     </div>

@@ -261,38 +261,33 @@ const CreateItineriesPage = () => {
     }, [formData.duration]);
 
     const styleProps = {
-        inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400",
-        labelStyle: "flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2",
+        inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500",
+        labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
         cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
-        buttonStyle: "bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20",
-        removeButtonStyle: "bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition-all",
+        buttonStyle: "bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30",
+        removeButtonStyle: "bg-red-500/10 text-red-600 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all",
     };
 
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto space-y-8 pb-20 px-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-6 pb-20">
             {/* HEADER */}
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                            <Navigation className="text-indigo-600" /> {id ? "EDIT ITINERARY" : "NEW ITINERARY"}
+                            <Navigation className="text-indigo-600" size={28} /> {id ? "EDIT ITINERARY" : "NEW ITINERARY"}
                         </h1>
                         <p className="text-slate-500 font-medium mt-1">Crafting unforgettable experiences for couples</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        {id && (
-                            <a 
-                                href={`${import.meta.env.VITE_FRONTEND_SITE_URL}/itinerary/${id}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30"
-                            >
-                                <Sparkles size={14} className="text-amber-500" /> View Live
-                            </a>
-                        )}
-                        <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl flex">
+                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem] flex shadow-inner">
                             {["domestic", "international"].map((t) => (
-                                <button key={t} type="button" onClick={() => setFormData({...formData, destination_type: t})} className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.destination_type === t ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400'}`}>
+                                <button 
+                                    key={t} 
+                                    type="button" 
+                                    onClick={() => setFormData({...formData, destination_type: t})} 
+                                    className={`px-8 py-3 rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] transition-all ${formData.destination_type === t ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/40' : 'text-slate-500 hover:text-slate-900'}`}
+                                >
                                     {t}
                                 </button>
                             ))}
@@ -314,9 +309,9 @@ const CreateItineriesPage = () => {
                 <PaymentModeSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
                 <CancellationPolicySection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
 
-                <div className="flex justify-end pt-8">
-                    <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-lg shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all flex items-center gap-3 disabled:opacity-50 overflow-hidden">
-                        {isSubmitting ? <Loader2 className="animate-spin" size={24} /> : <Heart size={24} />}
+                <div className="flex justify-end pt-12">
+                    <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden uppercase tracking-widest">
+                        {isSubmitting ? <Loader2 className="animate-spin" size={28} /> : <Heart size={28} />}
                         {isSubmitting ? 'Syncing...' : id ? 'Push Changes' : 'Commit Itinerary'}
                     </button>
                 </div>

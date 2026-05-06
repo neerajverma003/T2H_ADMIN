@@ -63,7 +63,7 @@ const DayInfoSection = ({
                                         name="locationName"
                                         value={item.locationName}
                                         onChange={(e) => handleArrayChange(e, index, "days_information")}
-                                        className={`${inputStyle} text-lg font-bold`}
+                                        className={inputStyle}
                                         placeholder="e.g. Arrival & Candlelight Dinner"
                                     />
                                 </div>
@@ -83,12 +83,17 @@ const DayInfoSection = ({
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                 <div className="space-y-10">
                                     <div>
-                                        <label className={labelStyle}><ImageIcon size={14} /> Day Specific Media</label>
-                                        <label className="group relative block w-full h-32 rounded-[1.5rem] border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400">
-                                           <ImageIcon size={24} strokeWidth={1.5} />
-                                           <p className="mt-2 text-[9px] font-black uppercase tracking-widest">{item.day_image_file ? 'Change Photo' : 'Upload Day Highlight'}</p>
+                                        <label className={labelStyle}><ImageIcon size={18} className="text-indigo-600" /> Day Specific Narrative Media</label>
+                                        <label className="group relative block w-full aspect-[21/6] rounded-[2.5rem] border-4 border-dashed border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-700 shadow-inner flex flex-col items-center justify-center text-slate-400">
+                                           <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
+                                              <ImageIcon size={32} strokeWidth={1.5} className="text-indigo-600" />
+                                           </div>
+                                           <div className="text-center">
+                                              <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-950 dark:text-white mb-1">{item.day_image_file ? 'Modify Narrative Visual' : 'Acquire Day Highlight'}</p>
+                                              <p className="text-[10px] font-black text-indigo-700 uppercase tracking-widest italic opacity-60">High-Fidelity Frame Processing</p>
+                                           </div>
                                            <input 
                                                 type="file" 
                                                 name="day_image_file" 
@@ -104,14 +109,14 @@ const DayInfoSection = ({
 
                                     {/* Previews */}
                                     {(item.day_image_file || item.day_image) && (
-                                        <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl group/img">
+                                        <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden border-8 border-white dark:border-slate-900 shadow-2xl group/img">
                                             <img 
                                                 src={item.day_image_file ? URL.createObjectURL(item.day_image_file) : item.day_image} 
                                                 alt="" 
-                                                className="w-full h-full object-cover" 
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
                                             />
-                                            <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg ${item.day_image_file ? 'bg-indigo-600 text-white' : 'bg-emerald-600 text-white'}`}>
-                                                {item.day_image_file ? 'Unsaved' : 'Existing'}
+                                            <div className={`absolute top-8 left-8 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-2xl backdrop-blur-md ${item.day_image_file ? 'bg-indigo-600/90 text-white' : 'bg-emerald-600/90 text-white'}`}>
+                                                {item.day_image_file ? 'New Acquisition' : 'Registry Asset'}
                                             </div>
                                         </div>
                                     )}

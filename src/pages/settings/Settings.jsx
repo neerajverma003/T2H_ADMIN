@@ -14,6 +14,7 @@ import {
     FiShield,
     FiLink
 } from "react-icons/fi";
+import { ShieldCheck, Zap, Sparkles, RefreshCcw, Save, Globe, Mail, Phone, MapPin, Facebook, Instagram, Twitter, ExternalLink } from "lucide-react";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -67,51 +68,56 @@ const Settings = () => {
   };
 
   const styleProps = {
-    inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 pl-12 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400",
-    labelStyle: "flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2",
-    cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
+    inputStyle: "w-full rounded-[1.5rem] border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-6 pl-16 text-slate-950 dark:text-slate-100 text-lg font-black focus:border-indigo-700/20 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner",
+    labelStyle: "flex items-center gap-3 text-xs font-black text-slate-950 dark:text-slate-400 uppercase tracking-[0.3em] mb-4",
+    cardStyle: "bg-white dark:bg-slate-900 rounded-[3.5rem] p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none",
   }
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-40 gap-4">
-        <FiLoader className="h-10 w-10 animate-spin text-indigo-600" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Loading Portal Configuration</p>
+      <div className="flex flex-col items-center justify-center py-48 gap-8">
+        <RefreshCcw className="size-16 animate-spin text-indigo-700" strokeWidth={1} />
+        <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Syncing Intelligence Core...</p>
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto space-y-10 pb-20 px-4">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-12 pb-24 px-6 text-left">
       {/* HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><FiSettings size={200} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+      <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-700"><FiSettings size={240} /></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
             <div>
-                <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
-                    <FiShield className="text-indigo-600" /> PORTAL REGISTRY
+                <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-5">
+                    <ShieldCheck className="text-indigo-700" size={44} /> PORTAL REGISTRY
                 </h1>
-                <p className="text-slate-500 font-medium mt-2 text-lg italic">Global configuration and brand connectivity</p>
+                <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic text-left">Global configuration and brand connectivity protocols</p>
             </div>
-            <div className="px-6 py-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm">
-                <FiCheckCircle size={16} /> Verified Store
+            <div className="px-8 py-5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-[1.5rem] text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3 shadow-sm border border-emerald-100">
+                <FiCheckCircle size={20} /> VERIFIED IDENTITY
             </div>
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-10">
+      <form onSubmit={handleSave} className="space-y-12">
         {/* CONTACT HUB */}
         <div className={styleProps.cardStyle}>
-          <div className="flex items-center gap-3 mb-10">
-            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400"><FiGlobe size={24} /></div>
-            <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Contact Synchronization</h2>
+          <div className="flex items-center gap-5 mb-12">
+            <div className="size-16 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                <Globe size={32} />
+            </div>
+            <div className="text-left">
+                <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Global Connectivity</h2>
+                <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Contact synchronization matrix</p>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
             <div>
-              <label className={styleProps.labelStyle}>Support Email Address</label>
-              <div className="relative">
-                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <label className={styleProps.labelStyle}>Authorized Email Registry</label>
+              <div className="relative group">
+                <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <input
                   type="email"
                   name="supportEmail"
@@ -124,9 +130,9 @@ const Settings = () => {
               </div>
             </div>
             <div>
-              <label className={styleProps.labelStyle}>Official Support Line</label>
-              <div className="relative">
-                <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <label className={styleProps.labelStyle}>Emergency Support Line</label>
+              <div className="relative group">
+                <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <input
                   type="text"
                   name="supportPhone"
@@ -139,16 +145,16 @@ const Settings = () => {
               </div>
             </div>
             <div className="md:col-span-2">
-              <label className={styleProps.labelStyle}>Corporate Headquarters</label>
-              <div className="relative">
-                <FiMapPin className="absolute left-4 top-5 text-slate-400" />
+              <label className={styleProps.labelStyle}>Corporate Headquarters Blueprint</label>
+              <div className="relative group">
+                <MapPin className="absolute left-6 top-8 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <textarea
                   name="officeAddress"
                   value={formData.officeAddress}
                   onChange={handleChange}
-                  placeholder="Enter full physical address..."
-                  rows="3"
-                  className={`${styleProps.inputStyle} h-32 pt-4 resize-none`}
+                  placeholder="Enter full physical address registry..."
+                  rows="4"
+                  className={`${styleProps.inputStyle} h-40 pt-6 resize-none`}
                   required
                 />
               </div>
@@ -158,16 +164,21 @@ const Settings = () => {
 
         {/* SOCIAL CONNECTIVITY */}
         <div className={styleProps.cardStyle}>
-          <div className="flex items-center gap-3 mb-10">
-            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400"><FiLink size={24} /></div>
-            <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider">Social Graph</h2>
+          <div className="flex items-center gap-5 mb-12">
+            <div className="size-16 bg-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
+                <ExternalLink size={32} />
+            </div>
+            <div className="text-left">
+                <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Social Graph</h2>
+                <p className="text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 italic">Authorized brand links</p>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
             <div>
               <label className={styleProps.labelStyle}>Facebook Profile</label>
-              <div className="relative">
-                <FiFacebook className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div className="relative group">
+                <Facebook className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <input
                   type="url"
                   name="facebookUrl"
@@ -180,8 +191,8 @@ const Settings = () => {
             </div>
             <div>
               <label className={styleProps.labelStyle}>Instagram Profile</label>
-              <div className="relative">
-                <FiInstagram className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div className="relative group">
+                <Instagram className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <input
                   type="url"
                   name="instagramUrl"
@@ -194,8 +205,8 @@ const Settings = () => {
             </div>
             <div>
               <label className={styleProps.labelStyle}>Twitter Profile</label>
-              <div className="relative">
-                <FiTwitter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div className="relative group">
+                <Twitter className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={24} />
                 <input
                   type="url"
                   name="twitterUrl"
@@ -210,19 +221,19 @@ const Settings = () => {
         </div>
 
         {/* SUBMIT */}
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-8">
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-3 rounded-[2rem] bg-indigo-600 px-12 py-5 text-lg font-black text-white shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 hover:shadow-indigo-500/60 transition-all active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-5 rounded-[2.5rem] bg-indigo-700 px-16 py-7 text-xl font-black text-white shadow-2xl shadow-indigo-500/40 hover:bg-indigo-800 hover:shadow-indigo-500/60 transition-all active:scale-95 disabled:opacity-50"
           >
             {saving ? (
               <>
-                <FiLoader className="animate-spin" /> SYNCING...
+                <RefreshCcw className="animate-spin" size={24} /> SYNCING CORE...
               </>
             ) : (
               <>
-                <FiSave /> PUSH GLOBAL UPDATES
+                <Save size={24} /> PUSH GLOBAL UPDATES
               </>
             )}
           </button>

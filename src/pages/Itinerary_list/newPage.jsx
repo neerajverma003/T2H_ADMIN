@@ -150,7 +150,7 @@ const ItineraryDetailsPage = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 p-6 dark:from-gray-900 dark:to-gray-800">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-full">
                 {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <h1 className="text-2xl font-bold text-pink-600">

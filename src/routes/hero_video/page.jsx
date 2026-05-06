@@ -17,7 +17,8 @@ import {
   Smartphone,
   MousePointer2,
   Type,
-  FileText
+  FileText,
+  ArrowUpRight
 } from "lucide-react"
 import { toast } from "react-toastify"
 import { apiClient } from "../../stores/authStores"
@@ -137,7 +138,7 @@ const HoneymoonHeroVideo = () => {
   const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-10 pb-20 px-6">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6">
       {/* HEADER HUB */}
       <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><Monitor size={200} /></div>
@@ -159,8 +160,42 @@ const HoneymoonHeroVideo = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* CONFIGURATION PANEL */}
         <div className="lg:col-span-5 space-y-8">
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-8">
-                <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+                {/* SECTION 1: MESSAGING & NARRATIVE */}
+                <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-6">
+                    <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 text-center">Messaging Hub</h3>
+                    <div>
+                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Heading Typography</label>
+                        <div className="relative group">
+                            <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
+                            <input
+                                type="text"
+                                value={heading}
+                                onChange={(e) => setHeading(e.target.value)}
+                                placeholder="Majestic Ladakh Experience"
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Narrative Context</label>
+                        <div className="relative group">
+                            <FileText className="absolute left-4 top-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
+                            <textarea
+                                value={subHeading}
+                                onChange={(e) => setSubHeading(e.target.value)}
+                                placeholder="Enter strategic brand narrative..."
+                                rows={3}
+                                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* SECTION 2: MEDIA & REGISTRY CONFIG */}
+                <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-8">
+                    <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 text-center">Media Registry</h3>
+                    
                     <div>
                         <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Target Portal</label>
                         <div className="grid grid-cols-3 gap-2">
@@ -181,50 +216,19 @@ const HoneymoonHeroVideo = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800">
-                        <div>
-                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Visibility</label>
-                            <select
-                                value={visibility}
-                                onChange={(e) => setVisibility(e.target.value)}
-                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-600 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
-                            >
-                                <option value="public">Public</option>
-                                <option value="private">Private Access</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
-                        <div>
-                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Heading Typography</label>
-                            <div className="relative group">
-                                <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
-                                <input
-                                    type="text"
-                                    value={heading}
-                                    onChange={(e) => setHeading(e.target.value)}
-                                    placeholder="Majestic Ladakh Experience"
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Narrative Context</label>
-                            <div className="relative group">
-                                <FileText className="absolute left-4 top-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} />
-                                <textarea
-                                    value={subHeading}
-                                    onChange={(e) => setSubHeading(e.target.value)}
-                                    placeholder="Enter strategic brand narrative..."
-                                    rows={3}
-                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-500/20"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="pt-4 border-t border-slate-50 dark:border-slate-800">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Visibility Settings</label>
+                        <select
+                            value={visibility}
+                            onChange={(e) => setVisibility(e.target.value)}
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-600 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+                        >
+                            <option value="public">Public - Visible to All</option>
+                            <option value="private">Private - Restricted Access</option>
+                        </select>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-50 dark:border-slate-800 space-y-4">
                         <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Media Acquisition</label>
                         {mediaFile ? (
                             <div className="relative group/media rounded-[2rem] overflow-hidden bg-slate-900 shadow-2xl shadow-black/20 aspect-video flex items-center justify-center">
@@ -250,17 +254,17 @@ const HoneymoonHeroVideo = () => {
                             </label>
                         )}
                         <input id="mediaUpload" type="file" accept="image/*,video/*" onChange={handleMediaChange} className="hidden" />
+
+                        <button
+                            type="submit"
+                            disabled={isUploading || (!mediaFile && !heading && !subHeading)}
+                            className="w-full py-5 mt-6 bg-indigo-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-30"
+                        >
+                            {isUploading ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
+                            {isUploading ? "Synchronizing..." : "Update Hero Registry"}
+                        </button>
                     </div>
                 </div>
-
-                <button
-                    type="submit"
-                    disabled={isUploading || (!mediaFile && !heading && !subHeading)}
-                    className="w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-30"
-                >
-                    {isUploading ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
-                    {isUploading ? "Synchronizing..." : "Update Hero Registry"}
-                </button>
             </form>
         </div>
 
