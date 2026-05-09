@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { 
-    CoreDetailsSection, 
-    DayInfoSection, 
-    HotelDetailsSection 
+import {
+    CoreDetailsSection,
+    DayInfoSection,
+    HotelDetailsSection,
+    ReviewSection,
+    MediaSection,
+    CancellationPolicySection,
+    PricingSection
 } from "./components";
 
 import DiscriptionDetailsSection from "./components/DiscriptionDetailsSection";
@@ -13,9 +17,6 @@ import InclusionSection from "./components/InclusionSection";
 import ExclusionSection from "./components/ExclusionSection";
 import TermsSection from "./components/TermsSection";
 import PaymentModeSection from "./components/PaymentModeSection";
-import CancellationPolicySection from "./components/CancellationPolicySection";
-import MediaSection from "./components/MediaSection";
-import PricingSection from "./components/PricingSection";
 
 import { extractDaysAndNights } from "../../utils/extractDaysFromDuration";
 import { apiClient } from "../../stores/authStores";
@@ -35,7 +36,7 @@ const CreateItineriesPage = () => {
             try {
                 const res = await apiClient.get(`/admin/itinerary/${id}`);
                 const data = res.data.data || res.data.itinerary;
-                
+
                 if (data) {
                     setFormData({
                         title: data.title || "",
@@ -44,7 +45,7 @@ const CreateItineriesPage = () => {
                         itinerary_visibility: data.itinerary_visibility || "public",
                         classification: data.classification || [],
                         itinerary_theme: data.itinerary_theme || [],
-                        destination_type: data.destination_type || "domestic",
+                        destination_type: data.selected_destination?.domestic_or_international?.toLowerCase() || data.destination_type || "domestic",
                         selected_destination_id: data.selected_destination?._id || data.selected_destination || "",
                         duration: data.duration || "",
                         days_information: data.days_information || [],
@@ -61,6 +62,7 @@ const CreateItineriesPage = () => {
                         payment_mode: data.payment_mode || "",
                         cancellation_policy: data.cancellation_policy || "",
                         video: null,
+                        reviews: data.reviews || [],
                     });
                 }
             } catch (error) {
@@ -79,7 +81,7 @@ const CreateItineriesPage = () => {
         itinerary_visibility: "public",
         classification: ["Honeymoon Special"],
         itinerary_theme: ["Honeymoon", "Romantic"],
-        destination_type: "domestic", 
+        destination_type: "domestic",
         selected_destination_id: "",
         duration: "",
         days_information: [{ day: "1", locationName: "", locationDetail: "" }],
@@ -96,6 +98,7 @@ const CreateItineriesPage = () => {
         payment_mode: "",
         cancellation_policy: "",
         video: null,
+        reviews: [],
     });
 
     const [errors, setErrors] = useState({});
@@ -134,9 +137,14 @@ const CreateItineriesPage = () => {
         const invalidDays = formData.days_information.some((d) => !d.locationName.trim() || !d.locationDetail.trim());
         if (invalidDays) newErrors.days_information = "All days must have location name & detail";
 
-        const hasProvidedImage = formData.destination_images.some((i) => typeof i === 'string' && i.startsWith('http'));
-        const hasUploadedImage = (formData.destination_images_files || []).length > 0;
-        if (!hasProvidedImage && !hasUploadedImage) newErrors.destination_images = "At least one image required";
+        // Accept media from either custom gallery OR destination source asset thumbnails
+        const hasCustomGallery = formData.destination_images.some((i) => typeof i === 'string' && i.startsWith('http'));
+        const hasUploadedGallery = (formData.destination_images_files || []).length > 0;
+        const hasThumbnails = formData.destination_thumbnails.some((i) => typeof i === 'string' && i.startsWith('http'));
+        const hasUploadedThumbnails = (formData.destination_thumbnails_files || []).length > 0;
+        if (!hasCustomGallery && !hasUploadedGallery && !hasThumbnails && !hasUploadedThumbnails) {
+            newErrors.destination_images = "At least one image is required (select from Source Assets or upload a custom image)";
+        }
 
         setErrors(newErrors);
         const keys = Object.keys(newErrors);
@@ -163,21 +171,21 @@ const CreateItineriesPage = () => {
             // Helper for parallel uploads
             const uploadFile = async (file, subfolder) => {
                 if (!file) return null;
-                const presignedRes = await apiClient.post("/admin/generate-presigned-url", { 
-                    fileName: file.name, 
-                    fileType: file.type, 
-                    folder: `${itineraryFolder}/${subfolder}` 
+                const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+                    fileName: file.name,
+                    fileType: file.type,
+                    folder: `${itineraryFolder}/${subfolder}`
                 });
                 const { uploadUrl, key } = presignedRes.data;
-                
+
                 // Use a timeout to prevent hanging forever
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
                 try {
-                    await fetch(uploadUrl, { 
-                        method: "PUT", 
-                        body: file, 
+                    await fetch(uploadUrl, {
+                        method: "PUT",
+                        body: file,
                         headers: { "Content-Type": file.type },
                         signal: controller.signal
                     });
@@ -190,20 +198,26 @@ const CreateItineriesPage = () => {
             // 1. Upload Gallery Images & Thumbnails in parallel
             const imageUploadPromises = (formData.destination_images_files || []).map(file => uploadFile(file, 'images'));
             const thumbUploadPromises = (formData.destination_thumbnails_files || []).map(file => uploadFile(file, 'thumbnails'));
-            
+
             // 2. Upload Day Images in parallel
-            const dayImagePromises = formData.days_information.map(day => 
+            const dayImagePromises = formData.days_information.map(day =>
                 day.day_image_file ? uploadFile(day.day_image_file, 'days') : Promise.resolve(null)
             );
 
-            // 3. Upload Video
+            // 3. Upload Review Profile Images in parallel
+            const reviewImagePromises = (formData.reviews || []).map(rev =>
+                rev.profileImage_file ? uploadFile(rev.profileImage_file, 'reviews') : Promise.resolve(null)
+            );
+
+            // 4. Upload Video
             const videoPromise = formData.video instanceof File ? uploadFile(formData.video, 'videos') : Promise.resolve(null);
 
             // Wait for everything
-            const [uploadedImageKeys, uploadedThumbnailKeys, dayImageKeys, uploadedVideoKey] = await Promise.all([
+            const [uploadedImageKeys, uploadedThumbnailKeys, dayImageKeys, reviewImageKeys, uploadedVideoKey] = await Promise.all([
                 Promise.all(imageUploadPromises),
                 Promise.all(thumbUploadPromises),
                 Promise.all(dayImagePromises),
+                Promise.all(reviewImagePromises),
                 videoPromise
             ]);
 
@@ -214,15 +228,23 @@ const CreateItineriesPage = () => {
                 return dayObj;
             });
 
+            const updatedReviews = (formData.reviews || []).map((rev, idx) => {
+                const revObj = { ...rev };
+                if (reviewImageKeys[idx]) revObj.profileImage = reviewImageKeys[idx];
+                delete revObj.profileImage_file;
+                return revObj;
+            });
+
             const payload = {
                 ...formData,
                 days_information: updatedDaysInfo,
+                reviews: updatedReviews,
                 destination_images: [
-                    ...formData.destination_images.filter(img => typeof img === 'string' && img.startsWith('http')), 
+                    ...formData.destination_images.filter(img => typeof img === 'string' && (img.startsWith('http') || img.startsWith('https'))),
                     ...uploadedImageKeys.filter(k => k !== null)
                 ],
                 destination_thumbnails: [
-                    ...formData.destination_thumbnails.filter(img => typeof img === 'string' && img.startsWith('http')), 
+                    ...formData.destination_thumbnails.filter(img => typeof img === 'string' && (img.startsWith('http') || img.startsWith('https'))),
                     ...uploadedThumbnailKeys.filter(k => k !== null)
                 ],
                 video_key: uploadedVideoKey || undefined
@@ -282,10 +304,10 @@ const CreateItineriesPage = () => {
                     <div className="flex items-center gap-3">
                         <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem] flex shadow-inner">
                             {["domestic", "international"].map((t) => (
-                                <button 
-                                    key={t} 
-                                    type="button" 
-                                    onClick={() => setFormData({...formData, destination_type: t})} 
+                                <button
+                                    key={t}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, destination_type: t })}
                                     className={`px-8 py-3 rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] transition-all ${formData.destination_type === t ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/40' : 'text-slate-500 hover:text-slate-900'}`}
                                 >
                                     {t}
@@ -308,6 +330,7 @@ const CreateItineriesPage = () => {
                 <TermsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
                 <PaymentModeSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
                 <CancellationPolicySection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
+                <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
 
                 <div className="flex justify-end pt-12">
                     <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden uppercase tracking-widest">

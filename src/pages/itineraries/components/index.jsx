@@ -9,6 +9,7 @@ import PricingSection from "./PricingSection";
 import TermsSection from "./TermsSection";
 import PaymentModeSection from "./PaymentModeSection";
 import CancellationPolicySection from "./CancellationPolicySection";
+import ReviewSection from "./ReviewSection";
 
 export {
     CoreDetailsSection,
@@ -22,4 +23,5 @@ export {
     TermsSection,
     PaymentModeSection,
     CancellationPolicySection,
+    ReviewSection,
 };

@@ -18,6 +18,7 @@ const AddUser = () => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    role: "admin",
   })
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -40,7 +41,7 @@ const AddUser = () => {
 
     const success = await addUser(formData)
     if (success) {
-      setFormData({ username: "", password: "" })
+      setFormData({ username: "", password: "", role: "admin" })
     }
   }
 
@@ -116,6 +117,23 @@ const AddUser = () => {
             </div>
           </div>
 
+          <div className="flex-1 w-full">
+            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
+            <div className="relative">
+              <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
+              >
+                <option value="admin">Admin (Add/Edit only)</option>
+                <option value="subadmin">Subadmin (Restricted)</option>
+                <option value="superadmin">Superadmin (Full Control)</option>
+              </select>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -154,8 +172,8 @@ const AddUser = () => {
                   <div>
                     <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{user.username}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="size-2 rounded-full bg-emerald-500"></div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">{user.role || 'Admin'}</p>
+                      <div className={`size-2 rounded-full ${user.role === 'superadmin' ? 'bg-indigo-500' : user.role === 'admin' ? 'bg-emerald-500' : 'bg-slate-400'}`}></div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">{user.role}</p>
                     </div>
                   </div>
                 </div>

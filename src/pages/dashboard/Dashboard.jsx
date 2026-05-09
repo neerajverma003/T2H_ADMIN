@@ -120,9 +120,9 @@ const Dashboard = () => {
         <motion.div variants={item} className="col-span-1 lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
            <div className="mb-10 flex items-center justify-between">
               <div>
-                <h3 className="text-3xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Active Packages</h3>
-                <p className="text-lg text-slate-600 dark:text-slate-400 font-bold mt-2 flex items-center gap-3 italic">
-                  <CheckCircle2 size={20} className="text-indigo-700" /> <span className="font-black text-indigo-700 underline underline-offset-4">30 completions</span> this cycle
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Active Packages</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mt-1 flex items-center gap-2 italic">
+                  <CheckCircle2 size={16} className="text-indigo-700" /> <span className="font-black text-indigo-700 underline underline-offset-4">30 completions</span> this cycle
                 </p>
               </div>
               <div className="size-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-950 dark:text-white border-2 border-slate-100 dark:border-slate-700 shadow-sm">
@@ -134,9 +134,9 @@ const Dashboard = () => {
              <table className="w-full">
                <thead className="bg-slate-100 dark:bg-slate-800">
                  <tr>
-                   <th className="px-8 py-6 text-left text-xs font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em]">Destination</th>
-                   <th className="px-8 py-6 text-left text-xs font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em]">Price Point</th>
-                   <th className="px-8 py-6 text-left text-xs font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em]">Status</th>
+                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Destination</th>
+                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Price Point</th>
+                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Status</th>
                  </tr>
                </thead>
                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -168,9 +168,9 @@ const Dashboard = () => {
 
         {/* ORDERS OVERVIEW */}
         <motion.div variants={item} className="col-span-1 lg:col-span-4 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
-           <h3 className="text-3xl font-black text-slate-950 dark:text-white mb-3 uppercase tracking-tight">Activity Log</h3>
-           <p className="text-lg text-slate-600 dark:text-slate-400 font-bold mb-12 flex items-center gap-3 italic">
-              <TrendingUp size={20} className="text-emerald-700" /> <span className="font-black text-emerald-700 underline underline-offset-4">24% velocity increase</span>
+           <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-2 uppercase tracking-tight">Activity Log</h3>
+           <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mb-8 flex items-center gap-2 italic">
+              <TrendingUp size={16} className="text-emerald-700" /> <span className="font-black text-emerald-700 underline underline-offset-4">24% velocity increase</span>
            </p>
 
            <div className="space-y-10 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[3px] before:bg-slate-100 dark:before:bg-slate-800">
@@ -207,7 +207,7 @@ const MaterialStatCard = ({ icon, title, value, trend, trendText, isPositive, co
       {icon}
     </div>
     <div className="text-right">
-      <p className="text-lg font-black text-slate-950 dark:text-slate-400 uppercase tracking-[0.2em]">{title}</p>
+      <p className="text-xs font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">{title}</p>
       <h4 className="text-5xl font-black text-slate-950 dark:text-white mt-4 tracking-tighter leading-none">{value}</h4>
     </div>
     <div className="mt-10 pt-8 border-t-2 border-slate-50 dark:border-slate-800">
@@ -253,8 +253,8 @@ const TimelineItem = ({ icon, title, date }) => (
     <div className="absolute left-0 top-1 size-8 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 flex items-center justify-center z-10 shadow-sm shadow-indigo-500/10">
       {icon}
     </div>
-    <p className="text-lg font-black text-slate-950 dark:text-white leading-tight mb-2 tracking-tight">{title}</p>
-    <p className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{date}</p>
+    <p className="text-base font-black text-slate-950 dark:text-white leading-tight mb-1 tracking-tight">{title}</p>
+    <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wide">{date}</p>
   </div>
 )
 

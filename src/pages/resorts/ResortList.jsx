@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../stores/authStores";
 import { ENV } from "../../constants/api";
 import { motion, AnimatePresence } from "framer-motion";
+import useAuthStore from "../../stores/authStores";
 
 const HoneymoonResortList = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const role = useAuthStore((s) => s.role);
 
   const fetchResorts = async () => {
     setIsLoading(true);
@@ -102,12 +104,14 @@ const HoneymoonResortList = () => {
                       >
                         <Pencil size={18} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(_id)}
-                        className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-red-500 transition-all border border-white/10 shadow-xl"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {role === 'superadmin' && (
+                        <button
+                          onClick={() => handleDelete(_id)}
+                          className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-red-500 transition-all border border-white/10 shadow-xl"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                     <div className="absolute bottom-6 left-6 right-6">
                       <h2 className="text-white text-xl font-black leading-tight tracking-tight truncate">{title}</h2>

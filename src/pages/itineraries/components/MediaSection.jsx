@@ -57,6 +57,17 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     const toggleSelection = (key, url) => {
         setFormData((prev) => {
             const urlKey = extractS3Key(url);
+            
+            // Single selection logic for thumbnails
+            if (key === 'destination_thumbnails') {
+                const exists = prev[key].some(i => extractS3Key(i) === urlKey);
+                return {
+                    ...prev,
+                    [key]: exists ? [] : [url],
+                };
+            }
+
+            // Multiple selection logic for other gallery keys
             const exists = prev[key].some(i => extractS3Key(i) === urlKey);
             return {
                 ...prev,
@@ -79,17 +90,32 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     const handleDirectUpload = (e, key) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        files.forEach((file) => {
+        
+        // For single selection keys like thumbnails, we only take the last file uploaded
+        if (key === 'destination_thumbnails') {
+            const file = files[files.length - 1];
             const reader = new FileReader();
             reader.onload = (ev) => {
                 setFormData((prev) => ({
                     ...prev,
-                    [key]: [...prev[key], ev.target.result],
-                    [`${key}_files`]: [...(prev[`${key}_files`] || []), file],
+                    [key]: [ev.target.result],
+                    [`${key}_files`]: [file],
                 }));
             };
             reader.readAsDataURL(file);
-        });
+        } else {
+            files.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    setFormData((prev) => ({
+                        ...prev,
+                        [key]: [...prev[key], ev.target.result],
+                        [`${key}_files`]: [...(prev[`${key}_files`] || []), file],
+                    }));
+                };
+                reader.readAsDataURL(file);
+            });
+        }
         e.target.value = '';
     };
 
@@ -137,7 +163,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                     MEDIA HUB
                 </h2>
                 <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
-                   Visual Assets
+                    Visual Assets
                 </div>
             </div>
 
@@ -151,7 +177,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
             ) : (
                 <div className="space-y-12">
                     {/* VIDEO SECTION */}
-                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-10 border-2 border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all shadow-inner">
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-10 border-2 border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all shadow-inner">
                         <label className={labelStyle}><Film size={18} className="text-indigo-600" /> Cinematic Highlight Reel</label>
                         {formData.video ? (
                             <div className="mt-8 group relative aspect-video w-full rounded-[2.5rem] overflow-hidden border-8 border-white dark:border-slate-900 shadow-2xl">
@@ -159,25 +185,25 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                                     <div className="bg-white/20 backdrop-blur-xl p-8 rounded-full shadow-2xl group-hover:scale-110 transition-transform"><Play size={64} className="text-white fill-white" /></div>
                                 </div>
                                 <div className="absolute bottom-0 inset-x-0 p-10 bg-gradient-to-t from-black/90 to-transparent flex items-center justify-between">
-                                   <div>
-                                     <p className="text-white text-xs font-black uppercase tracking-[0.3em] mb-1">Live Preview</p>
-                                     <p className="text-indigo-300 text-sm font-bold truncate max-w-md">{formData.video.name}</p>
-                                   </div>
-                                   <button onClick={removeVideo} className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all shadow-xl shadow-red-500/40 font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                                     <X size={16} /> Discard Asset
-                                   </button>
+                                    <div>
+                                        <p className="text-white text-xs font-black uppercase tracking-[0.3em] mb-1">Live Preview</p>
+                                        <p className="text-indigo-300 text-sm font-bold truncate max-w-md">{formData.video.name}</p>
+                                    </div>
+                                    <button onClick={removeVideo} className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all shadow-xl shadow-red-500/40 font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                        <X size={16} /> Discard Asset
+                                    </button>
                                 </div>
                             </div>
                         ) : (
                             <label className="mt-8 group relative block w-full aspect-video rounded-[2rem] border-4 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400 shadow-inner">
-                               <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
-                                 <Film size={40} strokeWidth={1.5} className="text-indigo-600" />
-                               </div>
-                               <div className="text-center">
-                                 <p className="text-base font-black uppercase tracking-[0.3em] text-slate-950 dark:text-white mb-1">Sync Cinematic Preview</p>
-                                 <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest italic opacity-60">High-Resolution Video Ingest Pipeline</p>
-                               </div>
-                               <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} hidden />
+                                <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
+                                    <Film size={40} strokeWidth={1.5} className="text-indigo-600" />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-base font-black uppercase tracking-[0.3em] text-slate-950 dark:text-white mb-1">Sync Cinematic Preview</p>
+                                    <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest italic opacity-60">High-Resolution Video Ingest Pipeline</p>
+                                </div>
+                                <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} hidden />
                             </label>
                         )}
                     </div>
@@ -192,11 +218,17 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                         <div>
                             <label className={labelStyle}><UploadCloud size={14} /> Upload Custom Thumbnails</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-4">
-                                {formData.destination_thumbnails.filter(i => typeof i === 'string' && i.startsWith("data:")).map((img, i) => (
+                                {formData.destination_thumbnails.map((img, i) => (
                                     <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg">
                                         {img && <img src={img} className="h-full w-full object-cover" alt="" />}
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <button onClick={() => removeDirectImage(i, "destination_thumbnails")} className="p-2 bg-red-500 text-white rounded-xl"><X size={14} /></button>
+                                            <button 
+                                                type="button"
+                                                onClick={() => removeDirectImage(i, "destination_thumbnails")} 
+                                                className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
+                                            >
+                                                <X size={14} />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -212,11 +244,17 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                     <div className="pt-8 border-t border-slate-50 dark:border-slate-800 space-y-8">
                         <label className={labelStyle}><GalleryHorizontal size={14} /> Custom Itinerary Gallery</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-4">
-                            {formData.destination_images.filter(i => typeof i === 'string' && i.startsWith("data:")).map((img, i) => (
+                            {formData.destination_images.map((img, i) => (
                                 <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg">
                                     {img && <img src={img} className="h-full w-full object-cover" alt="" />}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <button onClick={() => removeDirectImage(i, "destination_images")} className="p-2 bg-red-500 text-white rounded-xl"><X size={14} /></button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => removeDirectImage(i, "destination_images")} 
+                                            className="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
+                                        >
+                                            <X size={14} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}

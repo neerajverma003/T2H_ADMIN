@@ -71,6 +71,7 @@ const Sidebar = ({ open, setOpen }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const logout = useAuthStore((state) => state.logout)
+  const role = useAuthStore((state) => state.role)
 
   const [openMenus, setOpenMenus] = useState({})
 
@@ -145,16 +146,18 @@ const Sidebar = ({ open, setOpen }) => {
              Dashboard
           </NavLink>
 
-          <NavDropdown 
-            title="Users" 
-            icon={Users} 
-            isOpen={openMenus.users} 
-            onClick={() => toggleMenu('users')}
-            isActive={location.pathname.includes('/users')}
-          >
-            <NavLink to="/users/add" onClick={() => setOpen(false)} className={subLinkClass}>Add New User</NavLink>
-            <NavLink to="/users/list" onClick={() => setOpen(false)} className={subLinkClass}>User Directory</NavLink>
-          </NavDropdown>
+          {role === 'superadmin' && (
+            <NavDropdown 
+              title="Users" 
+              icon={Users} 
+              isOpen={openMenus.users} 
+              onClick={() => toggleMenu('users')}
+              isActive={location.pathname.includes('/users')}
+            >
+              <NavLink to="/users/add" onClick={() => setOpen(false)} className={subLinkClass}>Add New User</NavLink>
+              <NavLink to="/users/list" onClick={() => setOpen(false)} className={subLinkClass}>User Directory</NavLink>
+            </NavDropdown>
+          )}
 
           <NavDropdown 
             title="Destinations" 
@@ -240,6 +243,7 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/leads/consultation" onClick={() => setOpen(false)} className={subLinkClass}>Consultations</NavLink>
             <NavLink to="/leads/honeymoon-requests" onClick={() => setOpen(false)} className={subLinkClass}>Trip Requests</NavLink>
+            <NavLink to="/leads/itinerary-leads" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Leads</NavLink>
             <NavLink to="/leads/plan-journey" onClick={() => setOpen(false)} className={subLinkClass}>Journey Plans</NavLink>
             <NavLink to="/leads/contacts" onClick={() => setOpen(false)} className={subLinkClass}>Contact Leads</NavLink>
           </NavDropdown>
@@ -256,15 +260,19 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/cancellation-policy" onClick={() => setOpen(false)} className={subLinkClass}>Cancellation Policy</NavLink>
           </NavDropdown>
 
-          <NavLink to="/reports" onClick={() => setOpen(false)} className={navLinkClass}>
-             <BarChart2 size={18} strokeWidth={2} />
-             Analytics
-          </NavLink>
-          
-          <NavLink to="/audit-logs" onClick={() => setOpen(false)} className={navLinkClass}>
-             <ShieldCheck size={18} strokeWidth={2} />
-             Security Audit
-          </NavLink>
+          {role === 'superadmin' && (
+            <>
+              <NavLink to="/reports" onClick={() => setOpen(false)} className={navLinkClass}>
+                 <BarChart2 size={18} strokeWidth={2} />
+                 Analytics
+              </NavLink>
+              
+              <NavLink to="/audit-logs" onClick={() => setOpen(false)} className={navLinkClass}>
+                 <ShieldCheck size={18} strokeWidth={2} />
+                 Security Audit
+              </NavLink>
+            </>
+          )}
 
           <NavLink to="/settings" onClick={() => setOpen(false)} className={navLinkClass}>
              <Settings size={18} strokeWidth={2} />

@@ -280,12 +280,14 @@ const useAuthStore = create(
       deleteUser: async (userId, username) => {
         set({ isDeleting: true })
         try {
-          // Try conventional delete route; server may vary
-          const res = await apiClient.delete(`/admin/${userId}`)
-          toast.success(res.data?.msg || `${username} deleted`)
+          // Correct route: DELETE /admin/delete-user/:userId (defined in admin.route.js L102)
+          const res = await apiClient.delete(`/admin/delete-user/${userId}`)
+          toast.success(res.data?.msg || `${username} deleted successfully`)
+          // Optimistically remove the user from local state without a full refetch
           set({ users: get().users.filter((u) => u._id !== userId), isDeleting: false })
           return true
         } catch (err) {
+          console.error('[deleteUser] Failed:', err?.response?.data || err?.message)
           const msg = err.response?.data?.msg || 'Failed to delete user'
           toast.error(msg)
           set({ isDeleting: false })

@@ -15,11 +15,11 @@ import {
     Sparkles
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../../stores/authStores";
+import useAuthStore, { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ItineraryCard = ({ itinerary, onDelete }) => {
+const ItineraryCard = ({ itinerary, onDelete, role }) => {
     const { title, duration, selected_destination, destination_thumbnails, itinerary_visibility } = itinerary;
     const navigate = useNavigate();
     const destinationName = selected_destination?.destination_name || "N/A";
@@ -40,9 +40,11 @@ const ItineraryCard = ({ itinerary, onDelete }) => {
                         <button onClick={() => navigate(`/itineraries/edit/${itinerary._id}`)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white hover:text-indigo-600 shadow-xl transition-all border border-white/10">
                             <Pencil size={18} />
                         </button>
-                        <button onClick={() => onDelete(itinerary._id)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-red-500 shadow-xl transition-all border border-white/10">
-                            <Trash2 size={18} />
-                        </button>
+                        {role === 'superadmin' && (
+                            <button onClick={() => onDelete(itinerary._id)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-red-500 shadow-xl transition-all border border-white/10">
+                                <Trash2 size={18} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -76,6 +78,7 @@ const ItinerariesListPage = () => {
     const [itineraries, setItineraries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const role = useAuthStore((s) => s.role);
     const [filters, setFilters] = useState({ type: "all", status: "all", destination: "all" });
 
     useEffect(() => {
@@ -119,36 +122,36 @@ const ItinerariesListPage = () => {
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6">
             {/* HEADER */}
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-12 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none"><Sparkles size={200} /></div>
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Sparkles size={120} /></div>
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
-                            <Navigation className="text-indigo-600" size={36} /> ITINERARY HUB
+                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
+                            <Navigation className="text-indigo-600" size={28} /> ITINERARY HUB
                         </h1>
-                        <p className="text-slate-500 font-medium mt-2 text-lg">Orchestrating unforgettable honeymoon experiences</p>
+                        <p className="text-slate-500 font-medium mt-1 text-xs">Orchestrating unforgettable honeymoon experiences</p>
                     </div>
-                    <button onClick={() => navigate("/itineraries/create")} className="flex items-center gap-3 bg-indigo-600 text-white px-8 py-5 rounded-[2rem] font-black shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all transform hover:scale-105 active:scale-95">
-                        <Plus size={20} /> CRAFT NEW EXPERIENCE
+                    <button onClick={() => navigate("/itineraries/create")} className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all transform hover:scale-105 active:scale-95">
+                        <Plus size={16} /> CRAFT NEW EXPERIENCE
                     </button>
                 </div>
             </div>
 
             {/* CONTROLS */}
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none flex flex-col lg:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                         type="search"
                         placeholder="Search experiences, destinations..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 pl-14 pr-6 py-4 text-slate-900 dark:text-slate-100 font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+                        className="w-full rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 pl-12 pr-6 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
                     />
                 </div>
-                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl text-indigo-600 dark:text-indigo-400">
-                        <Filter size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Filters</span>
+                <div className="flex flex-wrap md:flex-nowrap gap-3 items-center">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
+                        <Filter size={14} /> <span className="text-[10px] font-black uppercase tracking-wide">Filters</span>
                     </div>
                     <select value={filters.type} onChange={(e) => setFilters(p => ({ ...p, type: e.target.value }))} className={selectStyle}>
                         <option value="all">Types</option>
@@ -184,7 +187,7 @@ const ItinerariesListPage = () => {
                 <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     <AnimatePresence mode='popLayout'>
                         {filteredItineraries.map((it) => (
-                            <ItineraryCard key={it._id} itinerary={it} onDelete={handleDelete} />
+                            <ItineraryCard key={it._id} itinerary={it} onDelete={handleDelete} role={role} />
                         ))}
                     </AnimatePresence>
                 </div>

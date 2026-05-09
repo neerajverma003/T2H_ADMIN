@@ -77,24 +77,28 @@ export const usePlaceStore = create((set, get) => ({
 
   createCity: async (cityData) => {
     try {
-      await apiClient.post(`/admin/create-city`, cityData)
+      // Correct route: POST /admin/city (admin.route.js L190)
+      await apiClient.post(`/admin/city`, cityData)
       toast.success("City created successfully!")
-      await get().fetchCityList()
       return { success: true }
     } catch (error) {
-      console.error("Error creating city:", error)
+      console.error('[createCity] Failed:', error?.response?.data || error?.message)
       toast.error(error.response?.data?.msg || "Failed to create city.")
       return { success: false }
     }
   },
 
-  fetchCityList: async () => {
+  // Fetch cities belonging to a specific destination (state).
+  // Correct route: GET /admin/state/:destinationId (admin.route.js L191)
+  // Response shape: { citiesData: [...] }
+  fetchCitiesByDestination: async (destinationId) => {
+    if (!destinationId) return
     set({ isListLoading: true })
     try {
-      const res = await apiClient.get(`/admin/cities`)
-      set({ cityList: res.data.cities, isListLoading: false })
+      const res = await apiClient.get(`/admin/state/${destinationId}`)
+      set({ cityList: res.data.citiesData || [], isListLoading: false })
     } catch (error) {
-      console.error("Fetch city error:", error)
+      console.error('[fetchCitiesByDestination] Failed:', error?.response?.data || error?.message)
       set({ cityList: [], isListLoading: false })
     }
   },
@@ -102,13 +106,14 @@ export const usePlaceStore = create((set, get) => ({
   deleteCity: async (id) => {
     set({ isListLoading: true })
     try {
-      await apiClient.delete(`/admin/city/delete/${id}`)
+      // Correct route: DELETE /admin/city/:cityId (admin.route.js L194)
+      await apiClient.delete(`/admin/city/${id}`)
       toast.success("City deleted successfully!")
-      await get().fetchCityList()
+      // Optimistically remove from local list without needing a destinationId to refetch
+      set((state) => ({ cityList: state.cityList.filter((c) => c._id !== id), isListLoading: false }))
     } catch (error) {
-      console.error("Delete city error:", error)
+      console.error('[deleteCity] Failed:', error?.response?.data || error?.message)
       toast.error("Failed to delete city.")
-    } finally {
       set({ isListLoading: false })
     }
   },
