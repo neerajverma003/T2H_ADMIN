@@ -8,16 +8,44 @@ import {
     Heart,
     Sparkles
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { usePlaceStore } from "../../../stores/usePlaceStore";
 
 const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }) => {
     const { cardStyle, labelStyle, inputStyle } = styles;
 
     const themes = ["Honeymoon", "Romantic", "Luxury Tour", "Beach", "Hill Station", "Heritage Tour", "Ayurveda Tour"];
-    const classificationTypes = ["Honeymoon Special", "Exclusive", "Top Selling"];
+    const classificationTypes = ["Honeymoon Special", "Exclusive", "Top Selling", "Trending"];
 
     const { destinationList, fetchDestinationList, isListLoading } = usePlaceStore();
+
+    // Auto-sync Trending status based on destination selection
+    useEffect(() => {
+        if (!formData.selected_destination_id || isListLoading) return;
+
+        const selectedDest = destinationList.find(d => d._id === formData.selected_destination_id);
+        const isTrendingDest = selectedDest?.options?.includes("trending");
+
+        if (isTrendingDest && !formData.classification.includes("Trending")) {
+            handleInputChange({
+                target: {
+                    name: "classification",
+                    value: [...formData.classification, "Trending"]
+                }
+            });
+        } else if (!isTrendingDest && formData.classification.includes("Trending")) {
+            // Optional: Remove it if destination is not trending? 
+            // Better to leave it to the user or keep it in sync. 
+            // I'll keep it in sync for "automatic" behavior.
+            handleInputChange({
+                target: {
+                    name: "classification",
+                    value: formData.classification.filter(c => c !== "Trending")
+                }
+            });
+        }
+    }, [formData.selected_destination_id, destinationList, isListLoading]);
 
     const handleThemeChange = (e) => {
         const { value, checked } = e.target;
@@ -102,6 +130,23 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                         </select>
                         {errors.duration && <p className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">{errors.duration}</p>}
                     </div>
+
+                    {/* Conditional Custom Days Input */}
+                    {formData.duration === "Custom" && (
+                        <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="pt-4"
+                        >
+                            <label htmlFor="custom_days" className={labelStyle}><Sparkles size={14} className="text-indigo-600" /> Specify Total Days</label>
+                            <CustomDaysInput 
+                                initialValue={formData.days_information.length} 
+                                onSync={(val) => handleInputChange({ target: { name: "custom_days_trigger", value: val } })}
+                                styles={styles}
+                            />
+                            <p className="mt-2 text-[10px] font-medium text-slate-500 italic uppercase tracking-wider">Adjusting this will sync the Daily Timeline below</p>
+                        </motion.div>
+                    )}
                 </div>
 
                 {/* Themes */}
@@ -135,20 +180,55 @@ const CoreDetailsSection = ({ formData, handleInputChange, styles, errors = {} }
                     <div>
                         <label className={labelStyle}><Sparkles size={16} className="text-indigo-600" /> Operational Flow</label>
                         <select name="itinerary_type" value={formData.itinerary_type} onChange={handleInputChange} className={inputStyle}>
-                            <option value="flexible">Flexible Narrative Flow</option>
-                            <option value="fixed">Fixed Structural Schedule</option>
+                            <option value="flexible">Flexible </option>
+                            <option value="fixed">Fixed </option>
                         </select>
                     </div>
                     <div>
-                        <label className={labelStyle}><Eye size={16} className="text-indigo-600" /> Broadcast Visibility</label>
+                        <label className={labelStyle}><Eye size={16} className="text-indigo-600" /> Visibility</label>
                         <select name="itinerary_visibility" value={formData.itinerary_visibility} onChange={handleInputChange} className={inputStyle}>
-                            <option value="public">Live Broadcast (Public)</option>
-                            <option value="private">Internal Archive (Draft)</option>
+                            <option value="public">PUBLIC</option>
+                            <option value="private">PRIVATE</option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
+    );
+};
+
+// Sub-component to handle local state for clean typing
+const CustomDaysInput = ({ initialValue, onSync, styles }) => {
+    const [val, setVal] = useState(initialValue);
+
+    useEffect(() => {
+        setVal(initialValue);
+    }, [initialValue]);
+
+    const handleChange = (e) => {
+        const input = e.target.value;
+        if (input === "") {
+            setVal("");
+            return;
+        }
+        const num = parseInt(input);
+        if (!isNaN(num)) {
+            setVal(num);
+            if (num > 0 && num <= 50) {
+                onSync(num);
+            }
+        }
+    };
+
+    return (
+        <input
+            type="text"
+            inputMode="numeric"
+            value={val}
+            onChange={handleChange}
+            className={styles.inputStyle}
+            placeholder="e.g. 5"
+        />
     );
 };
 

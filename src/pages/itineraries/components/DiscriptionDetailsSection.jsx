@@ -106,6 +106,19 @@ const DescriptionsSection = ({
                     {errors.destination_detail && <p className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">{errors.destination_detail}</p>}
                 </div>
 
+                {/* About the Tour */}
+                <div>
+                    <label htmlFor="about_the_tour" className={labelStyle}><Heart size={14} /> About the Tour</label>
+                    <textarea
+                        id="about_the_tour"
+                        name="about_the_tour"
+                        value={formData.about_the_tour || ""}
+                        onChange={handleInputChange}
+                        className={`${inputStyle} min-h-[150px] leading-relaxed`}
+                        placeholder="What makes this specific tour special? E.g. Private candle-lit dinners, sunset cruises..."
+                    />
+                </div>
+
                 <div className="flex flex-col gap-8 pt-4 border-t border-slate-50 dark:border-slate-800">
                     {/* Terms & Conditions */}
                     <div>

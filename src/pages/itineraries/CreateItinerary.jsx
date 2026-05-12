@@ -61,6 +61,7 @@ const CreateItineriesPage = () => {
                         terms_and_conditions: data.terms_and_conditions || "",
                         payment_mode: data.payment_mode || "",
                         cancellation_policy: data.cancellation_policy || "",
+                        about_the_tour: data.about_the_tour || "",
                         video: null,
                         reviews: data.reviews || [],
                     });
@@ -97,6 +98,7 @@ const CreateItineriesPage = () => {
         terms_and_conditions: "",
         payment_mode: "",
         cancellation_policy: "",
+        about_the_tour: "",
         video: null,
         reviews: [],
     });
@@ -105,6 +107,33 @@ const CreateItineriesPage = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Handle Custom Days Sync
+        if (name === "custom_days_trigger") {
+            const days = parseInt(value) || 1;
+            setFormData((prev) => {
+                const updated = Array.from({ length: days }, (_, i) => ({
+                    day: `${i + 1}`,
+                    locationName: prev.days_information[i]?.locationName || "",
+                    locationDetail: prev.days_information[i]?.locationDetail || "",
+                    day_image: prev.days_information[i]?.day_image || "",
+                    day_image_file: null,
+                }));
+                return { ...prev, days_information: updated };
+            });
+            return;
+        }
+
+        // Handle 'Custom' Selection Reset
+        if (name === "duration" && value === "Custom") {
+            setFormData((prev) => ({
+                ...prev,
+                duration: "Custom",
+                days_information: [{ day: "1", locationName: "", locationDetail: "", day_image: "", day_image_file: null }]
+            }));
+            return;
+        }
+
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };

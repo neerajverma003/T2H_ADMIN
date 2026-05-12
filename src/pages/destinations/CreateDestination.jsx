@@ -32,6 +32,7 @@ const CreateDestination = () => {
     destination_type: [],
     best_time: "",
     ideal_duration: "",
+    short_description: "",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -86,13 +87,14 @@ const CreateDestination = () => {
         destination_type: data.destination_type,
         title_image: imageUrls,
         best_time: data.best_time,
-        ideal_duration: data.ideal_duration
+        ideal_duration: data.ideal_duration,
+        short_description: data.short_description
       }
 
       const result = await createDestination(payload)
       if (result) {
         toast.success(`Destination created successfully!`);
-        setData({ type: "domestic", destination_name: "", destination_type: [], image: [], best_time: "", ideal_duration: "" })
+        setData({ type: "domestic", destination_name: "", destination_type: [], image: [], best_time: "", ideal_duration: "", short_description: "" })
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = "";
       }
@@ -154,6 +156,18 @@ const CreateDestination = () => {
               <div>
                 <label className={labelStyle}><Clock size={16} className="text-indigo-600" /> Recommended Itinerary Length</label>
                 <input name="ideal_duration" value={data.ideal_duration} onChange={handleChange} placeholder="e.g. 5-7 Days" className={inputStyle} />
+              </div>
+              <div>
+                <label className={labelStyle}><Sparkles size={16} className="text-indigo-600" /> Short Description (Max 150 characters)</label>
+                <textarea 
+                  name="short_description" 
+                  value={data.short_description} 
+                  onChange={handleChange} 
+                  maxLength={150}
+                  placeholder="A romantic blurb for the destination cards..." 
+                  className={`${inputStyle} h-32 resize-none`} 
+                />
+                <p className="text-[10px] text-slate-400 mt-2 text-right">{data.short_description?.length || 0}/150</p>
               </div>
             </div>
           </div>

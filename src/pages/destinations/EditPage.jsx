@@ -27,6 +27,7 @@ const EditDestination = () => {
     show_image: [],
     best_time: "",
     ideal_duration: "",
+    short_description: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
@@ -52,6 +53,7 @@ const EditDestination = () => {
             show_image: res.data.destination.show_image || [],
             best_time: res.data.destination.best_time || "",
             ideal_duration: res.data.destination.ideal_duration || "",
+            short_description: res.data.destination.short_description || "",
           });
         }
       } catch {
@@ -149,6 +151,7 @@ const EditDestination = () => {
         new_image_keys: newImageKeys,
         best_time: data.best_time,
         ideal_duration: data.ideal_duration,
+        short_description: data.short_description,
       };
 
       const response = await apiClient.patch(`/admin/destination/${id}`, payload);
@@ -208,6 +211,18 @@ const EditDestination = () => {
                  <label className={labelStyle}><Clock size={14} /> Ideal Duration</label>
                  <input name="ideal_duration" value={data.ideal_duration} onChange={handleChange} placeholder="e.g. 5-7 Days" className={inputStyle} />
                </div>
+            </div>
+            <div className="mt-8">
+               <label className={labelStyle}><Sparkles size={14} /> Short Description (Max 150 characters)</label>
+               <textarea 
+                 name="short_description" 
+                 value={data.short_description} 
+                 onChange={handleChange} 
+                 maxLength={150}
+                 placeholder="A romantic blurb for the destination cards..." 
+                 className={`${inputStyle} h-32 resize-none`} 
+               />
+               <p className="text-[10px] text-slate-400 mt-2 text-right">{data.short_description?.length || 0}/150</p>
             </div>
           </div>
 
