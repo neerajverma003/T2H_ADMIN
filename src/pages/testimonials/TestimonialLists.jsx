@@ -55,9 +55,9 @@ const TestimonialListPage = () => {
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-                    <Sparkles className="text-indigo-600" size={32} /> STORY ARCHIVE
+                    <Sparkles className="text-indigo-600" size={32} /> VIDEO STORYBOARD
                 </h1>
-                <p className="text-slate-500 dark:text-slate-400 font-bold mt-1 text-sm italic text-left">Full archive of honeymoon testimonials and video assets</p>
+                <p className="text-slate-500 dark:text-slate-400 font-bold mt-1 text-sm italic text-left">Full archive of video testimonials and cinematic honeymoon stories</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="relative group w-full sm:w-80">

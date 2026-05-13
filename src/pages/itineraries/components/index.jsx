@@ -2,8 +2,7 @@ import CoreDetailsSection from "./CoreDetailsSection";
 import MediaSection from "./MediaSection";
 import DayInfoSection from "./DayInfoSection";
 import DiscriptionDetailsSection from "./DiscriptionDetailsSection";
-import InclusionSection from "./InclusionSection";
-import ExclusionSection from "./ExclusionSection";
+import ProvisionsSection from "./ProvisionsSection";
 import HotelDetailsSection from "./HotelDetailsSection";
 import PricingSection from "./PricingSection";
 import TermsSection from "./TermsSection";
@@ -16,8 +15,7 @@ export {
     MediaSection,
     DayInfoSection,
     DiscriptionDetailsSection,
-    InclusionSection,
-    ExclusionSection,
+    ProvisionsSection,
     HotelDetailsSection,
     PricingSection,
     TermsSection,

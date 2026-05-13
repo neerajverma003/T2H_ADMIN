@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     CheckCircle,
     GalleryHorizontal,
     Image as ImageIcon,
-    Video,
     X,
     Heart,
     Sparkles,
     UploadCloud,
-    Film,
-    Play
+    Film
 } from "lucide-react";
 import { apiClient } from "../../../stores/authStores";
 
 const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     const { labelStyle, cardStyle, inputStyle } = styles;
+    const location = useLocation();
+    const isViewMode = location.pathname.includes('/view/');
 
     const [destinationImages, setDestinationImages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedLightboxImage, setSelectedLightboxImage] = useState(null);
 
     useEffect(() => {
         const fetchDestImages = async () => {
@@ -55,6 +58,10 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     };
 
     const toggleSelection = (key, url) => {
+        if (isViewMode) {
+            setSelectedLightboxImage(url);
+            return;
+        }
         setFormData((prev) => {
             const urlKey = extractS3Key(url);
             
@@ -74,17 +81,6 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                 [key]: exists ? prev[key].filter((i) => extractS3Key(i) !== urlKey) : [...prev[key], url],
             };
         });
-    };
-
-    const handleVideoChange = (e) => {
-        const file = e.target.files?.[0];
-        if (file) setFormData((prev) => ({ ...prev, video: file }));
-    };
-
-    const removeVideo = () => {
-        setFormData((prev) => ({ ...prev, video: null }));
-        const input = document.getElementById('video-upload');
-        if (input) input.value = '';
     };
 
     const handleDirectUpload = (e, key) => {
@@ -120,6 +116,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     };
 
     const removeDirectImage = (index, key) => {
+        if (isViewMode) return;
         setFormData((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }));
     };
 
@@ -176,37 +173,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                 </div>
             ) : (
                 <div className="space-y-12">
-                    {/* VIDEO SECTION */}
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-10 border-2 border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all shadow-inner">
-                        <label className={labelStyle}><Film size={18} className="text-indigo-600" /> Cinematic Highlight Reel</label>
-                        {formData.video ? (
-                            <div className="mt-8 group relative aspect-video w-full rounded-[2.5rem] overflow-hidden border-8 border-white dark:border-slate-900 shadow-2xl">
-                                <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center">
-                                    <div className="bg-white/20 backdrop-blur-xl p-8 rounded-full shadow-2xl group-hover:scale-110 transition-transform"><Play size={64} className="text-white fill-white" /></div>
-                                </div>
-                                <div className="absolute bottom-0 inset-x-0 p-10 bg-gradient-to-t from-black/90 to-transparent flex items-center justify-between">
-                                    <div>
-                                        <p className="text-white text-xs font-black uppercase tracking-[0.3em] mb-1">Live Preview</p>
-                                        <p className="text-indigo-300 text-sm font-bold truncate max-w-md">{formData.video.name}</p>
-                                    </div>
-                                    <button onClick={removeVideo} className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 transition-all shadow-xl shadow-red-500/40 font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                                        <X size={16} /> Discard Asset
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <label className="mt-8 group relative block w-full aspect-video rounded-[2rem] border-4 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400 shadow-inner">
-                                <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
-                                    <Film size={40} strokeWidth={1.5} className="text-indigo-600" />
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-base font-black uppercase tracking-[0.3em] text-slate-950 dark:text-white mb-1">Sync Cinematic Preview</p>
-                                    <p className="text-[10px] font-black text-indigo-800 uppercase tracking-widest italic opacity-60">High-Resolution Video Ingest Pipeline</p>
-                                </div>
-                                <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} hidden />
-                            </label>
-                        )}
-                    </div>
+
 
                     {/* THUMBNAILS */}
                     <div className="space-y-8">
@@ -219,9 +186,13 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                             <label className={labelStyle}><UploadCloud size={14} /> Upload Custom Thumbnails</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-4">
                                 {formData.destination_thumbnails.map((img, i) => (
-                                    <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg">
+                                    <div 
+                                        key={i} 
+                                        onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
+                                        className={`group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg ${isViewMode ? 'cursor-pointer hover:shadow-indigo-500/30 hover:scale-105 transition-all' : ''}`}
+                                    >
                                         {img && <img src={img} className="h-full w-full object-cover" alt="" />}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        {(!isViewMode) && <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <button 
                                                 type="button"
                                                 onClick={() => removeDirectImage(i, "destination_thumbnails")} 
@@ -229,13 +200,13 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                                             >
                                                 <X size={14} />
                                             </button>
-                                        </div>
+                                        </div>}
                                     </div>
                                 ))}
-                                <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 transition-all">
+                                {(!isViewMode) && <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 transition-all">
                                     <Plus size={20} />
                                     <input type="file" accept="image/*" multiple onChange={(e) => handleDirectUpload(e, "destination_thumbnails")} hidden />
-                                </label>
+                                </label>}
                             </div>
                         </div>
                     </div>
@@ -245,9 +216,13 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                         <label className={labelStyle}><GalleryHorizontal size={14} /> Custom Itinerary Gallery</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-4">
                             {formData.destination_images.map((img, i) => (
-                                <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg">
+                                <div 
+                                    key={i} 
+                                    onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
+                                    className={`group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg ${isViewMode ? 'cursor-pointer hover:shadow-indigo-500/30 hover:scale-105 transition-all' : ''}`}
+                                >
                                     {img && <img src={img} className="h-full w-full object-cover" alt="" />}
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    {(!isViewMode) && <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <button 
                                             type="button"
                                             onClick={() => removeDirectImage(i, "destination_images")} 
@@ -255,17 +230,45 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                                         >
                                             <X size={14} />
                                         </button>
-                                    </div>
+                                    </div>}
                                 </div>
                             ))}
-                            <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 transition-all">
+                            {(!isViewMode) && <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500 transition-all">
                                 <Plus size={20} />
                                 <input type="file" accept="image/*" multiple onChange={(e) => handleDirectUpload(e, "destination_images")} hidden />
-                            </label>
+                            </label>}
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* LIGHTBOX MODAL */}
+            <AnimatePresence>
+                {selectedLightboxImage && (
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedLightboxImage(null)}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4 cursor-zoom-out"
+                    >
+                        <motion.img 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            src={selectedLightboxImage} 
+                            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl" 
+                            alt="Large View" 
+                        />
+                        <button 
+                            onClick={() => setSelectedLightboxImage(null)}
+                            className="absolute top-6 right-6 p-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

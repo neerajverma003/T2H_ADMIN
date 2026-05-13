@@ -37,7 +37,10 @@ const ItineraryCard = ({ itinerary, onDelete, role }) => {
                         {isPublic ? 'Live' : 'Draft'}
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-                        <button onClick={() => navigate(`/itineraries/edit/${itinerary._id}`)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white hover:text-indigo-600 shadow-xl transition-all border border-white/10">
+                        <button onClick={() => navigate(`/itineraries/view/${itinerary._id}`)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white hover:text-slate-600 shadow-xl transition-all border border-white/10" title="View">
+                            <Eye size={18} />
+                        </button>
+                        <button onClick={() => navigate(`/itineraries/edit/${itinerary._id}`)} className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white hover:text-indigo-600 shadow-xl transition-all border border-white/10" title="Edit">
                             <Pencil size={18} />
                         </button>
                         {role === 'superadmin' && (
@@ -79,7 +82,7 @@ const ItinerariesListPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const role = useAuthStore((s) => s.role);
-    const [filters, setFilters] = useState({ type: "all", status: "all", destination: "all" });
+    const [filters, setFilters] = useState({ type: "all", status: "all", destinationType: "all", destination: "all" });
 
     useEffect(() => {
         const fetchItineraries = async () => {
@@ -103,6 +106,7 @@ const ItinerariesListPage = () => {
             })
             .filter((it) => filters.type === "all" ? true : it.itinerary_type === filters.type)
             .filter((it) => filters.status === "all" ? true : filters.status === "published" ? it.itinerary_visibility === "public" : it.itinerary_visibility === "private")
+            .filter((it) => filters.destinationType === "all" ? true : it.destination_type?.toLowerCase() === filters.destinationType.toLowerCase())
             .filter((it) => filters.destination === "all" ? true : it.selected_destination?.destination_name?.toLowerCase() === filters.destination.toLowerCase());
     }, [searchQuery, filters, itineraries]);
 
@@ -162,6 +166,11 @@ const ItinerariesListPage = () => {
                         <option value="all">Status</option>
                         <option value="published">Live</option>
                         <option value="private">Draft</option>
+                    </select>
+                    <select value={filters.destinationType} onChange={(e) => setFilters(p => ({ ...p, destinationType: e.target.value }))} className={selectStyle}>
+                        <option value="all">Region</option>
+                        <option value="domestic">Domestic</option>
+                        <option value="international">International</option>
                     </select>
                     <select value={filters.destination} onChange={(e) => setFilters(p => ({ ...p, destination: e.target.value }))} className={selectStyle}>
                         <option value="all">Destinations</option>

@@ -1,23 +1,18 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import {
     CoreDetailsSection,
     DayInfoSection,
-    HotelDetailsSection,
-    ReviewSection,
     MediaSection,
-    CancellationPolicySection,
-    PricingSection
+    ProvisionsSection,
+    HotelDetailsSection,
+    PricingSection,
+    ReviewSection
 } from "./components";
 
 import DiscriptionDetailsSection from "./components/DiscriptionDetailsSection";
-import InclusionSection from "./components/InclusionSection";
-import ExclusionSection from "./components/ExclusionSection";
-import TermsSection from "./components/TermsSection";
-import PaymentModeSection from "./components/PaymentModeSection";
-
 import { extractDaysAndNights } from "../../utils/extractDaysFromDuration";
 import { apiClient } from "../../stores/authStores";
 import { Loader2, Heart, Sparkles, Navigation, ShieldCheck } from "lucide-react";
@@ -25,6 +20,8 @@ import { Loader2, Heart, Sparkles, Navigation, ShieldCheck } from "lucide-react"
 const CreateItineriesPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const isViewMode = location.pathname.includes('/view/');
 
     // ========================
     // DATA FETCHING (FOR EDIT)
@@ -85,7 +82,17 @@ const CreateItineriesPage = () => {
         destination_type: "domestic",
         selected_destination_id: "",
         duration: "",
-        days_information: [{ day: "1", locationName: "", locationDetail: "" }],
+        days_information: [{ 
+            day: "1", 
+            locationName: "", 
+            locationDetail: "",
+            sightseeing: "",
+            transfer: "",
+            weather: "",
+            date: "",
+            day_image: "",
+            day_image_file: null
+        }],
         destination_detail: "",
         destination_images: [],
         destination_images_files: [],
@@ -99,7 +106,6 @@ const CreateItineriesPage = () => {
         payment_mode: "",
         cancellation_policy: "",
         about_the_tour: "",
-        video: null,
         reviews: [],
     });
 
@@ -116,6 +122,10 @@ const CreateItineriesPage = () => {
                     day: `${i + 1}`,
                     locationName: prev.days_information[i]?.locationName || "",
                     locationDetail: prev.days_information[i]?.locationDetail || "",
+                    sightseeing: prev.days_information[i]?.sightseeing || "",
+                    transfer: prev.days_information[i]?.transfer || "",
+                    weather: prev.days_information[i]?.weather || "",
+                    date: prev.days_information[i]?.date || "",
                     day_image: prev.days_information[i]?.day_image || "",
                     day_image_file: null,
                 }));
@@ -125,11 +135,21 @@ const CreateItineriesPage = () => {
         }
 
         // Handle 'Custom' Selection Reset
-        if (name === "duration" && value === "Custom") {
-            setFormData((prev) => ({
-                ...prev,
-                duration: "Custom",
-                days_information: [{ day: "1", locationName: "", locationDetail: "", day_image: "", day_image_file: null }]
+        if (name === "itinerary_type" && value === "flexible") {
+            setFormData((prev) => ({ 
+                ...prev, 
+                itinerary_type: value,
+                days_information: [{ 
+                    day: "1", 
+                    locationName: "", 
+                    locationDetail: "",
+                    sightseeing: "",
+                    transfer: "",
+                    weather: "",
+                    date: "",
+                    day_image: "",
+                    day_image_file: null
+                }]
             }));
             return;
         }
@@ -140,17 +160,26 @@ const CreateItineriesPage = () => {
 
     const handleArrayChange = (e, index, arrayName) => {
         const { name, value } = e.target;
-        const updated = [...formData[arrayName]];
-        updated[index][name] = value;
-        setFormData((prev) => ({ ...prev, [arrayName]: updated }));
+        setFormData((prev) => {
+            const updatedArray = [...prev[arrayName]];
+            // Create a fresh copy of the object at this index to avoid mutation
+            updatedArray[index] = { ...updatedArray[index], [name]: value };
+            return { ...prev, [arrayName]: updatedArray };
+        });
     };
 
     const handleAddItem = (arrayName, newItem) => {
-        setFormData((prev) => ({ ...prev, [arrayName]: [...prev[arrayName], newItem] }));
+        setFormData((prev) => ({ 
+            ...prev, 
+            [arrayName]: [...(prev[arrayName] || []), newItem] 
+        }));
     };
 
     const handleRemoveItem = (index, arrayName) => {
-        setFormData((prev) => ({ ...prev, [arrayName]: prev[arrayName].filter((_, i) => i !== index) }));
+        setFormData((prev) => ({ 
+            ...prev, 
+            [arrayName]: prev[arrayName].filter((_, i) => i !== index) 
+        }));
     };
 
     const validateForm = () => {
@@ -238,16 +267,12 @@ const CreateItineriesPage = () => {
                 rev.profileImage_file ? uploadFile(rev.profileImage_file, 'reviews') : Promise.resolve(null)
             );
 
-            // 4. Upload Video
-            const videoPromise = formData.video instanceof File ? uploadFile(formData.video, 'videos') : Promise.resolve(null);
-
-            // Wait for everything
-            const [uploadedImageKeys, uploadedThumbnailKeys, dayImageKeys, reviewImageKeys, uploadedVideoKey] = await Promise.all([
+            // 4. Wait for everything
+            const [uploadedImageKeys, uploadedThumbnailKeys, dayImageKeys, reviewImageKeys] = await Promise.all([
                 Promise.all(imageUploadPromises),
                 Promise.all(thumbUploadPromises),
                 Promise.all(dayImagePromises),
-                Promise.all(reviewImagePromises),
-                videoPromise
+                Promise.all(reviewImagePromises)
             ]);
 
             const updatedDaysInfo = formData.days_information.map((day, idx) => {
@@ -275,13 +300,11 @@ const CreateItineriesPage = () => {
                 destination_thumbnails: [
                     ...formData.destination_thumbnails.filter(img => typeof img === 'string' && (img.startsWith('http') || img.startsWith('https'))),
                     ...uploadedThumbnailKeys.filter(k => k !== null)
-                ],
-                video_key: uploadedVideoKey || undefined
+                ]
             };
 
             delete payload.destination_images_files;
             delete payload.destination_thumbnails_files;
-            delete payload.video;
 
             const res = id ? await apiClient.patch(`/admin/itinerary/${id}`, payload) : await apiClient.post("/admin/itinerary", payload);
 
@@ -304,6 +327,10 @@ const CreateItineriesPage = () => {
                 day: `${i + 1}`,
                 locationName: prev.days_information[i]?.locationName || "",
                 locationDetail: prev.days_information[i]?.locationDetail || "",
+                sightseeing: prev.days_information[i]?.sightseeing || "",
+                transfer: prev.days_information[i]?.transfer || "",
+                weather: prev.days_information[i]?.weather || "",
+                date: prev.days_information[i]?.date || "",
                 day_image: prev.days_information[i]?.day_image || "",
                 day_image_file: null,
             }));
@@ -313,7 +340,7 @@ const CreateItineriesPage = () => {
 
     const styleProps = {
         inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500",
-        labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
+        labelStyle: "flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
         cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
         buttonStyle: "bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30",
         removeButtonStyle: "bg-red-500/10 text-red-600 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all",
@@ -326,47 +353,49 @@ const CreateItineriesPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                            <Navigation className="text-indigo-600" size={28} /> {id ? "EDIT ITINERARY" : "NEW ITINERARY"}
+                            <Navigation className="text-indigo-600" size={28} /> {isViewMode ? "VIEW ITINERARY" : id ? "EDIT ITINERARY" : "NEW ITINERARY"}
                         </h1>
-                        <p className="text-slate-500 font-medium mt-1">Crafting unforgettable experiences for couples</p>
+                        <p className="text-slate-600 font-medium mt-1">Crafting unforgettable experiences for couples</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem] flex shadow-inner">
-                            {["domestic", "international"].map((t) => (
-                                <button
-                                    key={t}
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, destination_type: t })}
-                                    className={`px-8 py-3 rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] transition-all ${formData.destination_type === t ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/40' : 'text-slate-500 hover:text-slate-900'}`}
-                                >
-                                    {t}
-                                </button>
-                            ))}
-                        </div>
+                        <fieldset disabled={isViewMode} className="border-none p-0 m-0">
+                            <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem] flex shadow-inner">
+                                {["domestic", "international"].map((t) => (
+                                    <button
+                                        key={t}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, destination_type: t })}
+                                        className={`px-8 py-3 rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] transition-all ${formData.destination_type === t ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/40' : 'text-slate-500 hover:text-slate-900'}`}
+                                    >
+                                        {t}
+                                    </button>
+                                ))}
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
-                <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
-                <DayInfoSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
-                <InclusionSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                <ExclusionSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                <HotelDetailsSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
-                <PricingSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                <TermsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                <PaymentModeSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                <CancellationPolicySection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
+                <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
+                    <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                    <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
+                    <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
+                    <DayInfoSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
+                    <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                    <HotelDetailsSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
+                    <PricingSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
+                    <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
+                </fieldset>
 
-                <div className="flex justify-end pt-12">
-                    <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden uppercase tracking-widest">
-                        {isSubmitting ? <Loader2 className="animate-spin" size={28} /> : <Heart size={28} />}
-                        {isSubmitting ? 'Syncing...' : id ? 'Push Changes' : 'Commit Itinerary'}
-                    </button>
-                </div>
+                {!isViewMode && (
+                    <div className="flex justify-end pt-12">
+                        <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden uppercase tracking-widest">
+                            {isSubmitting ? <Loader2 className="animate-spin" size={28} /> : <Heart size={28} />}
+                            {isSubmitting ? 'Syncing...' : id ? 'Push Changes' : 'Commit Itinerary'}
+                        </button>
+                    </div>
+                )}
             </form>
         </motion.div>
     );

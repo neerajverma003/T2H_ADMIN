@@ -81,7 +81,8 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/destinations')) toggleMenu('destinations', true)
     if (path.includes('/itineraries')) toggleMenu('itineraries', true)
     if (path.includes('/resorts')) toggleMenu('resorts', true)
-    if (path.includes('/testimonials')) toggleMenu('testimonials', true)
+    if (path.includes('/testimonials/video')) toggleMenu('videoReviews', true)
+    if (path.includes('/testimonials/written')) toggleMenu('writtenReviews', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
     if (path.includes('/leads')) toggleMenu('leads', true)
     if (path.includes('/hero')) toggleMenu('hero', true)
@@ -199,15 +200,23 @@ const Sidebar = ({ open, setOpen }) => {
              Customer Gallery
           </NavLink>
 
+          {/* Testimonials */}
           <NavDropdown 
             title="Testimonials" 
-            icon={Video} 
+            icon={Sparkles} 
             isOpen={openMenus.testimonials} 
             onClick={() => toggleMenu('testimonials')}
             isActive={location.pathname.includes('/testimonials')}
           >
-            <NavLink to="/testimonials/video" onClick={() => setOpen(false)} className={subLinkClass}>Video Reviews</NavLink>
-            <NavLink to="/testimonials/list" onClick={() => setOpen(false)} className={subLinkClass}>Written Reviews</NavLink>
+            <div className="px-3 pb-2 space-y-1">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-2 pb-1">Video Stories</div>
+              <NavLink to="/testimonials/video" onClick={() => setOpen(false)} className={subLinkClass}>Upload Video</NavLink>
+              <NavLink to="/testimonials/video-list" onClick={() => setOpen(false)} className={subLinkClass}>Video Storyboard</NavLink>
+              
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 border-t border-slate-50 dark:border-slate-800/50 mt-2">Written Reviews</div>
+              <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
+              <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>Review Archive</NavLink>
+            </div>
           </NavDropdown>
 
           <NavDropdown 

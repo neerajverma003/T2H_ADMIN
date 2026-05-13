@@ -105,7 +105,10 @@ import BlogList from "./pages/blog/BlogsList"
  import HoneymoonResortForm from "./pages/resorts/CreateResort" 
  import HoneymoonResortList from "./pages/resorts/ResortList" 
  import EditPage from "./pages/resorts/EditPage"
+ import ViewPage from "./pages/resorts/ViewPage"
 import TestimonialListPage from "./pages/testimonials/TestimonialLists"
+import WrittenTestimonials from "./pages/testimonials/WrittenTestimonials"
+import WrittenTestimonialList from "./pages/testimonials/WrittenTestimonialList"
 // Protected Route
 import ProtectedRoutes from "./components/ProtectedRoutes"
 
@@ -159,6 +162,7 @@ function App() {
             <Route path="resorts/create" element={<HoneymoonResortForm />} />
             <Route path="resorts/list" element={<HoneymoonResortList />} />
             <Route path="resorts/edit/:id" element={<EditPage />} />
+            <Route path="resorts/view/:id" element={<ViewPage />} />
 
             {/* Hero Section Management */}
             <Route path="hero-content" element={<HeroContent />} />
@@ -169,14 +173,17 @@ function App() {
             <Route path="blogs/edit/:id" element={<CreateBlog />} />
             <Route path="blogs/list" element={<BlogList />} />
 
-            {/* Video Testimonials */}
+            {/* Testimonials */}
             <Route path="testimonials/video" element={<UploadVideoTestimonial />} />
-            <Route path="testimonials/list" element={<TestimonialListPage />} />
+            <Route path="testimonials/video-list" element={<TestimonialListPage />} />
+            <Route path="testimonials/written" element={<WrittenTestimonials />} />
+            <Route path="testimonials/written-list" element={<WrittenTestimonialList />} />
 
             {/* Itineraries */}
             <Route path="itineraries/create" element={<CreateItineriesPage />} />
             <Route path="itineraries/list" element={<ItineraryListPage />} />
             <Route path="itineraries/edit/:id" element={<CreateItineriesPage />} />
+            <Route path="itineraries/view/:id" element={<CreateItineriesPage />} />
             
             {/* Cancellation Policy */}
             <Route path="cancellation-policy" element={<HoneymoonCancellationPolicy />} />  

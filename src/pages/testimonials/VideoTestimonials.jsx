@@ -163,7 +163,7 @@ const VideoTestimonials = () => {
           <form onSubmit={handleSubmit} className={cardStyle}>
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-sm"><UploadCloud size={24} /></div>
-              <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Onboard Story</h2>
+              <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Onboard New Video Story</h2>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
@@ -233,64 +233,6 @@ const VideoTestimonials = () => {
               </div>
             </div>
           </form>
-        </div>
-
-        {/* LIST HUB */}
-        <div className={cardStyle}>
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Story Registry</h2>
-              <p className="text-sm text-slate-500 font-bold mt-2 uppercase tracking-widest">Managed social proof and video assets</p>
-            </div>
-            <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
-              <Play size={20} />
-            </div>
-          </div>
-
-          {isFetching ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <Loader2 className="animate-spin text-indigo-600" size={40} />
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Loading Assets...</p>
-            </div>
-          ) : testimonials.length === 0 ? (
-            <div className="py-24 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2rem]">
-              <Video className="mx-auto mb-4 text-slate-300 dark:text-slate-700" size={64} />
-              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight mb-2">No Stories Onboarded</h3>
-              <p className="text-slate-500 font-medium text-sm">Capture your first couple memory to begin</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <AnimatePresence>
-                {testimonials.map((t) => (
-                  <motion.div layout key={t._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-lg transition-all hover:shadow-xl hover:shadow-indigo-500/10">
-                    <div className="relative aspect-video overflow-hidden">
-                      <video src={t.video_url} muted className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
-                        <div className="size-20 bg-white rounded-full flex items-center justify-center text-indigo-700 shadow-2xl scale-75 group-hover:scale-100 transition-transform">
-                          <Play className="ml-1" size={36} fill="currentColor" />
-                        </div>
-                      </div>
-                      <div className={`absolute top-4 left-4 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-[0.2em] backdrop-blur-md shadow-2xl ${t.visibility === 'public' ? 'bg-emerald-600/90 text-white' : 'bg-slate-950/90 text-slate-300'}`}>
-                        {t.visibility}
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-black text-slate-950 dark:text-white truncate tracking-tight mb-2">{t.title}</h3>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <MapPin size={16} className="text-indigo-600" />
-                          <span className="text-xs font-black uppercase tracking-widest">{t.location}</span>
-                        </div>
-                        <button onClick={() => handleDeleteTestimonial(t._id)} className="p-3 bg-white text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-50">
-                          {deletingId === t._id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
         </div>
       </div>
     </motion.div>

@@ -92,6 +92,7 @@
 import { create } from "zustand"
 import { toast } from "react-toastify"
 import { apiClient } from "./authStores"
+import { getCdnUrl } from "../utils/media"
 
 export const useHeroVideoStore = create((set, get) => ({
   /* =====================
@@ -122,15 +123,10 @@ export const useHeroVideoStore = create((set, get) => ({
       if (response.data?.success) {
         // Normalize each video's url to a full absolute URL so <video src=...> works in the admin app
         const raw = response.data.data || [];
-        const normalized = raw.map((v) => {
-          const copy = { ...v };
-          if (copy.url && typeof copy.url === 'string' && !copy.url.startsWith('http')) {
-            const base = apiClient.defaults.baseURL || '';
-            const path = copy.url.replace(/^\/+/, '');
-            copy.url = `${base}/${path}`;
-          }
-          return copy;
-        });
+        const normalized = raw.map((v) => ({
+          ...v,
+          url: getCdnUrl(v.url)
+        }));
 
         set({
           videos: normalized,

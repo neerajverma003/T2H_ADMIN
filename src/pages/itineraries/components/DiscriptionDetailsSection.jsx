@@ -122,7 +122,7 @@ const DescriptionsSection = ({
                 <div className="flex flex-col gap-8 pt-4 border-t border-slate-50 dark:border-slate-800">
                     {/* Terms & Conditions */}
                     <div>
-                        <label htmlFor="terms_and_conditions" className={labelStyle}><FileText size={14} /> Quick Terms</label>
+                        <label htmlFor="terms_and_conditions" className={labelStyle}><FileText size={14} /> Terms and Conditions</label>
                         <textarea
                             id="terms_and_conditions"
                             name="terms_and_conditions"
@@ -135,7 +135,7 @@ const DescriptionsSection = ({
 
                     {/* Payment Mode */}
                     <div>
-                        <label htmlFor="payment_mode" className={labelStyle}><CreditCard size={14} /> Payment Overview</label>
+                        <label htmlFor="payment_mode" className={labelStyle}><CreditCard size={14} /> Payment Policy</label>
                         <textarea
                             id="payment_mode"
                             name="payment_mode"
@@ -149,7 +149,7 @@ const DescriptionsSection = ({
 
                 {/* Cancellation Policy */}
                 <div>
-                    <label htmlFor="cancellation_policy" className={labelStyle}><ShieldX size={14} /> Cancellation Summary</label>
+                    <label htmlFor="cancellation_policy" className={labelStyle}><ShieldX size={14} /> Cancellation Policy</label>
                     <textarea
                         id="cancellation_policy"
                         name="cancellation_policy"
