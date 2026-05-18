@@ -177,7 +177,7 @@ const ConsultationLeads = () => {
                            <MapPin size={14} className="text-indigo-600" /> DESTINATION TARGET
                         </div>
                         <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                           <p className="text-xs font-black text-slate-950 dark:text-slate-200 truncate">{lead.itineraryTitle || 'Custom Itinerary'}</p>
+                           <p className="text-xs font-black text-slate-950 dark:text-slate-200 truncate">{lead.itineraryTitle || lead.to || 'Custom Itinerary'}</p>
                         </div>
                       </div>
                    </div>

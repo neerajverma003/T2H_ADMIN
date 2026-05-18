@@ -105,6 +105,17 @@ const EditDestination = () => {
     }));
   };
 
+  const handleSetThumbnail = (img) => {
+    setData((prev) => {
+      const updated = [img, ...prev.existingImages.filter((i) => i !== img)];
+      return {
+        ...prev,
+        existingImages: updated,
+      };
+    });
+    toast.info("Image set as thumbnail! Remember to click 'Commit Changes' to save.");
+  };
+
   const handleDeleteImage = async (img) => {
     if(!window.confirm("Delete this image permanently?")) return;
     try {
@@ -148,6 +159,7 @@ const EditDestination = () => {
         destination_name: data.destination_name,
         destination_type: data.destination_type,
         show_image: data.show_image,
+        title_image: data.existingImages,
         new_image_keys: newImageKeys,
         best_time: data.best_time,
         ideal_duration: data.ideal_duration,
@@ -201,17 +213,6 @@ const EditDestination = () => {
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
             <label className={labelStyle}><MapPin size={14} /> Destination Name</label>
             <input name="destination_name" value={data.destination_name} onChange={handleChange} placeholder="Destination name" className={`${inputStyle} text-xl font-bold h-16`} />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-               <div>
-                 <label className={labelStyle}><Calendar size={14} /> Best Time</label>
-                 <input name="best_time" value={data.best_time} onChange={handleChange} placeholder="e.g. Oct - March" className={inputStyle} />
-               </div>
-               <div>
-                 <label className={labelStyle}><Clock size={14} /> Ideal Duration</label>
-                 <input name="ideal_duration" value={data.ideal_duration} onChange={handleChange} placeholder="e.g. 5-7 Days" className={inputStyle} />
-               </div>
-            </div>
             <div className="mt-8">
                <label className={labelStyle}><Sparkles size={14} /> Short Description (Max 150 characters)</label>
                <textarea 
@@ -244,11 +245,23 @@ const EditDestination = () => {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {data.existingImages.map((img, idx) => {
                       const isSelected = data.show_image.includes(img);
+                      const isThumbnail = idx === 0;
                       return (
                         <div key={idx} className={`group relative aspect-video rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-100 dark:border-slate-800'}`}>
                            <img src={img} alt="" className={`w-full h-full object-cover transition-transform group-hover:scale-110 ${!isSelected && 'grayscale opacity-50'}`} />
                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                            
+                           {/* Thumbnail Overlay Badge & Controls */}
+                           {isThumbnail ? (
+                             <div className="absolute top-2 left-2 px-3 py-1 bg-amber-500 text-white rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md z-10">
+                               <Heart size={10} fill="currentColor" /> Thumbnail
+                             </div>
+                           ) : (
+                             <button type="button" onClick={() => handleSetThumbnail(img)} className="absolute top-2 left-2 p-1.5 bg-white/90 hover:bg-amber-500 hover:text-white text-slate-800 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-md z-10 flex items-center gap-1 text-[9px] font-black uppercase tracking-wider" title="Set as main thumbnail">
+                               <Heart size={10} /> Make Main
+                             </button>
+                           )}
+
                            <button type="button" onClick={() => handleShowImageToggle(img)} className={`absolute bottom-2 left-2 p-2 rounded-lg backdrop-blur-md transition-all ${isSelected ? 'bg-indigo-600 text-white' : 'bg-white/90 text-slate-900'}`}>
                               <Eye size={14} />
                            </button>

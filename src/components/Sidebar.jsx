@@ -84,6 +84,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/testimonials/video')) toggleMenu('videoReviews', true)
     if (path.includes('/testimonials/written')) toggleMenu('writtenReviews', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
+    if (path.includes('/articles')) toggleMenu('articles', true)
     if (path.includes('/leads')) toggleMenu('leads', true)
     if (path.includes('/hero')) toggleMenu('hero', true)
     if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
@@ -238,7 +239,18 @@ const Sidebar = ({ open, setOpen }) => {
             isActive={location.pathname.includes('/blogs')}
           >
             <NavLink to="/blogs/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Blog</NavLink>
-            <NavLink to="/blogs/list" onClick={() => setOpen(false)} className={subLinkClass}>Blog Articles</NavLink>
+            <NavLink to="/blogs/list" onClick={() => setOpen(false)} className={subLinkClass}>Blog List</NavLink>
+          </NavDropdown>
+
+          <NavDropdown 
+            title="Articles" 
+            icon={FileText} 
+            isOpen={openMenus.articles} 
+            onClick={() => toggleMenu('articles')}
+            isActive={location.pathname.includes('/articles')}
+          >
+            <NavLink to="/articles/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Article</NavLink>
+            <NavLink to="/articles/list" onClick={() => setOpen(false)} className={subLinkClass}>Article List</NavLink>
           </NavDropdown>
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leads & Policy</p>
@@ -255,6 +267,7 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/leads/itinerary-leads" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Leads</NavLink>
             <NavLink to="/leads/plan-journey" onClick={() => setOpen(false)} className={subLinkClass}>Journey Plans</NavLink>
             <NavLink to="/leads/contacts" onClick={() => setOpen(false)} className={subLinkClass}>Contact Leads</NavLink>
+            <NavLink to="/leads/suggestions" onClick={() => setOpen(false)} className={subLinkClass}>Suggestions</NavLink>
           </NavDropdown>
 
           <NavDropdown 

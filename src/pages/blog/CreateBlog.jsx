@@ -18,6 +18,8 @@ import { useBlogStore } from "../../stores/blogStore";
 import { toast } from "react-toastify";
 import { ENV } from "../../constants/api";
 import { motion } from "framer-motion";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
 
 const styleProps = {
   inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500 shadow-inner",
@@ -26,7 +28,7 @@ const styleProps = {
   buttonStyle: "bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30",
 };
 
-const CreateBlog = () => {
+const CreateBlog = ({ postType = 'blog' }) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -48,6 +50,36 @@ const CreateBlog = () => {
   const [visibility, setVisibility] = useState("public");
   const [imagePreview, setImagePreview] = useState("");
   const [category, setCategory] = useState("honeymoon");
+
+  const { quill, quillRef } = useQuill({
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['blockquote', 'code-block'],
+        ['clean']
+      ]
+    },
+    placeholder: "Unleash the narrative here... Strategic travel insights required."
+  });
+
+  useEffect(() => {
+    if (quill) {
+      quill.on("text-change", () => {
+        setContent(quill.root.innerHTML);
+      });
+    }
+  }, [quill]);
+
+  useEffect(() => {
+    if (blogToEdit && isEditMode && quill) {
+      if (quill.root.innerHTML !== blogToEdit.content) {
+        quill.root.innerHTML = blogToEdit.content || "";
+      }
+    }
+  }, [blogToEdit, quill, isEditMode]);
 
   useEffect(() => {
     if (isEditMode) fetchBlogById(id);
@@ -113,7 +145,8 @@ const CreateBlog = () => {
         content,
         visibility,
         category,
-        cover_image: finalCoverImage
+        cover_image: finalCoverImage,
+        post_type: postType 
       };
 
       if (isEditMode) {
@@ -257,10 +290,45 @@ const CreateBlog = () => {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className={`${styleProps.inputStyle} min-h-[500px] leading-relaxed resize-none p-6`}
-            placeholder="Unleash the narrative here... Strategic travel insights required."
-            required
+            className="hidden"
           />
+          <div className="mt-2 overflow-hidden rounded-2xl">
+            <div ref={quillRef} />
+          </div>
+          <style dangerouslySetInnerHTML={{__html: `
+            .ql-toolbar.ql-snow {
+              border: 1px solid #e2e8f0 !important;
+              background-color: #f8fafc !important;
+              border-top-left-radius: 1.5rem !important;
+              border-top-right-radius: 1.5rem !important;
+              padding: 12px 16px !important;
+            }
+            .ql-container.ql-snow {
+              border: 1px solid #e2e8f0 !important;
+              border-bottom-left-radius: 1.5rem !important;
+              border-bottom-right-radius: 1.5rem !important;
+              min-height: 400px !important;
+              font-family: 'Plus Jakarta Sans', sans-serif !important;
+              font-size: 16px !important;
+              background-color: #ffffff !important;
+            }
+            .dark .ql-toolbar.ql-snow {
+              background-color: #1e293b !important;
+              border-color: #334155 !important;
+            }
+            .dark .ql-container.ql-snow {
+              background-color: #0f172a !important;
+              border-color: #334155 !important;
+              color: #ffffff !important;
+            }
+            .ql-editor {
+              min-height: 400px !important;
+            }
+            .ql-editor.ql-blank::before {
+              color: #94a3b8 !important;
+              font-style: italic !important;
+            }
+          `}} />
           <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex items-start gap-4">
               <Sparkles size={20} className="text-indigo-600 shrink-0" />
               <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-widest">

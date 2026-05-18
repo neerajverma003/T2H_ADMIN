@@ -74,11 +74,7 @@ const HeroContent = () => {
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 text-base italic">Strategic messaging and brand narratives for the main landing portal</p>
             </div>
-            <div className="flex items-center gap-4">
-                <div className="px-8 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest flex items-center gap-3 shadow-2xl shadow-indigo-500/30">
-                    <Sparkles size={20} /> BOLD BRAND VOICE
-                </div>
-            </div>
+        
         </div>
       </div>
 

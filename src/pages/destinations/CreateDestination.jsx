@@ -13,7 +13,8 @@ import {
   Clock,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Search
 } from "lucide-react"
 import { usePlaceStore } from "../../stores/usePlaceStore"
 import { useNavigate } from "react-router-dom"
@@ -36,6 +37,7 @@ const CreateDestination = () => {
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const { createDestination, fetchDestinationList, destinationList, isListLoading } = usePlaceStore()
   const navigate = useNavigate()
   const typeRef = useRef(data.type)
@@ -150,14 +152,6 @@ const CreateDestination = () => {
             </div>
             <div className="space-y-8">
               <div>
-                <label className={labelStyle}><Calendar size={16} className="text-indigo-600" /> Optimal Visitation Period</label>
-                <input name="best_time" value={data.best_time} onChange={handleChange} placeholder="e.g. Oct - March" className={inputStyle} />
-              </div>
-              <div>
-                <label className={labelStyle}><Clock size={16} className="text-indigo-600" /> Recommended Itinerary Length</label>
-                <input name="ideal_duration" value={data.ideal_duration} onChange={handleChange} placeholder="e.g. 5-7 Days" className={inputStyle} />
-              </div>
-              <div>
                 <label className={labelStyle}><Sparkles size={16} className="text-indigo-600" /> Short Description (Max 150 characters)</label>
                 <textarea 
                   name="short_description" 
@@ -175,16 +169,16 @@ const CreateDestination = () => {
 
         {/* MEDIA & ASSETS (FULL WIDTH) */}
         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none">
-          <div className="flex items-center gap-4 mb-10">
+          <div className="flex items-center gap-4 mb-6">
             <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><ImageIcon size={24} /></div>
             <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Visual Content Gallery</h2>
           </div>
-          <label className="group relative block w-full aspect-[21/7] rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-600 flex flex-col items-center justify-center text-slate-400">
-            <div className="size-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-indigo-600 mb-4 shadow-lg transition-transform group-hover:scale-110">
-              <ImageIcon size={28} strokeWidth={1.5} />
+          <label className="group relative block w-full h-80 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-600 flex flex-col items-center justify-center text-slate-400">
+            <div className="size-16 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 shadow-lg transition-transform group-hover:scale-110">
+              <ImageIcon size={32} strokeWidth={1.5} />
             </div>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-950 dark:text-white">{data.image.length > 0 ? `${data.image.length} Assets Selected` : 'Deploy Visual Assets'}</p>
-            <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-widest italic opacity-70">High-Resolution Multi-Upload Supported</p>
+            <p className="text-base font-black uppercase tracking-[0.2em] text-slate-950 dark:text-white">{data.image.length > 0 ? `${data.image.length} Assets Selected` : 'Deploy Visual Assets'}</p>
+            <p className="text-[11px] font-bold text-slate-500 mt-2 uppercase tracking-widest italic opacity-70">High-Resolution Multi-Upload Supported</p>
             <input type="file" name="image" multiple accept="image/*" onChange={handleChange} hidden />
           </label>
         </div>
@@ -213,12 +207,25 @@ const CreateDestination = () => {
 
       {/* DIRECTORY LIST */}
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden">
-        <div className="p-8 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-8 border-b border-slate-50 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-wider flex items-center gap-3">
             <Sparkles size={24} className="text-indigo-700" /> Current Directory
           </h2>
-          <div className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest">
-            {data.type}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* Elegant Search Input */}
+            <div className="relative flex-1 md:w-96">
+              <input
+                type="text"
+                placeholder="Search destination..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-5 py-3.5 text-sm font-medium rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-400"
+              />
+              <Search className="absolute left-4 top-4.5 text-slate-400" size={14} />
+            </div>
+            <div className="px-4 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-xl text-xs font-black uppercase tracking-widest shrink-0">
+              {data.type}
+            </div>
           </div>
         </div>
 
@@ -235,22 +242,36 @@ const CreateDestination = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {destinationList.map((dest) => (
-                  <tr key={dest._id} className="group hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors">
-                    <td className="px-8 py-6 font-black text-slate-950 dark:text-white text-base">{dest.destination_name}</td>
-                    <td className="px-8 py-5">
-                      <div className="flex flex-wrap gap-2">
-                        {(Array.isArray(dest.destination_type) ? dest.destination_type : []).map(tag => (
-                          <span key={tag} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-black uppercase tracking-[0.1em] text-slate-900 dark:text-slate-100 shadow-sm">{tag}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <button onClick={() => navigate(`/destinations/edit/${dest._id}`)} className="p-2 text-slate-400 hover:text-indigo-600 transition-all"><Pencil size={18} /></button>
-                      <button onClick={() => handleDelete(dest._id)} className="p-2 text-slate-400 hover:text-red-500 transition-all ml-2"><Trash2 size={18} /></button>
-                    </td>
-                  </tr>
-                ))}
+                {(() => {
+                  const filtered = destinationList.filter(dest =>
+                    dest.destination_name?.toLowerCase().includes(searchQuery.toLowerCase())
+                  );
+                  if (filtered.length === 0) {
+                    return (
+                      <tr>
+                        <td colSpan="3" className="px-8 py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
+                          No matching destinations found in the directory.
+                        </td>
+                      </tr>
+                    );
+                  }
+                  return filtered.map((dest) => (
+                    <tr key={dest._id} className="group hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors">
+                      <td className="px-8 py-6 font-black text-slate-950 dark:text-white text-base">{dest.destination_name}</td>
+                      <td className="px-8 py-5">
+                        <div className="flex flex-wrap gap-2">
+                          {(Array.isArray(dest.destination_type) ? dest.destination_type : []).map(tag => (
+                            <span key={tag} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-black uppercase tracking-[0.1em] text-slate-900 dark:text-slate-100 shadow-sm">{tag}</span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <button onClick={() => navigate(`/destinations/edit/${dest._id}`)} className="p-2 text-slate-400 hover:text-indigo-600 transition-all"><Pencil size={18} /></button>
+                        <button onClick={() => handleDelete(dest._id)} className="p-2 text-slate-400 hover:text-red-500 transition-all ml-2"><Trash2 size={18} /></button>
+                      </td>
+                    </tr>
+                  ));
+                })()}
               </tbody>
             </table>
           </div>

@@ -10,10 +10,10 @@ export const useBlogStore = create((set, get) => ({
   // --- ACTIONS ---
 
   // Fetch all blogs for the list page
-  fetchBlogs: async () => {
+  fetchBlogs: async (postType = 'blog') => {
     set({ isLoading: true });
     try {
-      const res = await apiClient.get("/admin/blog");
+      const res = await apiClient.get(`/admin/blog?type=${postType}`);
       const blogData = res?.data?.blogData || [];
       set({ blogs: blogData, isLoading: false });
     } catch (error) {

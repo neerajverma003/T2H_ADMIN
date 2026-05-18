@@ -18,7 +18,8 @@ import {
     CheckCircle2,
     Search,
     ArrowUpRight,
-    Zap
+    Zap,
+    Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";

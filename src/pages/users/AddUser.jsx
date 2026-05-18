@@ -162,7 +162,7 @@ const AddUser = () => {
             <p className="text-sm font-black text-slate-400 uppercase tracking-widest text-center">Syncing Database...</p>
           </div>
         ) : users?.length ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-6">
+          <div className="flex flex-col gap-4">
             {users.map((user) => (
               <div key={user._id} className="group flex items-center justify-between p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all hover:shadow-lg hover:shadow-indigo-500/5">
                 <div className="flex items-center gap-5">

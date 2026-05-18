@@ -32,6 +32,7 @@ const HeroMedia = () => {
     const [isUploading, setIsUploading] = useState(false)
     const [visibility, setVisibility] = useState("public")
     const [activePage, setActivePage] = useState("home")
+    const [selectedMedia, setSelectedMedia] = useState(null)
 
     const {
         videos,
@@ -179,11 +180,14 @@ const HeroMedia = () => {
                                 >
                                     <div className="flex flex-col xl:flex-row items-center gap-10">
                                         {/* Horizontal Thumbnail */}
-                                        <div className="w-full xl:w-96 aspect-video bg-slate-950 rounded-[2rem] overflow-hidden relative group-hover:shadow-2xl transition-all duration-700">
+                                        <div 
+                                            onClick={() => setSelectedMedia(v)}
+                                            className="w-full xl:w-96 aspect-video bg-slate-950 rounded-[2rem] overflow-hidden relative group-hover:shadow-2xl transition-all duration-700 cursor-pointer"
+                                        >
                                             {v.media_type === 'image' ? (
                                                 <img src={v.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" alt="Hero" />
                                             ) : (
-                                                <video src={v.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" muted loop />
+                                                <video src={v.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" muted loop autoPlay playsInline />
                                             )}
                                             <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                                                 <div className="size-16 bg-white rounded-full flex items-center justify-center text-indigo-600 shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-500">
@@ -332,6 +336,52 @@ const HeroMedia = () => {
                     </div>
                 </form>
             </div>
+
+            {/* Lightbox Modal */}
+            <AnimatePresence>
+                {selectedMedia && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-950/95 p-4 md:p-10 backdrop-blur-xl"
+                        onClick={() => setSelectedMedia(null)}
+                    >
+                        <motion.button
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors bg-white/10 p-3 rounded-full backdrop-blur-md"
+                            onClick={() => setSelectedMedia(null)}
+                        >
+                            <X size={32} strokeWidth={1.5} />
+                        </motion.button>
+
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative max-w-6xl w-full h-[85vh] flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {selectedMedia.media_type === 'image' ? (
+                                <img
+                                    src={selectedMedia.url}
+                                    alt="Full screen preview"
+                                    className="max-w-full max-h-full object-contain rounded-3xl shadow-2xl border border-white/10"
+                                />
+                            ) : (
+                                <video
+                                    src={selectedMedia.url}
+                                    className="max-w-full max-h-full object-contain rounded-3xl shadow-2xl border border-white/10"
+                                    controls
+                                    autoPlay
+                                    playsInline
+                                />
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
         
     )

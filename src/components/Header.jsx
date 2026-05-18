@@ -1,11 +1,13 @@
 import PropTypes from "prop-types"
 import { Bell, Menu, Moon, Search, Sun, User, Settings, LogOut, ChevronDown, ChevronRight } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contexts/ThemeProvider"
 import useAuthStore from "../stores/authStores"
 import profileImg from "../assets/profile-image.jpg"
 
 const Header = ({ setOpen }) => {
+  const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
   const { logout } = useAuthStore()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -98,6 +100,16 @@ const Header = ({ setOpen }) => {
 
           {showProfileMenu && (
             <div className="absolute right-0 mt-4 w-56 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden py-3 z-50">
+               <button 
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    navigate("/");
+                  }}
+                  className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+               >
+                  <User size={16} /> My Profile
+               </button>
+               <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
                <button 
                   onClick={logout}
                   className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"

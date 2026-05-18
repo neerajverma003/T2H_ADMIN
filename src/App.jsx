@@ -169,10 +169,14 @@ function App() {
             <Route path="hero-media" element={<HeroMedia />} />
 
             {/* Blog (when ready) */}
-            <Route path="blogs/create" element={<CreateBlog />} />
-            <Route path="blogs/edit/:id" element={<CreateBlog />} />
-            <Route path="blogs/list" element={<BlogList />} />
-
+            <Route path="blogs/create" element={<CreateBlog postType ="blog" />} />
+            <Route path="blogs/edit/:id" element={<CreateBlog postType="blog"/>} />
+            <Route path="blogs/list" element={<BlogList postType="blog"/>} />
+            
+            {/*  Articles*/}
+            <Route path="articles/create" element={<CreateBlog postType="article" />} />
+            <Route path="articles/edit/:id" element={<CreateBlog postType="article" />} />
+            <Route path="articles/list" element={<BlogList postType="article"/>} />
             {/* Testimonials */}
             <Route path="testimonials/video" element={<UploadVideoTestimonial />} />
             <Route path="testimonials/video-list" element={<TestimonialListPage />} />

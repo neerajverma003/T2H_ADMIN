@@ -82,15 +82,15 @@ const HoneymoonBlogCard = ({ blog, onEdit, onDelete, onToggleVisibility }) => {
   );
 };
 
-const HoneymoonBlogList = () => {
+const HoneymoonBlogList = ({ postType = 'blog' }) => {
   const navigate = useNavigate();
   const { blogs, isLoading, fetchBlogs, deleteBlog } = useBlogStore();
 
   useEffect(() => {
-    fetchBlogs({ category: "honeymoon" });
-  }, [fetchBlogs]);
+    fetchBlogs(postType);
+  }, [fetchBlogs, postType]);
 
-  const handleEdit = (id) => navigate(`/blogs/edit/${id}`);
+  const handleEdit = (id) => navigate(postType === 'article' ? `/articles/edit/${id}` : `/blogs/edit/${id}`);
   const handleDelete = (id) => {
     if (window.confirm("Permanently archive this honeymoon story?")) deleteBlog(id);
   };
@@ -105,15 +105,15 @@ const HoneymoonBlogList = () => {
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
               <Sparkles className="text-indigo-600" size={32} />
-              STORYBOARD
+              {postType === 'article' ? "ARTICLE ARCHIVE" : "STORYBOARD"}
             </h1>
             <p className="text-slate-500 font-medium mt-1">Manage your elite narrative assets and strategic drafts</p>
           </div>
           <button
-            onClick={() => navigate("/blogs/create")}
+            onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")}
             className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all flex items-center gap-3 active:scale-95"
           >
-            <PlusCircle size={24} /> FORGE NEW POST
+            <PlusCircle size={24} /> {postType === 'article' ? "WRITE NEW ARTICLE" : "FORGE NEW POST"}
           </button>
         </div>
       </div>
@@ -130,13 +130,13 @@ const HoneymoonBlogList = () => {
             <MessageSquare size={48} strokeWidth={1} />
           </div>
           <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 uppercase tracking-tight">
-            Storyboard is Vacant
+            {postType === 'article' ? "Article Archive is Vacant" : "Storyboard is Vacant"}
           </h3>
           <p className="text-slate-500 font-medium text-lg max-w-lg mb-10 leading-relaxed italic">
-            You haven't forged any stories yet. Start sharing your strategic adventures today.
+            {postType === 'article' ? "You haven't written any articles yet." : "You haven't forged any stories yet. Start sharing your strategic adventures today."}
           </p>
-          <button onClick={() => navigate("/blogs/create")} className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">
-            <Zap size={20} /> WRITE FIRST NARRATIVE
+          <button onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")} className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">
+            <Zap size={20} /> {postType === 'article' ? "WRITE FIRST ARTICLE" : "WRITE FIRST NARRATIVE"}
           </button>
         </div>
       ) : (
