@@ -97,6 +97,7 @@ import ItineraryLeads from "./pages/leads/itinerary_leads/ItineraryLeads"
 // Iteraries
  import CreateItineriesPage from "./pages/itineraries/CreateItinerary"  
  import ItineraryListPage from "./pages/Itinerary_list/ItineraryList" 
+ import ItineraryReviewApprovals from "./pages/itineraries/ItineraryReviewApprovals"
 
 // Blogs
  import CreateBlog from "./pages/blog/CreateBlog"
@@ -188,6 +189,7 @@ function App() {
             <Route path="itineraries/list" element={<ItineraryListPage />} />
             <Route path="itineraries/edit/:id" element={<CreateItineriesPage />} />
             <Route path="itineraries/view/:id" element={<CreateItineriesPage />} />
+            <Route path="itineraries/reviews" element={<ItineraryReviewApprovals />} />
             
             {/* Cancellation Policy */}
             <Route path="cancellation-policy" element={<HoneymoonCancellationPolicy />} />  

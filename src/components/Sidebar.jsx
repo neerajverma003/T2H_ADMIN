@@ -181,6 +181,9 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/itineraries/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Itinerary</NavLink>
             <NavLink to="/itineraries/list" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary List</NavLink>
+            {role === 'superadmin' && (
+              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Review Approvals</NavLink>
+            )}
           </NavDropdown>
 
           <NavDropdown 
