@@ -171,7 +171,7 @@ const HoneymoonTermsAndCondition = () => {
             </div>
         </div>
       </div>
-    </motion.div>
+       </motion.div>
   );
 };
 

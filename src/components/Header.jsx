@@ -9,7 +9,7 @@ import profileImg from "../assets/profile-image.jpg"
 const Header = ({ setOpen }) => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
-  const { logout } = useAuthStore()
+  const { logout, role } = useAuthStore()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   return (
@@ -32,7 +32,9 @@ const Header = ({ setOpen }) => {
         </button>
 
         <div className="hidden md:flex items-center gap-3">
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Admin</p>
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+             {role === 'superadmin' ? 'Super Admin' : 'Admin'}
+           </p>
            <ChevronRight size={12} className="text-slate-300" />
            <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
         </div>

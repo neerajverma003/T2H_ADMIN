@@ -13,7 +13,8 @@ import {
   ChevronRight,
   MessageSquare,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Info
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -85,6 +86,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/testimonials/written')) toggleMenu('writtenReviews', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
     if (path.includes('/articles')) toggleMenu('articles', true)
+    if (path.includes('/giftcards')) toggleMenu('giftcards', true)
     if (path.includes('/leads')) toggleMenu('leads', true)
     if (path.includes('/hero')) toggleMenu('hero', true)
     if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
@@ -132,7 +134,9 @@ const Sidebar = ({ open, setOpen }) => {
              <Sparkles className="text-white" size={20} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-none">T2H ADMIN</h1>
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-none uppercase">
+              T2H {role === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN'}
+            </h1>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Honeymoon Portal</p>
           </div>
         </div>
@@ -195,6 +199,16 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/resorts/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Resort</NavLink>
             <NavLink to="/resorts/list" onClick={() => setOpen(false)} className={subLinkClass}>Resort Directory</NavLink>
+          </NavDropdown>
+
+          <NavDropdown 
+            title="Gift Cards" 
+            icon={Sparkles} 
+            isOpen={openMenus.giftcards} 
+            onClick={() => toggleMenu('giftcards')}
+            isActive={location.pathname.includes('/giftcards')}
+          >
+            <NavLink to="/giftcards/verify" onClick={() => setOpen(false)} className={subLinkClass}>Verify & Manage</NavLink>
           </NavDropdown>
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</p>
@@ -298,7 +312,10 @@ const Sidebar = ({ open, setOpen }) => {
               </NavLink>
             </>
           )}
-
+          <NavLink to="/about-settings" onClick={() => setOpen(false)} className={navLinkClass}>
+             <Info size={18} strokeWidth={2} />
+             About Us Settings
+          </NavLink>
           <NavLink to="/settings" onClick={() => setOpen(false)} className={navLinkClass}>
              <Settings size={18} strokeWidth={2} />
              Settings

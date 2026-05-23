@@ -1,73 +1,3 @@
-
-// import { createBrowserRouter, RouterProvider } from "react-router-dom"
-// import { useEffect } from "react"
-
-// // Layout
-// import AdminLayout from "./layouts/AdminLayout"
-
-// // Pages
-// import Login from "./pages/auth/Login"
-// import Dashboard from "./pages/dashboard/Dashboard"
-// import HoneymoonHeroVideo from "./routes/hero_video/page" // ✅ ADD THIS
-// import AddUser from "./pages/users/AddUser"
-
-// import UserList from "./pages/users/UsersList"
-// import CreateDestination from "./pages/destinations/CreateDestination"
-// import CreateCity from "./pages/destinations/CreateCity"
-// import HoneymoonGallery from "./pages/customer-gallery/HoneymoonGallery"
-// import HoneymoonResortForm from "./pages/resorts/CreateResort" 
-// import HoneymoonResortList from "./pages/resorts/ResortList" 
-// import EditPage from "./pages/resorts/EditPage"
-// // Protected Route
-// import ProtectedRoutes from "./components/ProtectedRoutes"
-
-// // Store
-// import useAuthStore from "./stores/authStores"
-
-// function App() {
-//   const checkAuthOnLoad = useAuthStore((s) => s.checkAuthOnLoad)
-
-//   useEffect(() => {
-//     checkAuthOnLoad()
-//   }, [checkAuthOnLoad])
-
-//   const router = createBrowserRouter([
-//     {
-//       path: "/login",
-//       element: <Login />,
-//     },
-//     {
-//       element: <ProtectedRoutes />,
-//       children: [
-//         {
-//           path: "/",
-//           element: <AdminLayout />,
-//           children: [
-//             { index: true, element: <Dashboard /> },          
-//             { path: "users/add", element: <AddUser /> }, 
-//             { path: "users/list", element: <UserList /> },
-//             { path: "destinations/city", element: <CreateCity /> },
-//             { path: "destinations/create", element: <CreateDestination /> },
-//             {path: "gallery/images", element: <HoneymoonGallery />},
-//             { path: "resorts/create", element: <HoneymoonResortForm /> },
-//             { path: "resorts/list", element: <HoneymoonResortList /> }, 
-//             { path: "resorts/edit/:id", element: <EditPage /> },
-        
-//             // ✅ ADD THIS ROUTE
-
-//             { path: "hero-video", element: <HoneymoonHeroVideo /> },
-//           ],
-//         },
-//       ],
-//     },
-//   ])
-
-//   return <RouterProvider router={router} />
-// }
-
-// export default App
-
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 //import { useEffect } from "react"
 
@@ -119,6 +49,9 @@ import HoneymoonTermsAndCondition from "./pages/terms-and-conditions/page"
 import Reports from "./pages/reports/Reports"
 import Settings from "./pages/settings/Settings"
 import AuditLogs from "./pages/audit/AuditLogs"
+import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
+import AboutSettings from "./pages/settings/AboutSettings"
+
 
 // Store
 // import useAuthStore from "./stores/authStores"
@@ -206,7 +139,11 @@ function App() {
             <Route path="leads/subscribe" element={<Subscribe />} />  
             <Route path="leads/itinerary-leads" element={<ItineraryLeads />} />
 
+            {/* Gift Cards */}
+            <Route path="giftcards/verify" element={<VerifyGiftCard />} />
+
             {/* Reports & Settings */}
+            <Route path="about-settings" element={<AboutSettings />} />
             <Route path="reports" element={<Reports />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="settings" element={<Settings />} />

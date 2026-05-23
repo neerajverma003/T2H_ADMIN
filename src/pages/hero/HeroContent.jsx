@@ -16,9 +16,10 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const HeroContent = () => {
   const [isUploading, setIsUploading] = useState(false)
-  const activePage = "home"
+  const [activePage, setActivePage] = useState("home")
   const [heading, setHeading] = useState("")
   const [subHeading, setSubHeading] = useState("")
+  const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
 
   const { 
     isLoading, 
@@ -29,7 +30,7 @@ const HeroContent = () => {
 
   useEffect(() => {
     fetchVideos(activePage)
-  }, [fetchVideos])
+  }, [activePage, fetchVideos])
 
   useEffect(() => {
     setHeading(storeHeading || "")
@@ -67,14 +68,30 @@ const HeroContent = () => {
       {/* HEADER HUB */}
       <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600"><FileText size={200} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-8">
             <div>
                 <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-6">
                     <Type className="text-indigo-600" size={40} /> HERO CONTENT
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 text-base italic">Strategic messaging and brand narratives for the main landing portal</p>
             </div>
-        
+            
+            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-2 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar max-w-full">
+                {pageOptions.map((p) => (
+                    <button
+                        key={p}
+                        type="button"
+                        onClick={() => setActivePage(p)}
+                        className={`px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${
+                            activePage === p
+                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 scale-105"
+                                : "text-slate-400 dark:text-slate-500 hover:text-indigo-600 hover:bg-slate-100/50 dark:hover:bg-slate-850"
+                        }`}
+                    >
+                        {p}
+                    </button>
+                ))}
+            </div>
         </div>
       </div>
 
@@ -85,7 +102,7 @@ const HeroContent = () => {
                 <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none space-y-10">
                     <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800 pb-8">
                         <h3 className="text-sm font-black text-indigo-600 uppercase tracking-[0.2em]">Copywriting Lab</h3>
-                        <div className="px-6 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest">Active: Home</div>
+                        <div className="px-6 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest">Active: {activePage}</div>
                     </div>
 
                     <div className="space-y-10">
@@ -123,7 +140,7 @@ const HeroContent = () => {
                         className="w-full py-6 mt-6 bg-indigo-600 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/30 hover:bg-indigo-700 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-4 disabled:opacity-50"
                     >
                         {isUploading ? <Loader2 className="animate-spin" size={24} /> : <Zap size={24} fill="currentColor" />}
-                        {isUploading ? "Syncing..." : "Update Home Messaging"}
+                        {isUploading ? "Syncing..." : `Update ${activePage} Messaging`}
                     </button>
                 </div>
             </form>
