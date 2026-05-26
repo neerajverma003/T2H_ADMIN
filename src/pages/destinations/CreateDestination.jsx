@@ -190,7 +190,7 @@ const CreateDestination = () => {
             <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Classification & Tags</h2>
           </div>
           <div className="flex flex-wrap gap-3 mb-8">
-            {["trending", "TopMost Destination", "exclusive", "weekend", "home", "honeymoon"].map((opt) => (
+            {["trending", "TopMost Destination", "exclusive", "weekend", "home", "honeymoon", "Alpine Escape", "Tropical Paradise", "Himalayan Escape", "Iconic Getaway"].map((opt) => (
               <label key={opt} className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all cursor-pointer ${data.destination_type.includes(opt) ? 'bg-indigo-50 border-indigo-700 dark:bg-indigo-900/20 shadow-lg' : 'border-transparent bg-slate-50 dark:bg-slate-800/50 hover:border-slate-200'}`}>
                 <input type="checkbox" name="destination_type" value={opt} checked={data.destination_type.includes(opt)} onChange={handleChange} className="accent-indigo-700 size-4 rounded" />
                 <span className={`text-xs font-bold uppercase tracking-tight ${data.destination_type.includes(opt) ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}>{opt}</span>

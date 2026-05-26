@@ -88,20 +88,7 @@ const DayInfoSection = ({
                                         </div>
                                     </div>
 
-                                    <div className="flex-shrink-0 flex items-center gap-3">
-                                        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
-                                            <Calendar size={20} />
-                                        </div>
-                                        <div className="relative group/date">
-                                            <input
-                                                type="date"
-                                                name="date"
-                                                value={item.date || ""}
-                                                onChange={(e) => handleArrayChange(e, index, "days_information")}
-                                                className="bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer"
-                                            />
-                                        </div>
-                                    </div>
+
 
                                     <button
                                         type="button"
@@ -124,6 +111,7 @@ const DayInfoSection = ({
                                             { id: "Images", icon: ImageIcon }
                                         ].map((tab) => (
                                             <button
+                                                type="button"
                                                 key={tab.id}
                                                 onClick={() => handleTabChange(index, tab.id)}
                                                 className={`flex items-center gap-3 px-8 py-5 text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border-b-2 ${
@@ -213,15 +201,15 @@ const DayInfoSection = ({
                                                     </div>
                                                     
                                                     {[Bold, Italic, Underline, Strikethrough].map((Icon, i) => (
-                                                        <button key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
                                                     ))}
                                                     <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
                                                     {[List, ListOrdered, AlignLeft].map((Icon, i) => (
-                                                        <button key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
                                                     ))}
                                                     <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
                                                     {[Link, ImageIcon, Type].map((Icon, i) => (
-                                                        <button key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
                                                     ))}
                                                 </div>
 

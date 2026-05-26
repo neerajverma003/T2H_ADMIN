@@ -282,7 +282,7 @@ const EditDestination = () => {
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
             <label className={labelStyle}><Layers size={14} /> Taxonomy</label>
             <div className="grid grid-cols-1 gap-3">
-              {["trending", "TopMost Destination", "exclusive", "weekend", "home", "honeymoon"].map((opt) => (
+              {["trending", "TopMost Destination", "exclusive", "weekend", "home", "honeymoon", "Alpine Escape", "Tropical Paradise", "Himalayan Escape", "Iconic Getaway"].map((opt) => (
                 <label key={opt} className={`flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer ${data.destination_type.includes(opt) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800' : 'border-transparent bg-slate-50 dark:bg-slate-800/50'}`}>
                   <input type="checkbox" name="destination_type" value={opt} checked={data.destination_type.includes(opt)} onChange={handleChange} className="accent-indigo-600 size-4 rounded" />
                   <span className={`text-xs font-bold capitalize ${data.destination_type.includes(opt) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{opt}</span>
