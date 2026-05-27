@@ -50,6 +50,7 @@ import Reports from "./pages/reports/Reports"
 import Settings from "./pages/settings/Settings"
 import AuditLogs from "./pages/audit/AuditLogs"
 import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
+import BulkGiftCard from "./pages/giftcards/BulkGiftCard"
 import AboutSettings from "./pages/settings/AboutSettings"
 
 
@@ -141,6 +142,7 @@ function App() {
 
             {/* Gift Cards */}
             <Route path="giftcards/verify" element={<VerifyGiftCard />} />
+            <Route path="giftcards/bulk" element={<BulkGiftCard />} />
 
             {/* Reports & Settings */}
             <Route path="about-settings" element={<AboutSettings />} />

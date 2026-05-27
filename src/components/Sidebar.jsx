@@ -209,6 +209,7 @@ const Sidebar = ({ open, setOpen }) => {
             isActive={location.pathname.includes('/giftcards')}
           >
             <NavLink to="/giftcards/verify" onClick={() => setOpen(false)} className={subLinkClass}>Verify & Manage</NavLink>
+            <NavLink to="/giftcards/bulk" onClick={() => setOpen(false)} className={subLinkClass}>Bulk Issue</NavLink>
           </NavDropdown>
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</p>
