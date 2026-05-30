@@ -54,13 +54,21 @@ const VideoTestimonials = () => {
     }
   }
 
+  const VIDEO_EXTS = ["mp4", "webm", "ogg", "mov", "avi", "mkv", "av1"]
+
   const handleVideoFileChange = (e) => {
     const file = e.target.files[0]
-    if (file && file.type.startsWith("video/")) {
+    if (!file) return
+
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    const isVideo = file.type.startsWith("video/") || VIDEO_EXTS.includes(ext)
+
+    if (isVideo) {
       setVideoFile(file)
       setPreviewUrl(URL.createObjectURL(file))
+    } else {
+      toast.error("Please upload a valid video file")
     }
-    else toast.error("Please upload a valid video file")
   }
 
   const handleRemoveVideo = () => {
@@ -79,10 +87,20 @@ const VideoTestimonials = () => {
 
     try {
       setIsLoading(true)
+      const ext = videoFile.name.split('.').pop()?.toLowerCase()
+      let resolvedType = videoFile.type
+      if (!resolvedType || resolvedType === "application/octet-stream") {
+        if (ext === 'av1') resolvedType = 'video/av1'
+        else if (ext === 'mkv') resolvedType = 'video/x-matroska'
+        else if (ext === 'webm') resolvedType = 'video/webm'
+        else if (ext === 'mp4') resolvedType = 'video/mp4'
+        else resolvedType = 'video/mp4'
+      }
+
       // 1. Request a secure, short-lived 'Presigned URL' from the backend
       const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
         fileName: videoFile.name,
-        fileType: videoFile.type,
+        fileType: resolvedType,
         folder: TESTIMONIAL_S3_FOLDER
       })
       const { uploadUrl, key } = presignedRes.data
@@ -92,7 +110,7 @@ const VideoTestimonials = () => {
       await fetch(uploadUrl, {
         method: "PUT",
         body: videoFile,
-        headers: { "Content-Type": videoFile.type }
+        headers: { "Content-Type": resolvedType }
       })
 
       // 3. Save only the 'S3 Key' to your database for future retrieval via CDN
@@ -191,7 +209,7 @@ const VideoTestimonials = () => {
                       <p className="text-base font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Sync Video</p>
                       <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest italic">Direct-to-S3 Upload</p>
                     </div>
-                    <input id="videoUpload" type="file" hidden accept="video/*" onChange={handleVideoFileChange} />
+                    <input id="videoUpload" type="file" hidden accept="video/*,.av1,.mkv" onChange={handleVideoFileChange} />
                   </label>
                 )}
               </div>

@@ -53,6 +53,7 @@ const HeroMedia = () => {
     }, [previewUrl])
 
     const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg']
+    const VIDEO_EXTS = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'av1']
 
     const handleMediaChange = (e) => {
         const file = e.target.files[0]
@@ -60,7 +61,7 @@ const HeroMedia = () => {
 
         const ext = file.name.split('.').pop()?.toLowerCase()
         const isImage = IMAGE_EXTS.includes(ext)
-        const isVideo = file.type.startsWith('video/')
+        const isVideo = file.type.startsWith('video/') || VIDEO_EXTS.includes(ext)
 
         if (!isImage && !isVideo) {
             toast.error("Invalid format. UHD Sync aborted.")
@@ -87,16 +88,26 @@ const HeroMedia = () => {
 
         try {
             setIsUploading(true)
+            const ext = mediaFile.name.split('.').pop()?.toLowerCase()
+            let resolvedType = mediaFile.type
+            if (!resolvedType || resolvedType === "application/octet-stream") {
+                if (ext === 'av1') resolvedType = 'video/av1'
+                else if (ext === 'mkv') resolvedType = 'video/x-matroska'
+                else if (ext === 'webm') resolvedType = 'video/webm'
+                else if (ext === 'mp4') resolvedType = 'video/mp4'
+                else if (mediaType === 'video') resolvedType = 'video/mp4'
+            }
+
             const heroFolder = `hero-section/${activePage.replace(/\s+/g, '_')}`
             const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
                 fileName: mediaFile.name,
-                fileType: mediaFile.type,
+                fileType: resolvedType,
                 folder: heroFolder
             })
             const { uploadUrl, key } = presignedRes.data
 
             await axios.put(uploadUrl, mediaFile, {
-                headers: { "Content-Type": mediaFile.type }
+                headers: { "Content-Type": resolvedType }
             })
 
             const payload = {
@@ -279,7 +290,7 @@ const HeroMedia = () => {
                                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Initialize UHD Sync</p>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic mt-1">Direct S3 Pipeline Active</p>
                                     </div>
-                                    <input id="mediaUpload" type="file" accept="image/*,video/*" onChange={handleMediaChange} className="hidden" />
+                                    <input id="mediaUpload" type="file" accept="image/*,video/*,.av1,.mkv" onChange={handleMediaChange} className="hidden" />
                                 </label>
                             )}
                         </div>
