@@ -261,14 +261,14 @@ const Sidebar = ({ open, setOpen }) => {
           </NavDropdown>
 
           <NavDropdown 
-            title="Articles" 
+            title="Articles (Spotlight & Trending)" 
             icon={FileText} 
             isOpen={openMenus.articles} 
             onClick={() => toggleMenu('articles')}
             isActive={location.pathname.includes('/articles')}
           >
-            <NavLink to="/articles/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Article</NavLink>
-            <NavLink to="/articles/list" onClick={() => setOpen(false)} className={subLinkClass}>Article List</NavLink>
+            <NavLink to="/articles/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Article (Spotlight/Trending)</NavLink>
+            <NavLink to="/articles/list" onClick={() => setOpen(false)} className={subLinkClass}>Article List (Spotlight/Trending)</NavLink>
           </NavDropdown>
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leads & Policy</p>

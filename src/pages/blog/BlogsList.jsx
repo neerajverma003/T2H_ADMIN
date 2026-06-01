@@ -105,15 +105,19 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
               <Sparkles className="text-indigo-600" size={32} />
-              {postType === 'article' ? "ARTICLE ARCHIVE" : "STORYBOARD"}
+              {postType === 'article' ? "✦ SPOTLIGHT & TRENDING NARRATIVES ✦" : "STORYBOARD"}
             </h1>
-            <p className="text-slate-500 font-medium mt-1">Manage your elite narrative assets and strategic drafts</p>
+            <p className="text-slate-500 font-medium mt-1">
+              {postType === 'article' 
+                ? "Manage active narratives displayed in the Editorial Spotlight & Trending This Month sections" 
+                : "Manage your elite narrative assets and strategic drafts"}
+            </p>
           </div>
           <button
             onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")}
             className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all flex items-center gap-3 active:scale-95"
           >
-            <PlusCircle size={24} /> {postType === 'article' ? "WRITE NEW ARTICLE" : "FORGE NEW POST"}
+            <PlusCircle size={24} /> {postType === 'article' ? "WRITE NEW ARTICLE (SPOTLIGHT/TRENDING)" : "FORGE NEW POST"}
           </button>
         </div>
       </div>
@@ -130,13 +134,15 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
             <MessageSquare size={48} strokeWidth={1} />
           </div>
           <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 uppercase tracking-tight">
-            {postType === 'article' ? "Article Archive is Vacant" : "Storyboard is Vacant"}
+            {postType === 'article' ? "Spotlight & Trending Archive is Vacant" : "Storyboard is Vacant"}
           </h3>
           <p className="text-slate-500 font-medium text-lg max-w-lg mb-10 leading-relaxed italic">
-            {postType === 'article' ? "You haven't written any articles yet." : "You haven't forged any stories yet. Start sharing your strategic adventures today."}
+            {postType === 'article' 
+              ? "You haven't written any spotlight or trending articles yet. Start curating your first feature story today." 
+              : "You haven't forged any stories yet. Start sharing your strategic adventures today."}
           </p>
           <button onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")} className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">
-            <Zap size={20} /> {postType === 'article' ? "WRITE FIRST ARTICLE" : "WRITE FIRST NARRATIVE"}
+            <Zap size={20} /> {postType === 'article' ? "WRITE FIRST SPOTLIGHT/TRENDING ARTICLE" : "WRITE FIRST NARRATIVE"}
           </button>
         </div>
       ) : (

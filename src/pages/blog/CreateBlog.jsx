@@ -188,12 +188,24 @@ const CreateBlog = ({ postType = 'blog' }) => {
           <div>
             <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
               {isEditMode ? <Edit className="text-indigo-600" size={32} /> : <PlusCircle className="text-indigo-600" size={32} />}
-              {isEditMode ? "EDIT STORY" : "NEW STORY"}
+              {postType === 'article' 
+                ? (isEditMode ? "EDIT SPOTLIGHT/TRENDING ARTICLE" : "WRITE SPOTLIGHT/TRENDING ARTICLE") 
+                : (isEditMode ? "EDIT STORY" : "NEW STORY")}
             </h1>
-            <p className="text-slate-500 font-medium mt-1">Share your honeymoon wisdom and strategic travel insights</p>
+            <p className="text-slate-500 font-medium mt-1">
+              {postType === 'article' 
+                ? "Forge high-fidelity narratives displayed in the Editorial Spotlight & Trending sections" 
+                : "Share your honeymoon wisdom and strategic travel insights"}
+            </p>
           </div>
           <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/blogs/list')} className="px-8 py-4 rounded-2xl font-black text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">Discard</button>
+              <button 
+                type="button"
+                onClick={() => navigate(postType === 'article' ? '/articles/list' : '/blogs/list')} 
+                className="px-8 py-4 rounded-2xl font-black text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm"
+              >
+                Discard
+              </button>
               <button onClick={handleSubmit} disabled={isLoading} className={styleProps.buttonStyle + " flex items-center gap-3 active:scale-95 disabled:opacity-50"}>
                  {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
                  {isEditMode ? "PUSH CHANGES" : "PUBLISH STORY"}
