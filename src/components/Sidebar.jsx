@@ -286,6 +286,7 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/leads/plan-journey" onClick={() => setOpen(false)} className={subLinkClass}>Journey Plans</NavLink>
             <NavLink to="/leads/contacts" onClick={() => setOpen(false)} className={subLinkClass}>Contact Leads</NavLink>
             <NavLink to="/leads/suggestions" onClick={() => setOpen(false)} className={subLinkClass}>Suggestions</NavLink>
+            <NavLink to="/leads/subscribe" onClick={() => setOpen(false)} className={subLinkClass}>Blog Newsletter</NavLink>
           </NavDropdown>
 
           <NavDropdown 

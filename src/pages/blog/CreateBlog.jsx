@@ -50,7 +50,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
   const [visibility, setVisibility] = useState("public");
   const [imagePreview, setImagePreview] = useState("");
   const [category, setCategory] = useState("honeymoon");
-
+  const [quote, setQuote] = useState("");
   const { quill, quillRef } = useQuill({
     modules: {
       toolbar: [
@@ -93,6 +93,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
       setVisibility(blogToEdit.visibility || "public");
       setCategory(blogToEdit.category || "honeymoon");
       setImagePreview(blogToEdit.cover_image || "");
+      setQuote(blogToEdit.quote || "");
     }
   }, [blogToEdit]);
 
@@ -106,9 +107,34 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !content) {
-        toast.error("Please provide both a title and content for the story.");
-        return;
+    
+    // Dynamic Validation check
+    const missingFields = [];
+    if (!title.trim()) missingFields.push("Story Title");
+    
+    const isContentEmpty = !content.trim() || content.trim() === "<p><br></p>" || content.trim() === "<p></p>";
+    if (isContentEmpty) missingFields.push("Story Manuscript (Content)");
+    
+    const hasImage = coverImage || (isEditMode && imagePreview);
+    if (!hasImage) missingFields.push("Story Visual Identity (Cover Image)");
+    
+    if (postType === 'article' && !quote.trim()) {
+      missingFields.push("Editorial Quote / Spotlight Summary");
+    }
+
+    if (missingFields.length > 0) {
+      toast.error(
+        <div>
+          <span className="font-bold block mb-1">Please fill in the following:</span>
+          <ul className="list-disc pl-4 text-xs space-y-0.5">
+            {missingFields.map((field) => (
+              <li key={field}>{field} is required.</li>
+            ))}
+          </ul>
+        </div>,
+        { autoClose: 5000 }
+      );
+      return;
     }
 
     try {
@@ -146,7 +172,8 @@ const CreateBlog = ({ postType = 'blog' }) => {
         visibility,
         category,
         cover_image: finalCoverImage,
-        post_type: postType 
+        post_type: postType,
+        quote: postType == 'article' ? quote : undefined
       };
 
       if (isEditMode) {
@@ -270,6 +297,22 @@ const CreateBlog = ({ postType = 'blog' }) => {
             </select>
           </div>
         </div>
+       {/* SECTION 2.5: EDITORIAL QUOTE (Only for Spotlight/Trending Articles) */}
+        {postType === 'article' && (
+          <div className={styleProps.cardStyle}>
+            <label className={styleProps.labelStyle}><Sparkles size={18} className="text-indigo-600" /> Editorial Quote / Spotlight Summary</label>
+            <textarea
+              value={quote}
+              onChange={(e) => setQuote(e.target.value)}
+              className={`${styleProps.inputStyle} min-h-[100px] py-3 placeholder:italic`}
+              placeholder="Enter the signature quote to highlight (e.g., 'The perfect blend of romantic sunsets, pristine overwater villas...')"
+            />
+            <span className="text-[11px] text-amber-600/90 font-semibold flex items-center gap-1 mt-2 pl-1">
+              ✦ Note: Write the quote naturally. Do not include outer quotation marks (" or “) here; the system adds gorgeous editorial serif quote flourishes automatically.
+            </span>
+          </div>
+        )}
+
 
         {/* SECTION 3: VISIBILITY */}
         <div className={styleProps.cardStyle}>
@@ -299,6 +342,9 @@ const CreateBlog = ({ postType = 'blog' }) => {
         {/* SECTION 4: STORY CONTENT */}
         <div className={styleProps.cardStyle}>
           <label className={styleProps.labelStyle}><FileText size={18} className="text-indigo-600" /> Story Manuscript</label>
+          <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5 mb-2 pl-0.5">
+            💡 Writing Tip: Use "Heading 2" (H2) for section headers inside the editor below to trigger beautiful navy styling with gold highlights automatically!
+          </span>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}

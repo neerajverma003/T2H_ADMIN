@@ -73,9 +73,9 @@ const Subscribe = () => {
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 <h1 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-                    <Inbox className="text-indigo-700" size={32} /> SUBSCRIBER REGISTRY
+                    <Inbox className="text-indigo-700" size={32} /> BLOG NEWSLETTER AUDIENCE
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">Newsletter audience and potential honeymoon seekers</p>
+                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">Audience subscribed through the Travel Journal & Editorial newsletter forms</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="relative group w-full sm:w-64">
