@@ -135,7 +135,7 @@ const HoneymoonHeroVideo = () => {
   const handleDelete = (id) => deleteVideo(id, activePage)
   const handleVisibilityChange = (id) => updateVisibility(id, activePage)
 
-  const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
+  const pageOptions = ["home", "about", "domestic", "international", "contact", "blog", "destinations"]
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6">

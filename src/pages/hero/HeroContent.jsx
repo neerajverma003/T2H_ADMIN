@@ -19,7 +19,7 @@ const HeroContent = () => {
   const [activePage, setActivePage] = useState("home")
   const [heading, setHeading] = useState("")
   const [subHeading, setSubHeading] = useState("")
-  const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
+  const pageOptions = ["home", "about", "domestic", "international", "contact", "blog", "destinations"]
 
   const { 
     isLoading, 

@@ -131,7 +131,7 @@ const HeroMedia = () => {
         }
     }
 
-    const pageOptions = ["home", "about", "domestic", "international", "contact", "blog"]
+    const pageOptions = ["home", "about", "domestic", "international", "contact", "blog", "destinations"]
 
     return (
         <div className="w-full space-y-8 pb-20 px-8 mt-6">
