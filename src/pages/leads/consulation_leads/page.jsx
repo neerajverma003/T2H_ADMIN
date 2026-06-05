@@ -24,6 +24,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const ITEMS_PER_PAGE = 10;
 
+const STATUS_STYLES = {
+  new: 'bg-indigo-600 text-white border-transparent hover:bg-indigo-700 shadow-lg shadow-indigo-500/30',
+  in_progress: 'bg-amber-500 text-white border-transparent hover:bg-amber-600 shadow-lg shadow-amber-500/30',
+  proposal_sent: 'bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-lg shadow-purple-500/30',
+  booked: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600 shadow-lg shadow-emerald-500/30'
+};
+
 const ConsultationLeads = () => {
   const [leads, setLeads] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,6 +38,7 @@ const ConsultationLeads = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalLeads, setTotalLeads] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const totalPages = useMemo(() => Math.ceil(totalLeads / ITEMS_PER_PAGE), [totalLeads]);
 
@@ -78,6 +86,26 @@ const ConsultationLeads = () => {
       }
     } catch (err) {
       toast.error("Removal failed");
+    }
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    const previousLeads = [...leads];
+    setLeads(leads.map(lead => 
+      lead._id === leadId ? { ...lead, status: newStatus } : lead
+    ));
+
+    try {
+      // NOTE: Using plan-your-trip API because consultations share the same model under the hood
+      const response = await apiClient.put(`/admin/plan-your-trip/${leadId}/status`, { status: newStatus });
+      if (response.data.success) {
+        toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
+      } else {
+        throw new Error("Update failed");
+      }
+    } catch (err) {
+      setLeads(previousLeads);
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -139,7 +167,7 @@ const ConsultationLeads = () => {
               initial={{ opacity: 0, x: -20 }} 
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/10"
+              className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === lead._id ? 'z-50' : 'z-10'}`}
             >
               <div className="p-6">
                 <div className="flex flex-col xl:flex-row xl:items-center gap-8">
@@ -183,13 +211,61 @@ const ConsultationLeads = () => {
                    </div>
 
                    {/* ACTION HUB */}
-                   <div className="flex flex-row xl:flex-col items-center justify-between xl:justify-center gap-4 shrink-0">
-                      <div className="flex xl:flex-col items-center gap-3">
-                        <button onClick={() => handleDelete(lead._id)} className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 group/btn">
-                           <Trash2 size={18} />
+                   <div className="flex flex-col xl:flex-col items-center justify-center gap-4 shrink-0 min-w-[150px]">
+                      <div className="relative w-full">
+                          <button 
+                              onClick={() => setOpenDropdownId(openDropdownId === lead._id ? null : lead._id)}
+                              className={`flex items-center justify-between w-full font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm text-center ${STATUS_STYLES[lead.status || 'new']}`}
+                          >
+                              <span className="mx-auto flex items-center gap-2">
+                                  {(lead.status === 'new' || !lead.status) && "🆕 NEW"}
+                                  {lead.status === 'in_progress' && "⏳ IN PROGRESS"}
+                                  {lead.status === 'proposal_sent' && "📨 PROPOSAL"}
+                                  {lead.status === 'booked' && "✅ BOOKED"}
+                              </span>
+                          </button>
+
+                          <AnimatePresence>
+                              {openDropdownId === lead._id && (
+                                  <>
+                                      <div 
+                                          className="fixed inset-0 z-40" 
+                                          onClick={() => setOpenDropdownId(null)}
+                                      />
+                                      <motion.div 
+                                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                          transition={{ duration: 0.15 }}
+                                          className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-2"
+                                      >
+                                          {['new', 'in_progress', 'proposal_sent', 'booked'].map((status) => (
+                                              <button
+                                                  key={status}
+                                                  onClick={() => {
+                                                      handleStatusChange(lead._id, status);
+                                                      setOpenDropdownId(null);
+                                                  }}
+                                                  className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 ${(lead.status || 'new') === status ? 'bg-slate-50 dark:bg-slate-800/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
+                                              >
+                                                  {status === 'new' && "🆕 NEW"}
+                                                  {status === 'in_progress' && "⏳ IN PROGRESS"}
+                                                  {status === 'proposal_sent' && "📨 PROPOSAL"}
+                                                  {status === 'booked' && "✅ BOOKED"}
+                                              </button>
+                                          ))}
+                                      </motion.div>
+                                  </>
+                              )}
+                          </AnimatePresence>
+                      </div>
+                      
+                      <div className="flex w-full gap-2">
+                        <button onClick={() => handleDelete(lead._id)} className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                           <Trash2 size={16} />
                         </button>
-                        <button className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                           <ArrowUpRight size={18} />
+                        <button className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                           <ArrowUpRight size={16} />
                         </button>
                       </div>
                       <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-tight xl:mt-2">

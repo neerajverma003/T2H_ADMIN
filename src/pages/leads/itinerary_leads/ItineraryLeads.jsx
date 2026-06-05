@@ -18,6 +18,7 @@ import {
     Filter
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -28,6 +29,7 @@ const ItineraryLeads = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItinerary, setSelectedItinerary] = useState("all");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const fetchLeads = async () => {
     setIsLoading(true);
@@ -54,6 +56,37 @@ const ItineraryLeads = () => {
     } catch (err) {
       alert("Removal failed.");
     }
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    const previousLeads = [...leads];
+    setLeads(leads.map(lead => lead._id === leadId ? { ...lead, status: newStatus } : lead));
+
+    try {
+      await apiClient.put(`/itinerary-leads/${leadId}/status`, { status: newStatus });
+      toast.success("Lead status updated successfully", {
+        position: "bottom-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        theme: "colored"
+      });
+    } catch (err) {
+      setLeads(previousLeads);
+      toast.error("Failed to update status", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const STATUS_STYLES = {
+    new: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
+    in_progress: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50",
+    proposal_sent: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/50",
+    booked: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50"
   };
 
   const uniqueItineraries = useMemo(() => {
@@ -140,7 +173,7 @@ const ItineraryLeads = () => {
                         initial={{ opacity: 0, x: -20 }} 
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
-                        className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/10"
+                        className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === lead._id ? 'z-50' : 'z-10'}`}
                     >
                         <div className="p-6">
                             <div className="flex flex-col lg:flex-row justify-between gap-8">
@@ -168,10 +201,30 @@ const ItineraryLeads = () => {
                                             <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100"><Calendar size={14} /></div>
                                             <span className="text-[10px] font-black uppercase tracking-tight">{new Date(lead.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <div className="flex items-center gap-3 text-indigo-700">
-                                            <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center border border-indigo-100 shadow-sm"><MapPin size={14} /></div>
-                                            <span className="text-xs font-black uppercase tracking-wide">{lead.city}, {lead.state}</span>
-                                        </div>
+                                        {(lead.city || lead.state) && (
+                                            <div className="flex items-center gap-3 text-indigo-700">
+                                                <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center border border-indigo-100 shadow-sm"><MapPin size={14} /></div>
+                                                <span className="text-xs font-black uppercase tracking-wide">{[lead.city, lead.state].filter(Boolean).join(', ')}</span>
+                                            </div>
+                                        )}
+                                        {lead.travelDate && (
+                                            <div className="flex items-center gap-3 text-emerald-700">
+                                                <div className="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center border border-emerald-100 shadow-sm"><Calendar size={14} /></div>
+                                                <span className="text-xs font-black uppercase tracking-wide">Travel Date: {new Date(lead.travelDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                                            </div>
+                                        )}
+                                        {lead.travelers && (
+                                            <div className="flex items-center gap-3 text-indigo-700">
+                                                <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center border border-indigo-100 shadow-sm"><User size={14} /></div>
+                                                <span className="text-xs font-black uppercase tracking-wide">{lead.travelers}</span>
+                                            </div>
+                                        )}
+                                        {lead.budget && (
+                                            <div className="flex items-center gap-3 text-amber-700">
+                                                <div className="size-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 shadow-sm"><span className="text-xs font-black">₹</span></div>
+                                                <span className="text-xs font-black uppercase tracking-wide">Budget: ₹{lead.budget.toLocaleString('en-IN')}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 relative shadow-inner">
@@ -182,15 +235,65 @@ const ItineraryLeads = () => {
                                         <p className="text-lg font-black text-slate-900 dark:text-slate-200 tracking-tight">
                                             {lead.itineraryTitle}
                                         </p>
+                                        {lead.additionalDetails && (
+                                            <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Additional Details</span>
+                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{lead.additionalDetails}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="flex lg:flex-col justify-end gap-3 shrink-0">
-                                    <button onClick={() => handleDelete(lead._id)} className="flex items-center justify-center size-10 bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <Trash2 size={18} />
-                                    </button>
-                                    <button className="flex items-center justify-center size-10 bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <CheckCircle2 size={18} />
+                                <div className="flex flex-col sm:flex-row lg:flex-col justify-end gap-3 shrink-0 items-end">
+                                    <div className="relative">
+                                        <button 
+                                            onClick={() => setOpenDropdownId(openDropdownId === lead._id ? null : lead._id)}
+                                            className={`flex items-center justify-between font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm min-w-[150px] text-center ${STATUS_STYLES[lead.status || 'new']}`}
+                                        >
+                                            <span className="mx-auto flex items-center gap-2">
+                                                {(lead.status === 'new' || !lead.status) && "🆕 NEW"}
+                                                {lead.status === 'in_progress' && "⏳ IN PROGRESS"}
+                                                {lead.status === 'proposal_sent' && "📨 PROPOSAL"}
+                                                {lead.status === 'booked' && "✅ BOOKED"}
+                                            </span>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {openDropdownId === lead._id && (
+                                                <>
+                                                    <div 
+                                                        className="fixed inset-0 z-40" 
+                                                        onClick={() => setOpenDropdownId(null)}
+                                                    />
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        transition={{ duration: 0.15 }}
+                                                        className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 z-50 overflow-hidden py-2"
+                                                    >
+                                                        {['new', 'in_progress', 'proposal_sent', 'booked'].map((status) => (
+                                                            <button
+                                                                key={status}
+                                                                onClick={() => {
+                                                                    handleStatusChange(lead._id, status);
+                                                                    setOpenDropdownId(null);
+                                                                }}
+                                                                className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 ${(lead.status || 'new') === status ? 'text-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/10 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
+                                                            >
+                                                                {status === 'new' && "🆕 NEW"}
+                                                                {status === 'in_progress' && "⏳ IN PROGRESS"}
+                                                                {status === 'proposal_sent' && "📨 PROPOSAL"}
+                                                                {status === 'booked' && "✅ BOOKED"}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                </>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    <button onClick={() => handleDelete(lead._id)} className="flex items-center justify-center w-full sm:w-auto lg:w-full py-2.5 px-4 bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 gap-2 font-bold text-xs uppercase tracking-wider">
+                                        <Trash2 size={16} /> Delete
                                     </button>
                                 </div>
                             </div>

@@ -15,7 +15,14 @@ import {
     Search,
     Inbox
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+
+const STATUS_STYLES = {
+  pending: 'bg-rose-600 text-white border-transparent hover:bg-rose-700 shadow-lg shadow-rose-500/30',
+  in_progress: 'bg-amber-500 text-white border-transparent hover:bg-amber-600 shadow-lg shadow-amber-500/30',
+  resolved: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600 shadow-lg shadow-emerald-500/30'
+};
 
 const ITEMS_PER_PAGE = 10;
 
@@ -26,6 +33,7 @@ const ContactUs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalContacts, setTotalContacts] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const totalPages = useMemo(() => Math.ceil(totalContacts / ITEMS_PER_PAGE), [totalContacts]);
 
@@ -52,10 +60,32 @@ const ContactUs = () => {
   const handleDelete = async (_id) => {
     if (!window.confirm("Permanently remove this inquiry from the archive?")) return;
     try {
-      await apiClient.delete(`/admin/get-contact/${_id}`);
-      fetchContacts();
+      const response = await apiClient.delete(`/admin/get-contact/${_id}`);
+      if(response.data.success){
+        toast.success("Inquiry removed");
+        fetchContacts();
+      }
     } catch (err) {
-      alert("Removal failed.");
+      toast.error("Removal failed.");
+    }
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    const previousContacts = [...contacts];
+    setContacts(contacts.map(c => 
+      c._id === leadId ? { ...c, status: newStatus } : c
+    ));
+
+    try {
+      const response = await apiClient.put(`/admin/get-contact/${leadId}/status`, { status: newStatus });
+      if (response.data.success) {
+        toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
+      } else {
+        throw new Error("Update failed");
+      }
+    } catch (err) {
+      setContacts(previousContacts);
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -113,7 +143,7 @@ const ContactUs = () => {
                         initial={{ opacity: 0, x: -20 }} 
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
-                        className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/10"
+                        className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === contact._id ? 'z-50' : 'z-10'}`}
                     >
                         <div className="p-6">
                             <div className="flex flex-col lg:flex-row justify-between gap-8">
@@ -151,13 +181,60 @@ const ContactUs = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex lg:flex-col justify-end gap-3 shrink-0">
-                                    <button onClick={() => handleDelete(contact._id)} className="flex items-center justify-center size-10 bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <Trash2 size={18} />
-                                    </button>
-                                    <button className="flex items-center justify-center size-10 bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <CheckCircle2 size={18} />
-                                    </button>
+                                <div className="flex flex-col xl:flex-col items-center justify-start gap-4 shrink-0 min-w-[150px]">
+                                    <div className="relative w-full">
+                                        <button 
+                                            onClick={() => setOpenDropdownId(openDropdownId === contact._id ? null : contact._id)}
+                                            className={`flex items-center justify-between w-full font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm text-center ${STATUS_STYLES[contact.status || 'pending']}`}
+                                        >
+                                            <span className="mx-auto flex items-center gap-2">
+                                                {(contact.status === 'pending' || !contact.status) && "🔴 UNREAD"}
+                                                {contact.status === 'in_progress' && "🟡 DISCUSSION"}
+                                                {contact.status === 'resolved' && "🟢 RESOLVED"}
+                                            </span>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {openDropdownId === contact._id && (
+                                                <>
+                                                    <div 
+                                                        className="fixed inset-0 z-40" 
+                                                        onClick={() => setOpenDropdownId(null)}
+                                                    />
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        transition={{ duration: 0.15 }}
+                                                        className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-2"
+                                                    >
+                                                        {['pending', 'in_progress', 'resolved'].map((status) => (
+                                                            <button
+                                                                key={status}
+                                                                onClick={() => {
+                                                                    handleStatusChange(contact._id, status);
+                                                                    setOpenDropdownId(null);
+                                                                }}
+                                                                className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 ${(contact.status || 'pending') === status ? 'bg-slate-50 dark:bg-slate-800/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
+                                                            >
+                                                                {status === 'pending' && "🔴 UNREAD"}
+                                                                {status === 'in_progress' && "🟡 DISCUSSION"}
+                                                                {status === 'resolved' && "🟢 RESOLVED"}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                </>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    <div className="flex w-full gap-2">
+                                        <button onClick={() => handleDelete(contact._id)} className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <button className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                                            <Mail size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

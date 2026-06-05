@@ -16,7 +16,13 @@ import {
     CheckCircle2,
     Calendar
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+
+const STATUS_STYLES = {
+  subscribed: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600 shadow-lg shadow-emerald-500/30',
+  unsubscribed: 'bg-slate-600 text-white border-transparent hover:bg-slate-700 shadow-lg shadow-slate-500/30'
+};
 
 const ITEMS_PER_PAGE = 12;
 
@@ -27,6 +33,7 @@ const Subscribe = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalSubscribers, setTotalSubscribers] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const totalPages = useMemo(() => Math.ceil(totalSubscribers / ITEMS_PER_PAGE), [totalSubscribers]);
 
@@ -53,10 +60,32 @@ const Subscribe = () => {
   const handleDelete = async (subscriberId) => {
     if (!window.confirm("Permanently remove this subscriber from the newsletter?")) return;
     try {
-      await apiClient.delete(`/admin/get-subscribe/${subscriberId}`);
-      fetchSubscribers();
+      const response = await apiClient.delete(`/admin/get-subscribe/${subscriberId}`);
+      if(response.data.success){
+        toast.success("Subscriber removed");
+        fetchSubscribers();
+      }
     } catch (err) {
-      alert("Removal failed.");
+      toast.error("Removal failed.");
+    }
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    const previousSubscribers = [...subscribers];
+    setSubscribers(subscribers.map(s => 
+      s._id === leadId ? { ...s, status: newStatus } : s
+    ));
+
+    try {
+      const response = await apiClient.put(`/admin/get-subscribe/${leadId}/status`, { status: newStatus });
+      if (response.data.success) {
+        toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
+      } else {
+        throw new Error("Update failed");
+      }
+    } catch (err) {
+      setSubscribers(previousSubscribers);
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -116,7 +145,7 @@ const Subscribe = () => {
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/10"
+                className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === sub._id ? 'z-50' : 'z-10'}`}
               >
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row md:items-center gap-8">
@@ -139,7 +168,9 @@ const Subscribe = () => {
                           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-400 text-xs font-black uppercase tracking-wide">
                              <Mail size={12} className="text-indigo-600" /> STATUS
                           </div>
-                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Connection</p>
+                          <p className={`text-[10px] font-black uppercase tracking-widest ${(sub.status || 'subscribed') === 'subscribed' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                              {(sub.status || 'subscribed') === 'subscribed' ? 'Active Connection' : 'Unsubscribed'}
+                          </p>
                         </div>
 
                         <div className="space-y-1">
@@ -153,13 +184,55 @@ const Subscribe = () => {
                      </div>
 
                      {/* ACTION HUB */}
-                     <div className="flex items-center gap-3 shrink-0">
-                        <button onClick={() => handleDelete(sub._id)} className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                           <Trash2 size={18} />
-                        </button>
-                        <button className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                           <CheckCircle2 size={18} />
-                        </button>
+                     <div className="flex flex-col md:flex-col items-center justify-start gap-3 shrink-0 min-w-[150px]">
+                        <div className="relative w-full">
+                            <button 
+                                onClick={() => setOpenDropdownId(openDropdownId === sub._id ? null : sub._id)}
+                                className={`flex items-center justify-between w-full font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm text-center ${STATUS_STYLES[sub.status || 'subscribed']}`}
+                            >
+                                <span className="mx-auto flex items-center gap-2">
+                                    {(sub.status === 'subscribed' || !sub.status) && "✨ SUBSCRIBED"}
+                                    {sub.status === 'unsubscribed' && "🚫 UNSUBSCRIBED"}
+                                </span>
+                            </button>
+
+                            <AnimatePresence>
+                                {openDropdownId === sub._id && (
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-40" 
+                                            onClick={() => setOpenDropdownId(null)}
+                                        />
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            transition={{ duration: 0.15 }}
+                                            className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-2"
+                                        >
+                                            {['subscribed', 'unsubscribed'].map((status) => (
+                                                <button
+                                                    key={status}
+                                                    onClick={() => {
+                                                        handleStatusChange(sub._id, status);
+                                                        setOpenDropdownId(null);
+                                                    }}
+                                                    className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 ${(sub.status || 'subscribed') === status ? 'bg-slate-50 dark:bg-slate-800/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
+                                                >
+                                                    {status === 'subscribed' && "✨ SUBSCRIBED"}
+                                                    {status === 'unsubscribed' && "🚫 UNSUBSCRIBED"}
+                                                </button>
+                                            ))}
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                        <div className="flex w-full gap-2">
+                            <button onClick={() => handleDelete(sub._id)} className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
                      </div>
                   </div>
                 </div>

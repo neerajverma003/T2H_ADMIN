@@ -96,7 +96,9 @@ const Header = ({ setOpen }) => {
                 <p className="text-xs font-bold text-slate-900 dark:text-white">Admin User</p>
                 <ChevronDown size={14} className="text-slate-400" />
               </div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Super Admin</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                {role === 'superadmin' ? 'Super Admin' : 'Admin'}
+              </p>
             </div>
           </button>
 

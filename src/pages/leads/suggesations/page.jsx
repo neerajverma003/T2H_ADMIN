@@ -26,6 +26,12 @@ import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 6;
 
+const STATUS_STYLES = {
+  pending: 'bg-indigo-600 text-white border-transparent hover:bg-indigo-700 shadow-lg shadow-indigo-500/30',
+  in_progress: 'bg-amber-500 text-white border-transparent hover:bg-amber-600 shadow-lg shadow-amber-500/30',
+  resolved: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600 shadow-lg shadow-emerald-500/30'
+};
+
 const Suggestions = () => {
   const [allSuggestions, setAllSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +39,7 @@ const Suggestions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const loadSuggestions = async () => {
     setIsLoading(true);
@@ -59,6 +66,25 @@ const Suggestions = () => {
       loadSuggestions();
     } catch (err) {
       toast.error("Archive failed");
+    }
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    const previousSuggestions = [...allSuggestions];
+    setAllSuggestions(allSuggestions.map(s => 
+      s._id === leadId ? { ...s, status: newStatus } : s
+    ));
+
+    try {
+      const response = await apiClient.put(`/admin/get-suggestions/${leadId}/status`, { status: newStatus });
+      if (response.data.success) {
+        toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
+      } else {
+        throw new Error("Update failed");
+      }
+    } catch (err) {
+      setAllSuggestions(previousSuggestions);
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -192,7 +218,7 @@ const Suggestions = () => {
                     const { category, rating, cleanMessage } = parseFeedback(item.message);
                     const cat = getCategoryDetails(category);
                     return (
-                        <motion.div key={item._id} layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="group relative bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-500">
+                        <motion.div key={item._id} layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className={`group relative bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-500 ${openDropdownId === item._id ? 'z-50' : 'z-10'}`}>
                             <div className="flex flex-col lg:flex-row gap-8 text-left">
                                 <div className="flex flex-col items-center gap-4 shrink-0">
                                     <div className="size-14 rounded-xl bg-indigo-700 flex items-center justify-center text-xl font-black text-white shadow-lg shadow-indigo-500/30">
@@ -224,13 +250,60 @@ const Suggestions = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex lg:flex-col justify-center gap-3 shrink-0">
-                                    <button onClick={() => handleDelete(item._id)} className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <Trash2 size={18} />
-                                    </button>
-                                    <button className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700">
-                                        <CheckCircle2 size={18} />
-                                    </button>
+                                <div className="flex flex-col xl:flex-col items-center justify-start gap-4 shrink-0 min-w-[150px]">
+                                    <div className="relative w-full">
+                                        <button 
+                                            onClick={() => setOpenDropdownId(openDropdownId === item._id ? null : item._id)}
+                                            className={`flex items-center justify-between w-full font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm text-center ${STATUS_STYLES[item.status || 'pending']}`}
+                                        >
+                                            <span className="mx-auto flex items-center gap-2">
+                                                {(item.status === 'pending' || !item.status) && "👀 PENDING"}
+                                                {item.status === 'in_progress' && "👍 ACKNOWLEDGED"}
+                                                {item.status === 'resolved' && "✅ RESOLVED"}
+                                            </span>
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {openDropdownId === item._id && (
+                                                <>
+                                                    <div 
+                                                        className="fixed inset-0 z-40" 
+                                                        onClick={() => setOpenDropdownId(null)}
+                                                    />
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                        transition={{ duration: 0.15 }}
+                                                        className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-2"
+                                                    >
+                                                        {['pending', 'in_progress', 'resolved'].map((status) => (
+                                                            <button
+                                                                key={status}
+                                                                onClick={() => {
+                                                                    handleStatusChange(item._id, status);
+                                                                    setOpenDropdownId(null);
+                                                                }}
+                                                                className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 ${(item.status || 'pending') === status ? 'bg-slate-50 dark:bg-slate-800/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
+                                                            >
+                                                                {status === 'pending' && "👀 PENDING"}
+                                                                {status === 'in_progress' && "👍 ACKNOWLEDGED"}
+                                                                {status === 'resolved' && "✅ RESOLVED"}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                </>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    <div className="flex w-full gap-2">
+                                        <button onClick={() => handleDelete(item._id)} className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <button className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
+                                            <ArrowUpRight size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
