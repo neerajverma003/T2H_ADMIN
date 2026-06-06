@@ -6,7 +6,7 @@
  * Fully integrates Generation History dispatch logs with ALL/REGISTERED/CUSTOM filters.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { apiClient } from '../../stores/authStores';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -384,6 +384,29 @@ const BulkGiftCard = () => {
     return isRegistered ? 'registered' : 'custom';
   };
 
+  // Helper to resolve card code for a campaign recipient
+  const getCardForEmail = (campaign, email) => {
+    if (!campaign || !email) return null;
+    const campaignTime = new Date(campaign.created_at || campaign.createdAt).getTime();
+    
+    // Find all gift cards matching the recipient email
+    const matches = giftCards.filter(c => 
+      c.recipient_email?.toLowerCase() === email.toLowerCase() &&
+      c.type === 'gift'
+    );
+    
+    if (matches.length === 0) return null;
+    
+    // Return the card created closest to the campaign timestamp
+    return matches.reduce((closest, current) => {
+      const closestTime = new Date(closest.created_at || closest.createdAt).getTime();
+      const currentTime = new Date(current.created_at || current.createdAt).getTime();
+      const closestDiff = Math.abs(closestTime - campaignTime);
+      const currentDiff = Math.abs(currentTime - campaignTime);
+      return currentDiff < closestDiff ? current : closest;
+    });
+  };
+
   // Filter dynamic dispatch list
   const filteredDispatchCards = giftCards.filter(card => {
     if (card.type === 'self') return false; // Exclude user self-purchases from bulk campaign list
@@ -726,132 +749,6 @@ const BulkGiftCard = () => {
 
         {recipientType === 'custom' && (
           <div className="space-y-8">
-
-            {/* Dynamic Polling Tracker Widget */}
-            <AnimatePresence mode="wait">
-              {activeBatchId && activeBatch && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  key={activeBatch._id}
-                  className="bg-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden border border-slate-800"
-                >
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
-
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-2">
-                      <span className="text-xs font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded border border-indigo-500/20">Active Campaign Monitoring</span>
-                      <h4 className="text-xl font-black text-white">{activeBatch.campaign_name}</h4>
-                      <p className="text-slate-400 text-xs md:text-sm font-medium">Batch processing live queues. System throttles SMTP transfers safely.</p>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="block text-3xl font-black text-indigo-400">{getProgressPercentage(activeBatch)}%</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Processed Records</span>
-                    </div>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="relative w-full h-3.5 bg-slate-800 rounded-full overflow-hidden mt-6 shadow-inner">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${getProgressPercentage(activeBatch)}%` }}
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full animate-pulse"
-                    ></motion.div>
-                  </div>
-
-                  {/* Log Details Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800/80">
-                    <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/40">
-                      <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</span>
-                      <span className="text-sm font-black capitalize text-indigo-300">{activeBatch.status}</span>
-                    </div>
-                    <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/40">
-                      <span className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase">Successful</span>
-                      <span className="text-sm font-black text-emerald-400">{activeBatch.successful_records}</span>
-                    </div>
-                    <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/40">
-                      <span className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase">Rejected</span>
-                      <span className="text-sm font-black text-red-400">{activeBatch.failed_records}</span>
-                    </div>
-                    <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/40">
-                      <span className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase">Original Size</span>
-                      <span className="text-sm font-black text-white">{activeBatch.total_records}</span>
-                    </div>
-                  </div>
-
-                  {/* Targeted Recipients Audit Card */}
-                  {activeBatch.emails_list && activeBatch.emails_list.length > 0 && (
-                    <div className="mt-6 p-5 bg-slate-950/40 border border-slate-800/40 rounded-2xl space-y-2">
-                      <span className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
-                        <Users size={14} /> Campaign Recipients Target ({activeBatch.emails_list.length})
-                      </span>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-36 overflow-y-auto pr-2 custom-scrollbar">
-                        {activeBatch.emails_list.map((email, index) => {
-                          const isFailed = (activeBatch.failed_records || []).some(f => f.email === email);
-                          return (
-                            <div
-                              key={index}
-                              className={`border rounded-lg p-2.5 flex justify-between items-center gap-3 text-xs ${isFailed
-                                ? 'bg-red-550/5 border-red-500/10 text-red-200'
-                                : activeBatch.status === 'completed'
-                                  ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-250 font-bold'
-                                  : 'bg-slate-800/40 border-slate-700/40 text-slate-300'
-                                }`}
-                            >
-                              <span className="font-bold truncate select-all">{email}</span>
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${isFailed
-                                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                : activeBatch.status === 'completed'
-                                  ? 'bg-emerald-500/10 text-emerald-450 border border-emerald-500/20'
-                                  : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                                }`}>
-                                {isFailed ? 'Failed' : activeBatch.status === 'completed' ? 'Delivered' : 'Pending'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Errors Log Card */}
-                  {activeBatch.failed_records && activeBatch.failed_records.length > 0 && (
-                    <div className="mt-6 p-5 bg-red-950/30 border border-red-500/10 rounded-2xl space-y-2">
-                      <span className="text-xs font-black text-red-400 uppercase tracking-widest flex items-center gap-1.5">
-                        <AlertCircle size={14} /> System Failures Audit ({activeBatch.failed_records.length})
-                      </span>
-                      <div className="space-y-1.5 max-h-28 overflow-y-auto pr-2 custom-scrollbar">
-                        {activeBatch.failed_records.map((log, index) => (
-                          <div
-                            key={index}
-                            className="bg-red-500/5 border border-red-500/10 rounded-lg p-2.5 flex justify-between gap-3 text-xs"
-                          >
-                            <span className="font-bold text-red-200 truncate select-all">{log.email}</span>
-                            <span className="text-slate-400 italic text-[10px] shrink-0 text-right">{log.reason || 'SMTP Rejection'}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Dismiss action */}
-                  {(activeBatch.status === 'completed' || activeBatch.status === 'failed') && (
-                    <button
-                      onClick={() => {
-                        setActiveBatchId(null);
-                        setActiveBatch(null);
-                      }}
-                      className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all mt-6 shadow"
-                    >
-                      Dismiss Tracking Widget
-                    </button>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Campaign History Log list */}
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8">
               <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -878,51 +775,207 @@ const BulkGiftCard = () => {
                   <tbody>
                     {campaigns.map((camp, i) => {
                       const isTracked = activeBatchId === camp._id;
+                      const displayCamp = isTracked && activeBatch && activeBatch._id === camp._id ? activeBatch : camp;
                       return (
-                        <tr key={i} className={`border-b border-slate-50 hover:bg-slate-50/50 transition-colors ${isTracked ? 'bg-indigo-50/20' : ''}`}>
-                          <td className="py-4 px-4">
-                            <div>
-                              <span className="block font-black text-sm text-slate-900">{camp.campaign_name}</span>
-                              <span className="block text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-0.5">Batch ID: #{camp._id.slice(-6).toUpperCase()}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="inline-block px-3 py-1 rounded text-xs font-extrabold bg-slate-100 text-slate-500 border border-slate-200 uppercase">
-                              {camp.recipient_type || 'custom'}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="font-extrabold text-sm text-slate-900">₹{Number(camp.gift_card_amount).toLocaleString('en-IN')}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase border ${getBatchStatusBadge(camp.status)}`}>
-                              {camp.status}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-xs md:text-sm font-semibold text-slate-500">
-                              {new Date(camp.created_at || camp.createdAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 text-right">
-                            <button
-                              onClick={() => {
+                        <Fragment key={camp._id || i}>
+                          <tr
+                            onClick={() => {
+                              if (isTracked) {
+                                setActiveBatchId(null);
+                                setActiveBatch(null);
+                              } else {
                                 setActiveBatchId(camp._id);
                                 setActiveBatch(camp);
-                              }}
-                              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors inline-flex items-center gap-1.5 text-xs font-bold"
-                            >
-                              <Info size={16} /> Track Live
-                            </button>
-                          </td>
-                        </tr>
+                              }
+                            }}
+                            className={`border-b border-slate-50 hover:bg-slate-50/50 transition-colors cursor-pointer ${isTracked ? 'bg-indigo-50/10' : ''}`}
+                          >
+                            <td className="py-4 px-4">
+                              <div>
+                                <span className="block font-black text-sm text-slate-900">{camp.campaign_name}</span>
+                                <span className="block text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-0.5">Batch ID: #{camp._id.slice(-6).toUpperCase()}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="inline-block px-3 py-1 rounded text-xs font-extrabold bg-slate-100 text-slate-500 border border-slate-200 uppercase">
+                                {camp.recipient_type || 'custom'}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="font-extrabold text-sm text-slate-900">₹{Number(camp.gift_card_amount).toLocaleString('en-IN')}</span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase border ${getBatchStatusBadge(camp.status)}`}>
+                                {camp.status}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <span className="text-xs md:text-sm font-semibold text-slate-500">
+                                {new Date(camp.created_at || camp.createdAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isTracked) {
+                                    setActiveBatchId(null);
+                                    setActiveBatch(null);
+                                  } else {
+                                    setActiveBatchId(camp._id);
+                                    setActiveBatch(camp);
+                                  }
+                                }}
+                                className="w-8 h-8 rounded-full bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 flex items-center justify-center transition-colors ml-auto border border-slate-100"
+                              >
+                                <ChevronRight size={16} className={`transition-transform duration-300 ${isTracked ? 'rotate-90 text-indigo-600' : ''}`} />
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* Expansion Dropdown Panel */}
+                          {isTracked && (
+                            <tr className="bg-slate-50/30">
+                              <td colSpan="6" className="p-0 border-b border-slate-150">
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.25 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="p-6 md:p-8 space-y-6">
+                                    
+                                    {/* Metrics Grid */}
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                      <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                                        <span className="block text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1">Total Recipients</span>
+                                        <span className="text-xl md:text-2xl font-black text-slate-900">{displayCamp.total_records || 0}</span>
+                                      </div>
+                                      <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-center">
+                                        <span className="block text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Successfully Dispatched</span>
+                                        <span className="text-xl md:text-2xl font-black text-emerald-600">
+                                          {(displayCamp.total_records || 0) - (displayCamp.failed_records?.length || 0)}
+                                        </span>
+                                      </div>
+                                      <div className="bg-white p-5 rounded-2xl border border-red-100 shadow-sm flex flex-col justify-center">
+                                        <span className="block text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Failed Records</span>
+                                        <span className="text-xl md:text-2xl font-black text-red-600">{displayCamp.failed_records?.length || 0}</span>
+                                      </div>
+                                      <div className="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm flex flex-col justify-center">
+                                        <span className="block text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">Voucher Amount</span>
+                                        <span className="text-xl md:text-2xl font-black text-indigo-600">₹{Number(displayCamp.gift_card_amount).toLocaleString('en-IN')}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Progress Bar for Active Polling */}
+                                    {displayCamp.status === 'processing' && (
+                                      <div className="bg-white p-5 rounded-2xl border border-indigo-50 shadow-sm space-y-2">
+                                        <div className="flex justify-between items-center text-xs font-black">
+                                          <span className="text-indigo-600 uppercase tracking-wider animate-pulse">Campaign Dispatching in Progress...</span>
+                                          <span className="text-indigo-600">{getProgressPercentage(displayCamp)}%</span>
+                                        </div>
+                                        <div className="relative w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                          <div
+                                            style={{ width: `${getProgressPercentage(displayCamp)}%` }}
+                                            className="absolute inset-y-0 left-0 bg-indigo-600 rounded-full transition-all duration-300"
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Recipients Table List */}
+                                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                                      <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                                        <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                          <Users size={14} className="text-indigo-550" /> Recipient Breakdown ({displayCamp.emails_list?.length || 0})
+                                        </h4>
+                                      </div>
+
+                                      <div className="max-h-72 overflow-y-auto custom-scrollbar">
+                                        <table className="w-full text-left border-collapse text-xs">
+                                          <thead>
+                                            <tr className="border-b border-slate-100 text-[10px] font-black text-slate-450 uppercase tracking-widest bg-slate-50/50">
+                                              <th className="py-3 px-5">Recipient Email</th>
+                                              <th className="py-3 px-5">Gift Card Code</th>
+                                              <th className="py-3 px-5">Status</th>
+                                              <th className="py-3 px-5 text-right">Copy Code</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {displayCamp.emails_list?.map((email, idx) => {
+                                              const matchingCard = getCardForEmail(displayCamp, email);
+                                              const isFailed = (displayCamp.failed_records || []).some(f => f.email?.toLowerCase() === email?.toLowerCase());
+                                              const failureInfo = (displayCamp.failed_records || []).find(f => f.email?.toLowerCase() === email?.toLowerCase());
+                                              
+                                              const emailStatus = isFailed 
+                                                ? 'failed' 
+                                                : matchingCard?.status || (displayCamp.status === 'completed' ? 'active' : 'pending');
+
+                                              return (
+                                                <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                                  <td className="py-3 px-5 font-bold text-slate-700 select-all">
+                                                    {email}
+                                                  </td>
+                                                  <td className="py-3 px-5 font-mono font-bold text-indigo-600 text-sm">
+                                                    {matchingCard?.public_code || 'N/A'}
+                                                  </td>
+                                                  <td className="py-3 px-5">
+                                                    <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase border ${
+                                                      emailStatus === 'failed'
+                                                        ? 'bg-red-50 text-red-700 border-red-200'
+                                                        : ['active', 'claimed', 'accepted'].includes(emailStatus)
+                                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
+                                                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                                                    }`}>
+                                                      {emailStatus === 'failed' 
+                                                        ? `Failed: ${failureInfo?.reason || 'SMTP Rejection'}` 
+                                                        : emailStatus === 'active' || emailStatus === 'claimed'
+                                                          ? 'Delivered' 
+                                                          : emailStatus.toUpperCase()}
+                                                    </span>
+                                                  </td>
+                                                  <td className="py-3 px-5 text-right">
+                                                    {matchingCard?.public_code ? (
+                                                      <button
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          navigator.clipboard.writeText(matchingCard.public_code);
+                                                          toast.success('Voucher code copied!', {
+                                                            position: 'top-right',
+                                                            autoClose: 1500,
+                                                            hideProgressBar: true
+                                                          });
+                                                        }}
+                                                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all inline-flex"
+                                                        title="Copy Voucher Code"
+                                                      >
+                                                        <Copy size={14} />
+                                                      </button>
+                                                    ) : (
+                                                      <span className="text-slate-350 text-[10px] font-semibold italic pr-1">Not Available</span>
+                                                    )}
+                                                  </td>
+                                                </tr>
+                                              );
+                                            })}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                    
+                                  </div>
+                                </motion.div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
                       );
                     })}
                   </tbody>
                 </table>
               </div>
             </div>
-
           </div>
         )}
 
