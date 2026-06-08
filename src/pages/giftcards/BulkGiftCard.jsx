@@ -15,6 +15,7 @@ import {
   Eye, Check, Trash, User, Send, X
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import GiftCardBg from '../../assets/GiftCard2.png';
 
 const BulkGiftCard = () => {
   // --- Form States ---
@@ -216,7 +217,7 @@ const BulkGiftCard = () => {
     setSubmitting(true);
     try {
       const payload = {
-        campaign_name: campaignName.trim(),
+        campaign_name: campaignName.trim() || `Bulk_${isRegisteredMode ? 'Reg' : 'Custom'}_${new Date().getTime().toString().slice(-6)}`,
         recipient_type: isRegisteredMode ? 'registered' : 'custom',
         gift_card_amount: Number(giftAmount),
         message: customMessage,
@@ -228,11 +229,15 @@ const BulkGiftCard = () => {
       console.log("after");
       if (response.data.success) {
         toast.success(response.data.msg);
+        
+        // Explicit popup for confirmation as requested
+        window.alert(`✅ Success! Gift cards have been queued and are being sent to ${targetEmails.length} recipients.\n\nCampaign Name: ${payload.campaign_name}`);
 
-        // Reset inputs
+        // Reset inputs completely
         setCampaignName('');
         setRawEmails('');
         setParsedEmails([]);
+        setSelectedUserEmails([]); // Important: Clear the selected registered users!
 
         // Focus polling on new batch
         const newBatchId = response.data.batch._id;
@@ -375,11 +380,42 @@ const BulkGiftCard = () => {
     return user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Community Member';
   };
 
-  // Dynamic card type resolver
+  // Dynamic card type resolver based on parent campaign's method
   const resolveCardType = (card) => {
     if (!card) return 'custom';
+
+    const cardEmail = (card.recipient_email || '').toLowerCase();
+
+    // Find campaigns that targeted this email
+    const matchingCampaigns = campaigns.filter(batch =>
+      (batch.emails_list || []).some(e => (e || '').toLowerCase() === cardEmail)
+    );
+
+    if (matchingCampaigns.length > 0) {
+      // Find the closest campaign in time to the card's creation to be fully accurate
+      const cardTimeStr = card.created_at || card.createdAt;
+      if (cardTimeStr) {
+        const cardTime = new Date(cardTimeStr).getTime();
+        const closestCampaign = matchingCampaigns.reduce((closest, current) => {
+          const closestTime = new Date(closest.created_at || closest.createdAt).getTime();
+          const currentTime = new Date(current.created_at || current.createdAt).getTime();
+          return Math.abs(currentTime - cardTime) < Math.abs(closestTime - cardTime) ? current : closest;
+        });
+
+        if (closestCampaign && closestCampaign.recipient_type) {
+           return closestCampaign.recipient_type.toLowerCase();
+        }
+      } else {
+         // If no date on card, just use the first matched campaign
+         if (matchingCampaigns[0].recipient_type) {
+            return matchingCampaigns[0].recipient_type.toLowerCase();
+         }
+      }
+    }
+
+    // Fallback if no campaign matched (edge case)
     const isRegistered = registeredUsers.some(
-      u => u.email?.toLowerCase() === card.recipient_email?.toLowerCase()
+      u => (u.email || '').toLowerCase() === cardEmail
     );
     return isRegistered ? 'registered' : 'custom';
   };
@@ -522,7 +558,7 @@ const BulkGiftCard = () => {
       <div className="grid grid-cols-1 gap-8">
 
         {recipientType !== 'manage' && (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
             {/* LEFT COLUMN: Gift Settings */}
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 flex flex-col justify-between">
               <div>
@@ -530,6 +566,19 @@ const BulkGiftCard = () => {
                   <Gift className="text-indigo-600" size={20} /> Gift Settings
                 </h3>
                 <div className="space-y-6">
+                  {/* Campaign Name */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-widest">Campaign Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={campaignName}
+                      onChange={(e) => setCampaignName(e.target.value)}
+                      placeholder="e.g. Summer Promo 2026"
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200/70 rounded-2xl focus:border-indigo-600 focus:bg-white outline-none transition-all font-bold text-slate-900 text-base shadow-sm"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Amount */}
                     <div className="space-y-2">
@@ -613,49 +662,46 @@ const BulkGiftCard = () => {
             </div>
 
             {/* RIGHT COLUMN: Voucher Visual Preview */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 flex flex-col justify-between">
-              <div>
+            <div className="bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 flex flex-col justify-start relative overflow-hidden sticky top-24">
+              <div className="relative z-10 w-full">
                 <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
                   <List className="text-indigo-600" size={20} /> Voucher Visual Preview (Email Format)
                 </h3>
 
-                {/* Dynamic Honeymoon Gift Voucher Graphic */}
-                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-950 shadow-lg border border-slate-800">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-60 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85')]"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/20"></div>
-
-                  <div className="absolute inset-0 p-6 flex flex-col justify-between text-white">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">Trip to Honeymoon</span>
-                        <h2 className="text-2xl md:text-3xl font-black italic tracking-wider text-amber-200">GIFT CARD</h2>
-                      </div>
-                      <div className="bg-indigo-600 px-4 py-1.5 rounded-xl text-sm md:text-base font-black tracking-widest shadow">
-                        ₹{Number(giftAmount).toLocaleString('en-IN')}
-                      </div>
+                {/* Exact CSS Replica of the Backend Canvas Generation */}
+                <div className="w-full flex justify-center items-center py-4">
+                  <div className="relative w-full max-w-[600px] aspect-[1672/941] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(111,17,35,0.15)] border border-slate-200/60 ring-4 ring-white" style={{ containerType: 'inline-size' }}>
+                    <img src={GiftCardBg} className="absolute inset-0 w-full h-full object-cover" alt="Gift Card Template" />
+                    
+                    {/* Amount */}
+                    <div 
+                      className="absolute top-[46.7%] left-[50%] -translate-x-1/2 -translate-y-1/2 text-[#6F1123] font-bold tracking-tight drop-shadow-sm" 
+                      style={{ fontSize: '10.5cqi', fontFamily: 'Georgia, "Times New Roman", serif' }}
+                    >
+                      ₹{Number(giftAmount).toLocaleString('en-IN')}
                     </div>
 
-                    <div className="space-y-3">
-                      <p className="text-sm italic font-medium text-slate-200 line-clamp-2 max-w-[85%]">
-                        "{customMessage}"
-                      </p>
-                      <div className="flex justify-between items-end border-t border-white/10 pt-3">
-                        <div>
-                          <span className="block text-[10px] font-bold text-slate-400 uppercase">GIFT CODE</span>
-                          <span className="text-sm md:text-base font-mono font-bold tracking-wider text-amber-200">T2H-XXXXXX</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="block text-[10px] font-bold text-slate-400 uppercase">VALIDITY</span>
-                          <span className="text-sm md:text-base font-bold text-slate-200">{expiryDays} Days</span>
-                        </div>
-                      </div>
+                    {/* Voucher Code */}
+                    <div 
+                      className="absolute top-[93%] left-[13.4%] -translate-y-1/2 text-white font-bold tracking-[0.15em] drop-shadow-sm" 
+                      style={{ fontSize: '2.2cqi', fontFamily: 'Arial, sans-serif' }}
+                    >
+                      T2H-XXXXXX
+                    </div>
+
+                    {/* Valid Till */}
+                    <div 
+                      className="absolute top-[93%] left-[57%] -translate-y-1/2 text-white font-bold uppercase tracking-[0.05em] drop-shadow-sm" 
+                      style={{ fontSize: '2.2cqi', fontFamily: 'Arial, sans-serif' }}
+                    >
+                      {new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase().replace(/,/g, '')}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="text-slate-400 text-xs font-semibold text-center mt-6">
-                * Using premium trip2honeymoon travel voucher theme with overlay dynamic values.
+              <div className="text-slate-400 text-xs font-semibold text-center mt-8">
+                * Dynamic values overlay on the official Trip to Honeymoon travel voucher.
               </div>
             </div>
           </div>
@@ -773,7 +819,7 @@ const BulkGiftCard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {campaigns.map((camp, i) => {
+                    {campaigns.filter(c => c.recipient_type === 'custom').map((camp, i) => {
                       const isTracked = activeBatchId === camp._id;
                       const displayCamp = isTracked && activeBatch && activeBatch._id === camp._id ? activeBatch : camp;
                       return (
@@ -922,16 +968,18 @@ const BulkGiftCard = () => {
                                                   </td>
                                                   <td className="py-3 px-5">
                                                     <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase border ${
-                                                      emailStatus === 'failed'
+                                                      ['failed', 'expired', 'revoked', 'cancelled'].includes(emailStatus)
                                                         ? 'bg-red-50 text-red-700 border-red-200'
                                                         : ['active', 'claimed', 'accepted'].includes(emailStatus)
                                                           ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
+                                                        : emailStatus === 'redeemed'
+                                                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
                                                           : 'bg-amber-50 text-amber-700 border-amber-200'
                                                     }`}>
-                                                      {emailStatus === 'failed' 
+                                                      {['failed'].includes(emailStatus)
                                                         ? `Failed: ${failureInfo?.reason || 'SMTP Rejection'}` 
-                                                        : emailStatus === 'active' || emailStatus === 'claimed'
-                                                          ? 'Delivered' 
+                                                        : ['active', 'claimed'].includes(emailStatus)
+                                                          ? 'ACCEPTED' 
                                                           : emailStatus.toUpperCase()}
                                                     </span>
                                                   </td>
@@ -1148,7 +1196,7 @@ const BulkGiftCard = () => {
                                       <p className="text-xs text-slate-500">{card.sender_user_id.email}</p>
                                     </div>
                                   ) : (
-                                    <p className="text-xs text-slate-405 italic">Unknown System Record</p>
+                                    <p className="font-black text-sm md:text-base text-slate-900">Trip to Honeymoon</p>
                                   )}
                                 </div>
                                 <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
@@ -1251,9 +1299,7 @@ const BulkGiftCard = () => {
                       filteredDispatchCards.map((card, i) => {
                         const cardType = resolveCardType(card);
                         const isCustom = cardType === 'custom';
-                        const dynamicRecipient = isCustom
-                          ? (card.recipient_email || 'N/A')
-                          : (card.recipient_name || resolveUserName(card.accepted_by_user_id));
+                        const dynamicRecipient = card.recipient_email || card.recipient_name || resolveUserName(card.accepted_by_user_id) || 'N/A';
 
                         const isFailed = ['revoked', 'expired', 'cancelled', 'failed'].includes(card.status);
                         const statusLabel = isFailed ? 'FAILED' : 'COMPLETED';
@@ -1438,7 +1484,7 @@ const BulkGiftCard = () => {
                         <p className="text-xs text-slate-500">{selectedDetailCard.sender_user_id.email}</p>
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-405 italic">System Campaign Record</p>
+                      <p className="font-black text-sm text-slate-900">Trip to Honeymoon</p>
                     )}
                   </div>
                   <hr className="border-slate-100" />

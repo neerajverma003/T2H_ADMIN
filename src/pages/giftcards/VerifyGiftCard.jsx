@@ -188,7 +188,7 @@ const VerifyGiftCard = () => {
                             </span>
                         </div>
                         <p className="text-sm font-semibold text-gray-500">
-                            {card.sender_user_id ? card.sender_user_id.firstName : 'Unknown'} → {card.accepted_by_user_id ? card.accepted_by_user_id.firstName : (card.recipient_name || 'Unclaimed')}
+                            {card.sender_user_id ? card.sender_user_id.firstName : 'Trip to Honeymoon'} → {card.accepted_by_user_id ? card.accepted_by_user_id.firstName : (card.recipient_name || 'Unclaimed')}
                         </p>
                     </div>
                   </div>
@@ -266,7 +266,7 @@ const VerifyGiftCard = () => {
                                             <p className="text-sm text-gray-500">{card.sender_user_id.email}</p>
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-gray-400 italic">Unknown System Record</p>
+                                        <p className="font-bold text-gray-900">Trip to Honeymoon</p>
                                     )}
                                 </div>
 
