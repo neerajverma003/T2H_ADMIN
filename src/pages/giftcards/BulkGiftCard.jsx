@@ -12,9 +12,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Gift, Users, Mail, Play, AlertCircle, CheckCircle2,
   Clock, RefreshCw, ChevronRight, Copy, Info, AlertTriangle, List,
-  Eye, Check, Trash, User, Send, X, ShieldAlert, Bell, Wallet, DollarSign, FileText
+  Eye, Check, Trash, User, Send, X, ShieldAlert, Bell, Wallet, DollarSign, FileText, UploadCloud
 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import GiftCardBg from '../../assets/GiftCard2.png';
 
 const BulkGiftCard = () => {
@@ -28,6 +30,12 @@ const BulkGiftCard = () => {
 
   // --- Validation / Parser States ---
   const [parsedEmails, setParsedEmails] = useState([]);
+  
+  // --- CSV / XLSX Uploader States ---
+  const [isUploadMode, setIsUploadMode] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [uploadStats, setUploadStats] = useState({ valid: 0, invalid: 0 });
   const [registeredUserCount, setRegisteredUserCount] = useState(null);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [selectedUserEmails, setSelectedUserEmails] = useState([]);
@@ -92,15 +100,24 @@ const BulkGiftCard = () => {
     if (recipientType === 'custom') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const splitList = rawEmails.split(/[\s,\n]+/);
-      const uniqueValid = new Set();
+      // const uniqueValid = new Set();
 
+      // for (const item of splitList) {
+      //   const clean = item.trim().toLowerCase();
+      //   if (emailRegex.test(clean)) {
+      //     uniqueValid.add(clean);
+      //   }
+      // }
+      // setParsedEmails(Array.from(uniqueValid));
+      const validArray = [];
       for (const item of splitList) {
         const clean = item.trim().toLowerCase();
         if (emailRegex.test(clean)) {
-          uniqueValid.add(clean);
+          validArray.push(clean);
         }
       }
-      setParsedEmails(Array.from(uniqueValid));
+      setParsedEmails(validArray);
+
     } else {
       setParsedEmails([]);
     }
@@ -206,6 +223,69 @@ const BulkGiftCard = () => {
     } catch (err) {
       stopPolling();
       console.error('Progress polling failure:', err);
+    }
+  };
+
+  const processUploadedFile = async (file) => {
+    setUploadedFileName(file.name);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    const extractFromData = (dataArray) => {
+      const columns = dataArray.length > 0 ? Object.keys(dataArray[0]) : [];
+      const emailCol = columns.find(col => col.toLowerCase().includes('email') || col.toLowerCase().includes('e-mail'));
+      
+      let valid = 0, invalid = 0;
+      const validArray = [];
+      dataArray.forEach(row => {
+        let emailVal = emailCol ? row[emailCol] : Object.values(row).find(v => typeof v === 'string' && v.includes('@'));
+        if (emailVal && typeof emailVal === 'string') {
+          const clean = emailVal.trim().toLowerCase();
+          if (emailRegex.test(clean)) {
+            validArray.push(clean);
+            valid++;
+          } else { invalid++; }
+        } else { invalid++; }
+      });
+      
+      setParsedEmails(validArray);
+      setUploadStats({ valid, invalid });
+      setRawEmails(validArray.join('\n'));
+    };
+
+    try {
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => extractFromData(results.data)
+        });
+      } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+        extractFromData(data);
+      } else {
+        toast.error('Unsupported file format. Please upload .csv or .xlsx');
+      }
+    } catch (error) {
+      toast.error('Failed to parse file. Please check the format.');
+    }
+  };
+
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => setIsDragging(false);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processUploadedFile(e.dataTransfer.files[0]);
+    }
+  };
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processUploadedFile(e.target.files[0]);
     }
   };
 
@@ -768,20 +848,53 @@ const BulkGiftCard = () => {
               </div>
 
               {recipientType === 'custom' && (
-                <div className="space-y-3 pt-6 border-t border-slate-100 mt-6">
-                  <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-widest">Pasted Recipients</label>
-                  <textarea
-                    rows={3}
-                    value={rawEmails}
-                    onChange={(e) => setRawEmails(e.target.value)}
-                    placeholder="Enter emails comma-separated or one per line (e.g. user@gmail.com, hello@domain.com)"
-                    className="w-full p-5 bg-slate-50 border border-slate-200/70 rounded-2xl focus:border-indigo-600 focus:bg-white outline-none transition-all font-mono text-sm font-semibold shadow-sm"
-                  ></textarea>
+                <div className="space-y-4 pt-6 border-t border-slate-100 mt-6">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-widest">Provide Recipients</label>
+                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                      <button type="button" onClick={() => setIsUploadMode(false)} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${!isUploadMode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>Paste Text</button>
+                      <button type="button" onClick={() => setIsUploadMode(true)} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${isUploadMode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>Upload CSV/XLSX</button>
+                    </div>
+                  </div>
+
+                  {!isUploadMode ? (
+                    <textarea
+                      rows={3}
+                      value={rawEmails}
+                      onChange={(e) => setRawEmails(e.target.value)}
+                      placeholder="Enter emails comma-separated or one per line (e.g. user@gmail.com, hello@domain.com)"
+                      className="w-full p-5 bg-slate-50 border border-slate-200/70 rounded-2xl focus:border-indigo-600 focus:bg-white outline-none transition-all font-mono text-sm font-semibold shadow-sm"
+                    ></textarea>
+                  ) : (
+                    <div 
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all ${isDragging ? 'border-indigo-500 bg-indigo-50/50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}`}
+                    >
+                      <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <div className={`p-3 rounded-full ${isDragging ? 'bg-indigo-100 text-indigo-600' : 'bg-white text-slate-400 shadow-sm'}`}>
+                          <UploadCloud size={24} />
+                        </div>
+                        <h4 className="font-bold text-slate-700 text-sm">{uploadedFileName || 'Drag and drop your file here'}</h4>
+                        <p className="text-xs font-medium text-slate-500">Supports .csv and .xlsx formats</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center text-xs md:text-sm font-bold px-2">
                     <span className="text-slate-400">Unique valid emails extracted:</span>
-                    <span className={`px-2.5 py-0.5 rounded font-black ${parsedEmails.length > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
-                      {parsedEmails.length} Valid Recipient{parsedEmails.length !== 1 ? 's' : ''}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {isUploadMode && uploadedFileName && uploadStats.invalid > 0 && (
+                        <span className="px-2.5 py-0.5 rounded font-black bg-red-100 text-red-700 text-xs">
+                          {uploadStats.invalid} Invalid
+                        </span>
+                      )}
+                      <span className={`px-2.5 py-0.5 rounded font-black ${parsedEmails.length > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+                        {parsedEmails.length} Valid Recipient{parsedEmails.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1024,10 +1137,10 @@ const BulkGiftCard = () => {
                                         <span className="block text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1">Total Recipients</span>
                                         <span className="text-xl md:text-2xl font-black text-slate-900">{displayCamp.total_records || 0}</span>
                                       </div>
-                                      <div className="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-center">
+                                      <div className={`bg-white p-5 rounded-2xl border shadow-sm flex flex-col justify-center transition-all ${displayCamp.status === 'processing' ? 'border-emerald-300 animate-pulse bg-emerald-50/30' : 'border-emerald-100'}`}>
                                         <span className="block text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Successfully Dispatched</span>
                                         <span className="text-xl md:text-2xl font-black text-emerald-600">
-                                          {(displayCamp.total_records || 0) - (displayCamp.failed_records?.length || 0)}
+                                          {displayCamp.issued_cards?.length || 0}
                                         </span>
                                       </div>
                                       <div className="bg-white p-5 rounded-2xl border border-red-100 shadow-sm flex flex-col justify-center">
@@ -1075,63 +1188,97 @@ const BulkGiftCard = () => {
                                             </tr>
                                           </thead>
                                           <tbody>
-                                            {displayCamp.emails_list?.map((email, idx) => {
-                                              const matchingCard = getCardForEmail(displayCamp, email);
-                                              const isFailed = (displayCamp.failed_records || []).some(f => f.email?.toLowerCase() === email?.toLowerCase());
-                                              const failureInfo = (displayCamp.failed_records || []).find(f => f.email?.toLowerCase() === email?.toLowerCase());
+                                            {(() => {
+                                              const consumedIssued = {}; // Track duplicate assignments
+                                              return displayCamp.emails_list?.map((email, idx) => {
+                                                let matchingCode = 'N/A';
+                                                let emailStatus = displayCamp.status === 'completed' ? 'active' : 'pending';
+                                                let failureInfo = null;
 
-                                              const emailStatus = isFailed
-                                                ? 'failed'
-                                                : matchingCard?.status || (displayCamp.status === 'completed' ? 'active' : 'pending');
+                                                const isFailed = (displayCamp.failed_records || []).some(f => f.email?.toLowerCase() === email?.toLowerCase());
+                                                
+                                                if (isFailed) {
+                                                  emailStatus = 'failed';
+                                                  failureInfo = (displayCamp.failed_records || []).find(f => f.email?.toLowerCase() === email?.toLowerCase());
+                                                } else if (displayCamp.issued_cards && displayCamp.issued_cards.length > 0) {
+                                                  // New strict logic: map duplicate emails to unique issued cards precisely
+                                                  const lowerEmail = email.toLowerCase();
+                                                  consumedIssued[lowerEmail] = consumedIssued[lowerEmail] || 0;
+                                                  
+                                                  const availableCards = displayCamp.issued_cards.filter(c => c.email?.toLowerCase() === lowerEmail);
+                                                  const exactCard = availableCards[consumedIssued[lowerEmail]];
+                                                  
+                                                  if (exactCard) {
+                                                    matchingCode = exactCard.public_code;
+                                                    
+                                                    // Fetch the REAL live status from the Redux/State giftCards array
+                                                    const liveCard = giftCards?.find(c => c.public_code === exactCard.public_code);
+                                                    if (liveCard) {
+                                                      emailStatus = liveCard.status; // e.g. 'invited', 'accepted', 'redeemed'
+                                                    } else {
+                                                      emailStatus = 'invited'; // Default fallback if card not yet synced to client
+                                                    }
+                                                    
+                                                    consumedIssued[lowerEmail]++;
+                                                  }
+                                                } else {
+                                                  // Old fallback logic for backward compatibility
+                                                  const matchingCard = getCardForEmail(displayCamp, email);
+                                                  if (matchingCard) {
+                                                    matchingCode = matchingCard.public_code;
+                                                    emailStatus = matchingCard.status;
+                                                  }
+                                                }
 
-                                              return (
-                                                <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                                  <td className="py-3 px-5 font-bold text-slate-700 select-all">
-                                                    {email}
-                                                  </td>
-                                                  <td className="py-3 px-5 font-mono font-bold text-indigo-600 text-sm">
-                                                    {matchingCard?.public_code || 'N/A'}
-                                                  </td>
-                                                  <td className="py-3 px-5">
-                                                    <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase border ${['failed', 'expired', 'revoked', 'cancelled'].includes(emailStatus)
-                                                        ? 'bg-red-50 text-red-700 border-red-200'
-                                                        : ['active', 'claimed', 'accepted'].includes(emailStatus)
-                                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
-                                                          : emailStatus === 'redeemed'
-                                                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                                                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                                                      }`}>
-                                                      {['failed'].includes(emailStatus)
-                                                        ? `Failed: ${failureInfo?.reason || 'SMTP Rejection'}`
-                                                        : ['active', 'claimed'].includes(emailStatus)
-                                                          ? 'ACCEPTED'
-                                                          : emailStatus.toUpperCase()}
-                                                    </span>
-                                                  </td>
-                                                  <td className="py-3 px-5 text-right">
-                                                    {matchingCard?.public_code ? (
-                                                      <button
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          navigator.clipboard.writeText(matchingCard.public_code);
-                                                          toast.success('Voucher code copied!', {
-                                                            position: 'top-right',
-                                                            autoClose: 1500,
-                                                            hideProgressBar: true
-                                                          });
-                                                        }}
-                                                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all inline-flex"
-                                                        title="Copy Voucher Code"
-                                                      >
-                                                        <Copy size={14} />
-                                                      </button>
-                                                    ) : (
+                                                return (
+                                                  <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                                    <td className="py-3 px-5 font-bold text-slate-700 select-all">
+                                                      {email}
+                                                    </td>
+                                                    <td className="py-3 px-5 font-mono font-bold text-indigo-600 text-sm">
+                                                      {matchingCode}
+                                                    </td>
+                                                    <td className="py-3 px-5">
+                                                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase border ${['failed', 'expired', 'revoked', 'cancelled'].includes(emailStatus)
+                                                          ? 'bg-red-50 text-red-700 border-red-200'
+                                                          : ['active', 'claimed', 'accepted'].includes(emailStatus)
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-250'
+                                                            : emailStatus === 'redeemed'
+                                                              ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                                                        }`}>
+                                                        {['failed'].includes(emailStatus)
+                                                          ? `Failed: ${failureInfo?.reason || 'SMTP Rejection'}`
+                                                          : ['active', 'claimed'].includes(emailStatus)
+                                                            ? 'ACCEPTED'
+                                                            : emailStatus.toUpperCase()}
+                                                      </span>
+                                                    </td>
+                                                    <td className="py-3 px-5 text-right">
+                                                      {matchingCode !== 'N/A' ? (
+                                                        <button
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigator.clipboard.writeText(matchingCode);
+                                                            toast.success('Voucher code copied!', {
+                                                              position: 'top-right',
+                                                              autoClose: 1500,
+                                                              hideProgressBar: true
+                                                            });
+                                                          }}
+                                                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all inline-flex"
+                                                          title="Copy Voucher Code"
+                                                        >
+                                                          <Copy size={14} />
+                                                        </button>
+                                                      ) : (
                                                       <span className="text-slate-350 text-[10px] font-semibold italic pr-1">Not Available</span>
                                                     )}
                                                   </td>
                                                 </tr>
                                               );
-                                            })}
+                                            });
+                                            })()}
                                           </tbody>
                                         </table>
                                       </div>
