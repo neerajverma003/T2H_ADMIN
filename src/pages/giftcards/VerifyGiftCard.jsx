@@ -188,7 +188,7 @@ const VerifyGiftCard = () => {
                             </span>
                         </div>
                         <p className="text-sm font-semibold text-gray-500">
-                            {card.sender_user_id ? card.sender_user_id.firstName : 'Trip to Honeymoon'} → {card.accepted_by_user_id ? card.accepted_by_user_id.firstName : (card.recipient_name || 'Unclaimed')}
+                            {card.sender_user_id ? card.sender_user_id.firstName : 'Trip to Honeymoon'} → {card.accepted_by_user_id ? card.accepted_by_user_id.firstName : (card.recipient_name || card.recipient_email || 'Unclaimed')}
                         </p>
                     </div>
                   </div>
@@ -277,13 +277,29 @@ const VerifyGiftCard = () => {
                                         <div>
                                             <p className="font-bold text-gray-900">{card.accepted_by_user_id.firstName} {card.accepted_by_user_id.lastName}</p>
                                             <p className="text-sm text-gray-500">{card.accepted_by_user_id.email}</p>
-                                            <span className="inline-block mt-2 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold uppercase rounded border border-green-200">Claimed & Active</span>
+                                            <span className={`inline-block mt-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${
+                                              card.status === 'redeemed' ? 'bg-gray-100 text-gray-500 border-gray-200' :
+                                              card.status === 'partially_redeemed' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                                              'bg-green-50 text-green-700 border-green-200'
+                                            }`}>
+                                                {card.status === 'redeemed' ? 'Fully Redeemed' : 
+                                                 card.status === 'partially_redeemed' ? 'Partially Redeemed' : 
+                                                 'Claimed & Active'}
+                                            </span>
                                         </div>
                                     ) : card.recipient_email ? (
                                         <div>
                                             <p className="font-bold text-gray-900">{card.recipient_name || 'N/A'}</p>
                                             <p className="text-sm text-gray-500">{card.recipient_email}</p>
-                                            <span className="inline-block mt-2 px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded border border-amber-200">Pending Acceptance</span>
+                                            <span className={`inline-block mt-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${
+                                              card.status === 'redeemed' ? 'bg-gray-100 text-gray-500 border-gray-200' :
+                                              card.status === 'partially_redeemed' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                                              'bg-amber-50 text-amber-700 border-amber-200'
+                                            }`}>
+                                                {card.status === 'redeemed' ? 'Fully Redeemed' : 
+                                                 card.status === 'partially_redeemed' ? 'Partially Redeemed' : 
+                                                 'Pending Acceptance'}
+                                            </span>
                                         </div>
                                     ) : (
                                         <p className="text-sm text-gray-400 italic">Unclaimed (Self Purchase)</p>
