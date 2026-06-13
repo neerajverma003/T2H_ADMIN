@@ -31,6 +31,86 @@ const ItineraryLeads = () => {
   const [selectedItinerary, setSelectedItinerary] = useState("all");
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
+  const renderAdditionalDetails = (detailsText) => {
+    if (!detailsText) return null;
+
+    const isStandardFormat = /Addons:|Requests:|DepCity:/i.test(detailsText);
+
+    if (isStandardFormat) {
+      // Extract fields using Regex
+      const addonsMatch = detailsText.match(/Addons:\s*([^.]*)/i);
+      const requestsMatch = detailsText.match(/Requests:\s*([^.]*)/i);
+      const depCityMatch = detailsText.match(/DepCity:\s*(.*)/i);
+
+      const addonsList = addonsMatch && addonsMatch[1] 
+        ? addonsMatch[1].split(',').map(s => s.trim()).filter(Boolean) 
+        : [];
+      const requestsList = requestsMatch && requestsMatch[1] 
+        ? requestsMatch[1].split(',').map(s => s.trim()).filter(Boolean) 
+        : [];
+      const depCity = depCityMatch && depCityMatch[1] 
+        ? depCityMatch[1].trim() 
+        : '';
+
+      const ADDONS_LABELS = {
+        'candle_dinner': 'Candle Light Dinner',
+        'beach_dinner': 'Private Beach Dinner',
+        'couple_spa': 'Couple Spa Therapy',
+        'flower_bed': 'Flower Bed Decor',
+        'photoshoot': 'Pro Couple Photoshoot'
+      };
+
+      return (
+        <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left space-y-3">
+          {depCity && (
+            <div>
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Departure City</span>
+              <span className="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+                {depCity}
+              </span>
+            </div>
+          )}
+          {addonsList.length > 0 && (
+            <div>
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Selected Add-ons</span>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {addonsList.map(addon => (
+                  <span key={addon} className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-indigo-100 dark:border-indigo-900/50">
+                    {ADDONS_LABELS[addon] || addon}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {requestsList.length > 0 && (
+            <div>
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Special Requests</span>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {requestsList.map(req => (
+                  <span key={req} className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-emerald-100 dark:border-emerald-900/50">
+                    {req}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      // Option A: Raw Legacy Note High-Visibility warning box
+      return (
+        <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left">
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 text-amber-850 dark:text-amber-300">
+            <div className="flex items-center gap-2 mb-2 font-black text-[10px] uppercase tracking-widest text-amber-700 dark:text-amber-400">
+              <span>⚠️ Legacy / Custom Note</span>
+            </div>
+            <p className="text-sm font-semibold leading-relaxed whitespace-pre-wrap">{detailsText}</p>
+          </div>
+        </div>
+      );
+    }
+  };
+
   const fetchLeads = async () => {
     setIsLoading(true);
     setError(null);
@@ -235,12 +315,7 @@ const ItineraryLeads = () => {
                                         <p className="text-lg font-black text-slate-900 dark:text-slate-200 tracking-tight">
                                             {lead.itineraryTitle}
                                         </p>
-                                        {lead.additionalDetails && (
-                                            <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left">
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Additional Details</span>
-                                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{lead.additionalDetails}</p>
-                                            </div>
-                                        )}
+                                        {renderAdditionalDetails(lead.additionalDetails)}
                                     </div>
                                 </div>
 

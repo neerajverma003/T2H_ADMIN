@@ -12,6 +12,7 @@ import HeroMedia from './pages/hero/HeroMedia';
 
 import AddUser from "./pages/users/AddUser"
 import UserList from "./pages/users/UsersList"
+import ReferralAudit from "./pages/users/ReferralAudit"
 import CreateDestination from "./pages/destinations/CreateDestination"
 import CreateCity from "./pages/destinations/CreateCity"
 import EditDestination from "./pages/destinations/EditPage"
@@ -52,6 +53,7 @@ import AuditLogs from "./pages/audit/AuditLogs"
 import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
 import BulkGiftCard from "./pages/giftcards/BulkGiftCard"
 import AboutSettings from "./pages/settings/AboutSettings"
+import BookedPackages from "./pages/bookings/BookedPackages"
 
 
 // Store
@@ -84,6 +86,7 @@ function App() {
             {/* Users */}
             <Route path="users/add" element={<AddUser />} />
             <Route path="users/list" element={<UserList />} />
+            <Route path="users/referrals" element={<ReferralAudit />} />
 
             {/* Destinations */}
             <Route path="destinations/create" element={<CreateDestination />} />
@@ -143,6 +146,9 @@ function App() {
             {/* Gift Cards */}
             <Route path="giftcards/verify" element={<VerifyGiftCard />} />
             <Route path="giftcards/bulk" element={<BulkGiftCard />} />
+
+            {/* Bookings */}
+            <Route path="bookings" element={<BookedPackages />} />
 
             {/* Reports & Settings */}
             <Route path="about-settings" element={<AboutSettings />} />

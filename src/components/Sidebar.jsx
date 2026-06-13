@@ -14,7 +14,8 @@ import {
   MessageSquare,
   Sparkles,
   ShieldCheck,
-  Info
+  Info,
+  CheckSquare
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -152,6 +153,11 @@ const Sidebar = ({ open, setOpen }) => {
              Dashboard
           </NavLink>
 
+          <NavLink to="/bookings" onClick={() => setOpen(false)} className={navLinkClass}>
+             <CheckSquare size={18} strokeWidth={2} />
+             Booked Packages
+          </NavLink>
+
           {role === 'superadmin' && (
             <NavDropdown 
               title="Users" 
@@ -162,6 +168,7 @@ const Sidebar = ({ open, setOpen }) => {
             >
               <NavLink to="/users/add" onClick={() => setOpen(false)} className={subLinkClass}>Add New User</NavLink>
               <NavLink to="/users/list" onClick={() => setOpen(false)} className={subLinkClass}>User Directory</NavLink>
+              <NavLink to="/users/referrals" onClick={() => setOpen(false)} className={subLinkClass}>Referral Audit</NavLink>
             </NavDropdown>
           )}
 
