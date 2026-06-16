@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Sparkles, 
   Trash2, 
@@ -10,7 +11,8 @@ import {
   Quote, 
   Loader2,
   Search,
-  Filter
+  Filter,
+  ShieldCheck
 } from "lucide-react";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
@@ -18,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getCdnUrl } from "../../utils/media";
 
 const WrittenTestimonialList = () => {
+  const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,31 +78,78 @@ const WrittenTestimonialList = () => {
     t.destination.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalReviews = testimonials.length;
+  const publicReviews = testimonials.filter(t => t.toShow).length;
+  const privateReviews = totalReviews - publicReviews;
+
   return (
     <div className="pb-20">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-            <div className="p-2 bg-indigo-600 rounded-lg text-white">
-              <Sparkles size={24} />
+            <div className="p-2.5 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+              <Sparkles size={22} />
             </div>
-            Written Review Archive
+            General Reviews
           </h1>
-          <p className="text-slate-500 mt-1">Manage and curate couple stories for the website</p>
+          <p className="text-slate-400 mt-1.5 text-sm">Manage and curate couple stories for the website</p>
         </div>
 
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm w-full md:w-80">
-          <Search className="text-slate-400 ml-2" size={18} />
-          <input
-            type="text"
-            placeholder="Search stories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none text-sm w-full py-1"
-          />
-          <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg text-slate-400 cursor-pointer">
-            <Filter size={16} />
+        {/* Action Controls */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm w-full sm:w-80">
+            <Search className="text-slate-400 ml-1.5" size={18} />
+            <input
+              type="text"
+              placeholder="Search stories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm w-full py-1 text-slate-700 dark:text-slate-300"
+            />
+            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl text-slate-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <Filter size={16} />
+            </div>
+          </div>
+          
+          <button 
+            onClick={() => navigate("/testimonials/written")}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-95 transition-all text-sm whitespace-nowrap"
+          >
+            + Compose Review
+          </button>
+        </div>
+      </div>
+
+      {/* Metrics Dashboard */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Reviews</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1.5">{totalReviews}</h3>
+          </div>
+          <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-2xl">
+            <Quote size={20} />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Public / Live</p>
+            <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1.5">{publicReviews}</h3>
+          </div>
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-2xl">
+            <Eye size={20} />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Private / Hidden</p>
+            <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1.5">{privateReviews}</h3>
+          </div>
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-2xl">
+            <EyeOff size={20} />
           </div>
         </div>
       </div>
@@ -110,12 +160,12 @@ const WrittenTestimonialList = () => {
           <p className="text-slate-500 font-medium">Opening Archive...</p>
         </div>
       ) : filteredTestimonials.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-16 text-center border-2 border-dashed border-slate-100 dark:border-slate-800">
-          <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-16 text-center border border-slate-100 dark:border-slate-800/60 shadow-sm">
+          <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
             <Quote size={32} className="text-slate-300" />
           </div>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Stories Found</h3>
-          <p className="text-slate-500 max-w-sm mx-auto">Your review archive is empty. Start by adding a new couple story.</p>
+          <p className="text-slate-500 max-w-sm mx-auto">Your review archive is empty. Start by composing a new couple story.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -123,11 +173,11 @@ const WrittenTestimonialList = () => {
             {filteredTestimonials.map((item) => (
               <motion.div
                 layout
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
+                exit={{ opacity: 0, scale: 0.98 }}
                 key={item._id}
-                className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500"
+                className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-800/80 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Status Badge */}
                 <div className={`absolute top-6 right-6 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -140,8 +190,8 @@ const WrittenTestimonialList = () => {
 
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Avatar Section */}
-                  <div className="shrink-0">
-                    <div className="size-24 rounded-2xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800">
+                  <div className="shrink-0 flex items-start">
+                    <div className="size-24 rounded-2xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800/80 ring-4 ring-indigo-50/50 dark:ring-slate-800/30">
                       <img 
                         src={getCdnUrl(item.profileImage) || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=200&q=80"} 
                         alt={item.name} 
@@ -152,16 +202,17 @@ const WrittenTestimonialList = () => {
 
                   {/* Content Section */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2.5 flex-wrap mb-2">
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{item.name}</h3>
-                      <div className="flex items-center gap-0.5 text-amber-400">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} size={12} fill={i < item.rating ? "currentColor" : "none"} />
-                        ))}
-                      </div>
+                      {item.isVerifiedUser && (
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-100/60 dark:border-emerald-900">
+                          <ShieldCheck size={10} className="shrink-0" />
+                          Verified User
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-400 mb-4">
+                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-400 mb-5">
                       <span className="flex items-center gap-1.5">
                         <MapPin size={14} className="text-indigo-500" />
                         {item.destination}
@@ -170,12 +221,17 @@ const WrittenTestimonialList = () => {
                         <Calendar size={14} className="text-slate-400" />
                         {new Date(item.travelDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </span>
+                      <div className="flex items-center gap-0.5 text-amber-400">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} size={13} fill={i < item.rating ? "currentColor" : "none"} />
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="relative">
-                      <Quote className="absolute -left-2 -top-2 text-indigo-500/10" size={32} />
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic line-clamp-3 pl-4">
-                        {item.message}
+                    <div className="relative bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                      <Quote className="absolute -left-2 -top-3 text-indigo-500/10 dark:text-indigo-400/5" size={36} />
+                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic line-clamp-4 pl-3 font-medium">
+                        "{item.message}"
                       </p>
                     </div>
                   </div>
@@ -184,16 +240,16 @@ const WrittenTestimonialList = () => {
                 {/* Actions Footer */}
                 <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Controls</span>
+                     <span className="text-[10px] font-bold text-slate-300 dark:text-slate-500 uppercase tracking-widest">Controls</span>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => toggleVisibility(item._id, item.toShow)}
-                      className={`p-2 rounded-xl transition-all ${
+                      className={`p-2.5 rounded-xl transition-all ${
                         item.toShow 
-                          ? "text-indigo-600 bg-indigo-50 hover:bg-indigo-100" 
-                          : "text-slate-400 bg-slate-50 hover:bg-slate-100"
+                          ? "text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50" 
+                          : "text-slate-400 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                       }`}
                       title={item.toShow ? "Make Private" : "Make Public"}
                     >
@@ -202,7 +258,7 @@ const WrittenTestimonialList = () => {
                     
                     <button
                       onClick={() => handleDelete(item._id)}
-                      className="p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                      className="p-2.5 text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 rounded-xl transition-all"
                       title="Delete Story"
                     >
                       <Trash2 size={18} />

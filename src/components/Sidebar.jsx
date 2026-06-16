@@ -85,6 +85,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/resorts')) toggleMenu('resorts', true)
     if (path.includes('/testimonials/video')) toggleMenu('videoReviews', true)
     if (path.includes('/testimonials/written')) toggleMenu('writtenReviews', true)
+    if (path.includes('/testimonials/written-list') || path.includes('/itineraries/reviews')) toggleMenu('reviews', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
     if (path.includes('/articles')) toggleMenu('articles', true)
     if (path.includes('/giftcards')) toggleMenu('giftcards', true)
@@ -158,6 +159,20 @@ const Sidebar = ({ open, setOpen }) => {
              Booked Packages
           </NavLink>
 
+          <NavDropdown 
+            title="Reviews" 
+            icon={MessageSquare} 
+            isOpen={openMenus.reviews} 
+            onClick={() => toggleMenu('reviews')}
+            isActive={location.pathname.includes('/testimonials/written-list') || location.pathname.includes('/itineraries/reviews') || location.pathname.includes('/testimonials/written')}
+          >
+            <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
+            <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>General Reviews</NavLink>
+            {role === 'superadmin' && (
+              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Reviews</NavLink>
+            )}
+          </NavDropdown>
+
           {role === 'superadmin' && (
             <NavDropdown 
               title="Users" 
@@ -192,9 +207,6 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/itineraries/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Itinerary</NavLink>
             <NavLink to="/itineraries/list" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary List</NavLink>
-            {role === 'superadmin' && (
-              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Review Approvals</NavLink>
-            )}
           </NavDropdown>
 
           <NavDropdown 
@@ -241,7 +253,6 @@ const Sidebar = ({ open, setOpen }) => {
               
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 border-t border-slate-50 dark:border-slate-800/50 mt-2">Written Reviews</div>
               <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
-              <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>Review Archive</NavLink>
             </div>
           </NavDropdown>
 

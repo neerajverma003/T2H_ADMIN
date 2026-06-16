@@ -193,7 +193,6 @@ const EditDestination = () => {
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
               <Pencil className="text-indigo-600" /> EDIT DESTINATION
             </h1>
-            <p className="text-slate-500 font-medium mt-1">Modifying {data.destination_name || 'Destination'}</p>
           </div>
           <div className="flex items-center gap-3">
              <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl flex">
