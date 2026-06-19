@@ -45,7 +45,11 @@ const CreateItineriesPage = () => {
                         destination_type: data.selected_destination?.domestic_or_international?.toLowerCase() || data.destination_type || "domestic",
                         selected_destination_id: data.selected_destination?._id || data.selected_destination || "",
                         duration: data.duration || "",
-                        days_information: data.days_information || [],
+                        days_information: (data.days_information || []).map(day => ({
+                            ...day,
+                            day_images: day.day_images || (day.day_image ? [day.day_image] : []),
+                            day_images_files: []
+                        })),
                         destination_detail: data.destination_detail || "",
                         destination_images: data.destination_images || [],
                         destination_images_files: [],
@@ -68,10 +72,10 @@ const CreateItineriesPage = () => {
                 toast.error("Failed to load itinerary data");
             }
         };
-
+ 
         fetchItinerary();
     }, [id]);
-
+ 
     const [formData, setFormData] = useState({
         title: "",
         travel_type: "honeymoon",
@@ -91,7 +95,9 @@ const CreateItineriesPage = () => {
             weather: "",
             date: "",
             day_image: "",
-            day_image_file: null
+            day_image_file: null,
+            day_images: [],
+            day_images_files: []
         }],
         destination_detail: "",
         destination_images: [],
@@ -128,6 +134,8 @@ const CreateItineriesPage = () => {
                     date: prev.days_information[i]?.date || "",
                     day_image: prev.days_information[i]?.day_image || "",
                     day_image_file: null,
+                    day_images: prev.days_information[i]?.day_images || [],
+                    day_images_files: prev.days_information[i]?.day_images_files || []
                 }));
                 return { ...prev, days_information: updated };
             });
@@ -148,7 +156,9 @@ const CreateItineriesPage = () => {
                     weather: "",
                     date: "",
                     day_image: "",
-                    day_image_file: null
+                    day_image_file: null,
+                    day_images: [],
+                    day_images_files: []
                 }]
             }));
             return;
@@ -257,10 +267,17 @@ const CreateItineriesPage = () => {
             const imageUploadPromises = (formData.destination_images_files || []).map(file => uploadFile(file, 'images'));
             const thumbUploadPromises = (formData.destination_thumbnails_files || []).map(file => uploadFile(file, 'thumbnails'));
 
-            // 2. Upload Day Images in parallel
-            const dayImagePromises = formData.days_information.map(day =>
-                day.day_image_file ? uploadFile(day.day_image_file, 'days') : Promise.resolve(null)
-            );
+            // 2. Upload Day Images in parallel (multiple files per day)
+            const dayImagesPromises = formData.days_information.map(async (day) => {
+                const newUploadPromises = (day.day_images_files || []).map(file => uploadFile(file, 'days'));
+                const newKeys = await Promise.all(newUploadPromises);
+                return {
+                    day_images: [
+                        ...(day.day_images || []),
+                        ...newKeys.filter(Boolean)
+                    ]
+                };
+            });
 
             // 3. Upload Review Profile Images in parallel
             const reviewImagePromises = (formData.reviews || []).map(rev =>
@@ -268,16 +285,19 @@ const CreateItineriesPage = () => {
             );
 
             // 4. Wait for everything
-            const [uploadedImageKeys, uploadedThumbnailKeys, dayImageKeys, reviewImageKeys] = await Promise.all([
+            const [uploadedImageKeys, uploadedThumbnailKeys, uploadedDayImagesResults, reviewImageKeys] = await Promise.all([
                 Promise.all(imageUploadPromises),
                 Promise.all(thumbUploadPromises),
-                Promise.all(dayImagePromises),
+                Promise.all(dayImagesPromises),
                 Promise.all(reviewImagePromises)
             ]);
 
             const updatedDaysInfo = formData.days_information.map((day, idx) => {
                 const dayObj = { ...day };
-                if (dayImageKeys[idx]) dayObj.day_image = dayImageKeys[idx];
+                dayObj.day_images = uploadedDayImagesResults[idx].day_images;
+                // Maintain backward compatibility by keeping day_image as the first element of day_images
+                dayObj.day_image = dayObj.day_images[0] || "";
+                delete dayObj.day_images_files;
                 delete dayObj.day_image_file;
                 return dayObj;
             });
@@ -333,6 +353,8 @@ const CreateItineriesPage = () => {
                 date: prev.days_information[i]?.date || "",
                 day_image: prev.days_information[i]?.day_image || "",
                 day_image_file: null,
+                day_images: prev.days_information[i]?.day_images || [],
+                day_images_files: prev.days_information[i]?.day_images_files || []
             }));
             return { ...prev, days_information: updated };
         });
@@ -377,16 +399,22 @@ const CreateItineriesPage = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
-                    <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                    <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
-                    <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
-                    <DayInfoSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
-                    <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                    <HotelDetailsSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
-                    <PricingSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                    <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
-                </fieldset>
+                <div className="space-y-8">
+                    <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
+                        <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                        <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
+                        <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
+                    </fieldset>
+                
+                    <DayInfoSection isViewMode={isViewMode} formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
+                    
+                    <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
+                        <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                        <HotelDetailsSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
+                        <PricingSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
+                        <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
+                    </fieldset>
+                </div>
 
                 {!isViewMode && (
                     <div className="flex justify-end pt-12">

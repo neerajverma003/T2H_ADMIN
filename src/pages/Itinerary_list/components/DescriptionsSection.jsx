@@ -125,7 +125,7 @@ const DescriptionsSection = ({
       <div>
         <label className={labelStyle}>
           <ListPlus className="mr-2 inline text-pink-500" size={16} />
-          Honeymoon Inclusions
+          Honeymoon
           <span className="ml-1 text-xs text-muted-foreground">
             (comma separated)
           </span>

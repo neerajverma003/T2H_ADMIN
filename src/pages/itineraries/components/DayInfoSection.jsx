@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
 const DayInfoSection = ({
+    isViewMode = false,
     formData,
     handleArrayChange,
     handleAddItem,
@@ -75,6 +76,7 @@ const DayInfoSection = ({
                                     <div className="flex-grow w-full">
                                         <div className="relative group/input">
                                             <input
+                                                disabled={isViewMode}
                                                 type="text"
                                                 name="locationName"
                                                 value={item.locationName}
@@ -88,15 +90,15 @@ const DayInfoSection = ({
                                         </div>
                                     </div>
 
-
-
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveItem(index, "days_information")}
-                                        className="md:absolute -right-4 -top-4 size-10 bg-white dark:bg-slate-800 text-red-500 rounded-full shadow-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    {!isViewMode && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveItem(index, "days_information")}
+                                            className="md:absolute -right-4 -top-4 size-10 bg-white dark:bg-slate-800 text-red-500 rounded-full shadow-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* TABS + CONTENT AREA */}
@@ -134,53 +136,85 @@ const DayInfoSection = ({
                                                 initial={{ opacity: 0, x: 10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: -10 }}
-                                                className="p-8 h-[360px] flex items-center justify-center"
+                                                className="p-8 h-[360px] overflow-y-auto no-scrollbar"
                                             >
-                                                <label className="group relative block w-full h-full rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 cursor-pointer overflow-hidden transition-all hover:border-blue-500 hover:bg-white dark:hover:bg-slate-800">
-                                                    {item.day_image_file || item.day_image ? (
-                                                        <div className="relative h-full w-full">
-                                                            <img 
-                                                                src={item.day_image_file ? URL.createObjectURL(item.day_image_file) : item.day_image} 
-                                                                alt="" 
-                                                                className="w-full h-full object-cover" 
-                                                            />
-                                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                                                                <div className="px-6 py-3 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-3">
-                                                                    <UploadCloud size={16} /> Change Daily Highlight
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-6 w-full">
+                                                    {/* 1. Uploaded URLs */}
+                                                    {(item.day_images || []).map((imgUrl, urlIdx) => (
+                                                        <div key={`url-${urlIdx}`} className="aspect-square rounded-2xl overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-sm group">
+                                                            <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                                                            {!isViewMode && (
+                                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const updatedUrls = (item.day_images || []).filter((_, idx) => idx !== urlIdx);
+                                                                            handleArrayChange({ target: { name: 'day_images', value: updatedUrls } }, index, "days_information");
+                                                                        }}
+                                                                        className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-lg transition-all"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
                                                                 </div>
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        handleArrayChange({ target: { name: 'day_image_file', value: null, day_image: '' } }, index, "days_information");
-                                                                    }}
-                                                                    className="p-4 bg-red-600 text-white rounded-2xl hover:bg-red-700 shadow-xl"
-                                                                >
-                                                                    <X size={20} />
-                                                                </button>
-                                                            </div>
+                                                            )}
                                                         </div>
-                                                    ) : (
-                                                        <div className="h-full flex flex-col items-center justify-center gap-4">
-                                                            <div className="size-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                                <ImageIcon size={28} className="text-blue-600" />
+                                                    ))}
+
+                                                    {/* 2. New upload previews */}
+                                                    {(item.day_images_files || []).map((file, fileIdx) => (
+                                                        <div key={`file-${fileIdx}`} className="aspect-square rounded-2xl overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-sm group">
+                                                            <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                                                            {!isViewMode && (
+                                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const updatedFiles = (item.day_images_files || []).filter((_, idx) => idx !== fileIdx);
+                                                                            handleArrayChange({ target: { name: 'day_images_files', value: updatedFiles } }, index, "days_information");
+                                                                        }}
+                                                                        className="p-3 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-lg transition-all"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+
+                                                    {/* 3. Upload Trigger Button (only if total count < 10) */}
+                                                    {!isViewMode && ((item.day_images || []).length + (item.day_images_files || []).length) < 10 && (
+                                                        <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 cursor-pointer overflow-hidden transition-all hover:border-blue-500 hover:bg-white dark:hover:bg-slate-800 flex flex-col items-center justify-center gap-2 group">
+                                                            <div className="size-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                                                <Plus size={20} className="text-blue-600" />
                                                             </div>
-                                                            <div className="text-center">
-                                                                <p className="text-sm font-black text-slate-950 dark:text-white uppercase tracking-tight">Day Highlight Image</p>
-                                                                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-1">1700x600 Cinema Mode</p>
-                                                            </div>
+                                                            <span className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest text-center">Add Image</span>
+                                                            <input 
+                                                                type="file" 
+                                                                accept="image/*" 
+                                                                multiple
+                                                                onChange={(e) => {
+                                                                    const files = Array.from(e.target.files);
+                                                                    const currentCount = (item.day_images || []).length + (item.day_images_files || []).length;
+                                                                    const spaceLeft = 10 - currentCount;
+                                                                    if (spaceLeft > 0) {
+                                                                        const filesToAdd = files.slice(0, spaceLeft);
+                                                                        const updatedFiles = [...(item.day_images_files || []), ...filesToAdd];
+                                                                        handleArrayChange({ target: { name: 'day_images_files', value: updatedFiles } }, index, "days_information");
+                                                                    }
+                                                                }} 
+                                                                className="hidden" 
+                                                            />
+                                                        </label>
+                                                    )}
+
+                                                    {/* Empty state message if in view mode and no images */}
+                                                    {isViewMode && (item.day_images || []).length === 0 && (
+                                                        <div className="col-span-full h-full flex flex-col items-center justify-center gap-3 py-10">
+                                                            <ImageIcon size={36} className="text-slate-300" />
+                                                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">No highlight images added</p>
                                                         </div>
                                                     )}
-                                                    <input 
-                                                        type="file" 
-                                                        accept="image/*" 
-                                                        onChange={(e) => {
-                                                            const file = e.target.files[0];
-                                                            if (file) handleArrayChange({ target: { name: 'day_image_file', value: file } }, index, "days_information");
-                                                        }} 
-                                                        className="hidden" 
-                                                    />
-                                                </label>
+                                                </div>
                                             </motion.div>
                                         ) : (
                                             <motion.div 
@@ -191,32 +225,36 @@ const DayInfoSection = ({
                                                 className="h-[360px] flex flex-col"
                                             >
                                                 {/* EDITOR TOOLBAR */}
-                                                <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-700 flex flex-wrap items-center gap-1 bg-white/50 dark:bg-slate-800/50">
-                                                    <div className="flex items-center gap-4 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer mr-4 border-r border-slate-100 dark:border-slate-600">
-                                                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Normal</span>
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <div className="w-2 h-0.5 bg-slate-400"></div>
-                                                            <div className="w-2 h-0.5 bg-slate-400"></div>
+                                                {!isViewMode && (
+                                                    <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-700 flex flex-wrap items-center gap-1 bg-white/50 dark:bg-slate-800/50">
+                                                        <div className="flex items-center gap-4 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer mr-4 border-r border-slate-100 dark:border-slate-600">
+                                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Normal</span>
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <div className="w-2 h-0.5 bg-slate-400"></div>
+                                                                <div className="w-2 h-0.5 bg-slate-400"></div>
+                                                            </div>
                                                         </div>
+                                                        
+                                                        {[Bold, Italic, Underline, Strikethrough].map((Icon, i) => (
+                                                            <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        ))}
+                                                        <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
+                                                        {[List, ListOrdered, AlignLeft].map((Icon, i) => (
+                                                            <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        ))}
+                                                        <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
+                                                        {[Link, ImageIcon, Type].map((Icon, i) => (
+                                                            <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
+                                                        ))}
                                                     </div>
-                                                    
-                                                    {[Bold, Italic, Underline, Strikethrough].map((Icon, i) => (
-                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
-                                                    ))}
-                                                    <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
-                                                    {[List, ListOrdered, AlignLeft].map((Icon, i) => (
-                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
-                                                    ))}
-                                                    <div className="w-px h-6 bg-slate-100 dark:bg-slate-700 mx-2"></div>
-                                                    {[Link, ImageIcon, Type].map((Icon, i) => (
-                                                        <button type="button" key={i} className="p-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"><Icon size={18} /></button>
-                                                    ))}
-                                                </div>
+                                                )}
 
                                                 {/* EDITOR CONTENT - BORDERED AS PER IMAGE */}
                                                 <div className="flex-1 p-6">
                                                     <div className="w-full h-full border border-slate-900 dark:border-slate-200/20 rounded-xl overflow-hidden relative group">
                                                         <textarea
+                                                            key={currentTab}
+                                                            disabled={isViewMode}
                                                             name={
                                                                 currentTab === "Day Itinerary" ? "locationDetail" :
                                                                 currentTab === "Sightseeing" ? "sightseeing" :
@@ -224,10 +262,10 @@ const DayInfoSection = ({
                                                                 currentTab === "Weather" ? "weather" : "locationDetail"
                                                             }
                                                             value={
-                                                                currentTab === "Day Itinerary" ? item.locationDetail :
-                                                                currentTab === "Sightseeing" ? item.sightseeing :
-                                                                currentTab === "Transfer" ? item.transfer :
-                                                                currentTab === "Weather" ? item.weather : item.locationDetail
+                                                                currentTab === "Day Itinerary" ? item.locationDetail || "" :
+                                                                currentTab === "Sightseeing" ? item.sightseeing || "" :
+                                                                currentTab === "Transfer" ? item.transfer || "" :
+                                                                currentTab === "Weather" ? item.weather || "" : item.locationDetail || ""
                                                             }
                                                             onChange={(e) => handleArrayChange(e, index, "days_information")}
                                                             className="w-full h-full p-6 border-none focus:ring-0 text-slate-700 dark:text-slate-300 text-lg leading-relaxed bg-transparent resize-none placeholder:text-slate-500 transition-all font-medium"
@@ -246,27 +284,29 @@ const DayInfoSection = ({
             </div>
 
             {/* ADD DAY ACTION */}
-            <div className="flex justify-center">
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={() => handleAddItem("days_information", {
-                        day: `${formData.days_information.length + 1}`,
-                        locationName: "",
-                        locationDetail: "",
-                        sightseeing: "",
-                        transfer: "",
-                        weather: "",
-                        date: "",
-                        day_image: "",
-                        day_image_file: null,
-                    })}
-                    className="flex items-center gap-4 px-12 py-6 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/40"
-                >
-                    <Plus size={20} /> Extend Itinerary Roadmap
-                </motion.button>
-            </div>
+            {!isViewMode && (
+                <div className="flex justify-center">
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() => handleAddItem("days_information", {
+                            day: `${formData.days_information.length + 1}`,
+                            locationName: "",
+                            locationDetail: "",
+                            sightseeing: "",
+                            transfer: "",
+                            weather: "",
+                            date: "",
+                            day_image: "",
+                            day_image_file: null,
+                        })}
+                        className="flex items-center gap-4 px-12 py-6 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/40"
+                    >
+                        <Plus size={20} /> Extend Itinerary Roadmap
+                    </motion.button>
+                </div>
+            )}
         </div>
     );
 };
