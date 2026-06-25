@@ -154,24 +154,9 @@ const Sidebar = ({ open, setOpen }) => {
              Dashboard
           </NavLink>
 
-          <NavLink to="/bookings" onClick={() => setOpen(false)} className={navLinkClass}>
-             <CheckSquare size={18} strokeWidth={2} />
-             Booked Packages
-          </NavLink>
+          
 
-          <NavDropdown 
-            title="Reviews" 
-            icon={MessageSquare} 
-            isOpen={openMenus.reviews} 
-            onClick={() => toggleMenu('reviews')}
-            isActive={location.pathname.includes('/testimonials/written-list') || location.pathname.includes('/itineraries/reviews') || location.pathname.includes('/testimonials/written')}
-          >
-            <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
-            <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>General Reviews</NavLink>
-            {role === 'superadmin' && (
-              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Reviews</NavLink>
-            )}
-          </NavDropdown>
+         
 
           {role === 'superadmin' && (
             <NavDropdown 
@@ -229,6 +214,25 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/giftcards/verify" onClick={() => setOpen(false)} className={subLinkClass}>Verify & Manage</NavLink>
             <NavLink to="/giftcards/bulk" onClick={() => setOpen(false)} className={subLinkClass}>Bulk Issue</NavLink>
+          </NavDropdown>
+
+          <NavLink to="/bookings" onClick={() => setOpen(false)} className={navLinkClass}>
+             <CheckSquare size={18} strokeWidth={2} />
+             Booked Packages
+          </NavLink>
+
+           <NavDropdown 
+            title="Reviews" 
+            icon={MessageSquare} 
+            isOpen={openMenus.reviews} 
+            onClick={() => toggleMenu('reviews')}
+            isActive={location.pathname.includes('/testimonials/written-list') || location.pathname.includes('/itineraries/reviews') || location.pathname.includes('/testimonials/written')}
+          >
+            <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
+            <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>General Reviews</NavLink>
+            {role === 'superadmin' && (
+              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Reviews</NavLink>
+            )}
           </NavDropdown>
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</p>
