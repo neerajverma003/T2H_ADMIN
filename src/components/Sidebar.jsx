@@ -31,8 +31,8 @@ const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive })
         onClick={onClick}
         className={`
           flex w-full items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200
-          ${isActive 
-            ? "bg-indigo-50 text-indigo-600" 
+          ${isActive
+            ? "bg-indigo-50 text-indigo-600"
             : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50"}
         `}
       >
@@ -109,19 +109,17 @@ const Sidebar = ({ open, setOpen }) => {
 
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 mb-1
-     ${
-       isActive
-         ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50"
-     }`
+     ${isActive
+      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50"
+    }`
 
   const subLinkClass = ({ isActive }) =>
     `flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all duration-200
-     ${
-       isActive
-         ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20"
-         : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/30"
-     }`
+     ${isActive
+      ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20"
+      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+    }`
 
   return (
     <aside
@@ -133,7 +131,7 @@ const Sidebar = ({ open, setOpen }) => {
       <div className="p-6 mb-2">
         <div className="flex items-center gap-3">
           <div className="size-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-             <Sparkles className="text-white" size={20} strokeWidth={2.5} />
+            <Sparkles className="text-white" size={20} strokeWidth={2.5} />
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-none uppercase">
@@ -148,21 +146,21 @@ const Sidebar = ({ open, setOpen }) => {
       <nav className="flex-1 overflow-y-auto px-4 pb-6 custom-scrollbar">
         <div className="space-y-1">
           <p className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main Hub</p>
-          
+
           <NavLink to="/" onClick={() => setOpen(false)} className={navLinkClass}>
-             <LayoutDashboard size={18} strokeWidth={2} />
-             Dashboard
+            <LayoutDashboard size={18} strokeWidth={2} />
+            Dashboard
           </NavLink>
 
-          
 
-         
+
+
 
           {role === 'superadmin' && (
-            <NavDropdown 
-              title="Users" 
-              icon={Users} 
-              isOpen={openMenus.users} 
+            <NavDropdown
+              title="Users"
+              icon={Users}
+              isOpen={openMenus.users}
               onClick={() => toggleMenu('users')}
               isActive={location.pathname.includes('/users')}
             >
@@ -172,10 +170,10 @@ const Sidebar = ({ open, setOpen }) => {
             </NavDropdown>
           )}
 
-          <NavDropdown 
-            title="Destinations" 
-            icon={MapPin} 
-            isOpen={openMenus.destinations} 
+          <NavDropdown
+            title="Destinations"
+            icon={MapPin}
+            isOpen={openMenus.destinations}
             onClick={() => toggleMenu('destinations')}
             isActive={location.pathname.includes('/destinations')}
           >
@@ -183,10 +181,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/destinations/city" onClick={() => setOpen(false)} className={subLinkClass}>City Manager</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Itineraries" 
-            icon={MapPin} 
-            isOpen={openMenus.itineraries} 
+          <NavDropdown
+            title="Itineraries"
+            icon={MapPin}
+            isOpen={openMenus.itineraries}
             onClick={() => toggleMenu('itineraries')}
             isActive={location.pathname.includes('/itineraries')}
           >
@@ -194,10 +192,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/itineraries/list" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary List</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Resorts" 
-            icon={MapPin} 
-            isOpen={openMenus.resorts} 
+          <NavDropdown
+            title="Resorts"
+            icon={MapPin}
+            isOpen={openMenus.resorts}
             onClick={() => toggleMenu('resorts')}
             isActive={location.pathname.includes('/resorts')}
           >
@@ -205,10 +203,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/resorts/list" onClick={() => setOpen(false)} className={subLinkClass}>Resort Directory</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Gift Cards" 
-            icon={Sparkles} 
-            isOpen={openMenus.giftcards} 
+          <NavDropdown
+            title="Gift Cards"
+            icon={Sparkles}
+            isOpen={openMenus.giftcards}
             onClick={() => toggleMenu('giftcards')}
             isActive={location.pathname.includes('/giftcards')}
           >
@@ -217,14 +215,14 @@ const Sidebar = ({ open, setOpen }) => {
           </NavDropdown>
 
           <NavLink to="/bookings" onClick={() => setOpen(false)} className={navLinkClass}>
-             <CheckSquare size={18} strokeWidth={2} />
-             Booked Packages
+            <CheckSquare size={18} strokeWidth={2} />
+            Booked Packages
           </NavLink>
 
-           <NavDropdown 
-            title="Reviews" 
-            icon={MessageSquare} 
-            isOpen={openMenus.reviews} 
+          <NavDropdown
+            title="Reviews"
+            icon={MessageSquare}
+            isOpen={openMenus.reviews}
             onClick={() => toggleMenu('reviews')}
             isActive={location.pathname.includes('/testimonials/written-list') || location.pathname.includes('/itineraries/reviews') || location.pathname.includes('/testimonials/written')}
           >
@@ -238,15 +236,15 @@ const Sidebar = ({ open, setOpen }) => {
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</p>
 
           <NavLink to="/gallery/images" onClick={() => setOpen(false)} className={navLinkClass}>
-             <ImageIcon size={18} strokeWidth={2} />
-             Customer Gallery
+            <ImageIcon size={18} strokeWidth={2} />
+            Customer Gallery
           </NavLink>
 
           {/* Testimonials */}
-          <NavDropdown 
-            title="Testimonials" 
-            icon={Sparkles} 
-            isOpen={openMenus.testimonials} 
+          <NavDropdown
+            title="Testimonials"
+            icon={Sparkles}
+            isOpen={openMenus.testimonials}
             onClick={() => toggleMenu('testimonials')}
             isActive={location.pathname.includes('/testimonials')}
           >
@@ -254,16 +252,16 @@ const Sidebar = ({ open, setOpen }) => {
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-2 pb-1">Video Stories</div>
               <NavLink to="/testimonials/video" onClick={() => setOpen(false)} className={subLinkClass}>Upload Video</NavLink>
               <NavLink to="/testimonials/video-list" onClick={() => setOpen(false)} className={subLinkClass}>Video Storyboard</NavLink>
-              
+
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 border-t border-slate-50 dark:border-slate-800/50 mt-2">Written Reviews</div>
               <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
             </div>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Hero Media" 
-            icon={Video} 
-            isOpen={openMenus.hero} 
+          <NavDropdown
+            title="Hero Media"
+            icon={Video}
+            isOpen={openMenus.hero}
             onClick={() => toggleMenu('hero')}
             isActive={location.pathname.includes("hero")}
           >
@@ -271,10 +269,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/hero-media" onClick={() => setOpen(false)} className={subLinkClass}>Hero Media</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Blog" 
-            icon={ImageIcon} 
-            isOpen={openMenus.blogs} 
+          <NavDropdown
+            title="Blog"
+            icon={ImageIcon}
+            isOpen={openMenus.blogs}
             onClick={() => toggleMenu('blogs')}
             isActive={location.pathname.includes('/blogs')}
           >
@@ -282,10 +280,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/blogs/list" onClick={() => setOpen(false)} className={subLinkClass}>Blog List</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Articles (Spotlight & Trending)" 
-            icon={FileText} 
-            isOpen={openMenus.articles} 
+          <NavDropdown
+            title="Articles (Spotlight & Trending)"
+            icon={FileText}
+            isOpen={openMenus.articles}
             onClick={() => toggleMenu('articles')}
             isActive={location.pathname.includes('/articles')}
           >
@@ -295,10 +293,10 @@ const Sidebar = ({ open, setOpen }) => {
 
           <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leads & Policy</p>
 
-          <NavDropdown 
-            title="Leads" 
-            icon={MessageSquare} 
-            isOpen={openMenus.leads} 
+          <NavDropdown
+            title="Leads"
+            icon={MessageSquare}
+            isOpen={openMenus.leads}
             onClick={() => toggleMenu('leads')}
             isActive={location.pathname.includes('/leads')}
           >
@@ -311,10 +309,10 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/leads/subscribe" onClick={() => setOpen(false)} className={subLinkClass}>Blog Newsletter</NavLink>
           </NavDropdown>
 
-          <NavDropdown 
-            title="Compliance" 
-            icon={FileText} 
-            isOpen={openMenus.terms} 
+          <NavDropdown
+            title="Compliance"
+            icon={FileText}
+            isOpen={openMenus.terms}
             onClick={() => toggleMenu('terms')}
             isActive={location.pathname.includes('/terms') || location.pathname.includes('/policy')}
           >
@@ -326,23 +324,23 @@ const Sidebar = ({ open, setOpen }) => {
           {role === 'superadmin' && (
             <>
               <NavLink to="/reports" onClick={() => setOpen(false)} className={navLinkClass}>
-                 <BarChart2 size={18} strokeWidth={2} />
-                 Analytics
+                <BarChart2 size={18} strokeWidth={2} />
+                Analytics
               </NavLink>
-              
+
               <NavLink to="/audit-logs" onClick={() => setOpen(false)} className={navLinkClass}>
-                 <ShieldCheck size={18} strokeWidth={2} />
-                 Security Audit
+                <ShieldCheck size={18} strokeWidth={2} />
+                Security Audit
               </NavLink>
             </>
           )}
           <NavLink to="/about-settings" onClick={() => setOpen(false)} className={navLinkClass}>
-             <Info size={18} strokeWidth={2} />
-             About Us Settings
+            <Info size={18} strokeWidth={2} />
+            About Us Settings
           </NavLink>
           <NavLink to="/settings" onClick={() => setOpen(false)} className={navLinkClass}>
-             <Settings size={18} strokeWidth={2} />
-             Settings
+            <Settings size={18} strokeWidth={2} />
+            Settings
           </NavLink>
         </div>
       </nav>

@@ -1,28 +1,52 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../stores/authStores';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Gift, User, Mail, ShieldAlert, CheckCircle2, AlertTriangle, XCircle, Clock, ChevronDown, ChevronUp, Maximize2, Copy } from 'lucide-react';
+import { Search, Gift, User, Mail, ShieldAlert, CheckCircle2, AlertTriangle, XCircle, Clock, ChevronDown, ChevronUp, Maximize2, Copy, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const VerifyGiftCard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [giftCards, setGiftCards] = useState([]);
-  const [filteredCards, setFilteredCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
-    fetchAllCards();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchAllCards(page, searchQuery);
+    }, 500); // 500ms debounce for search
 
-  const fetchAllCards = async () => {
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, page]);
+
+  const fetchAllCards = async (currentPage, search) => {
     setLoading(true);
     try {
-      const response = await apiClient.get(`/admin/giftcard/all`);
+      const response = await apiClient.get(`/admin/giftcard/all?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(search)}`);
       if (response.data.success) {
         setGiftCards(response.data.giftCards);
-        setFilteredCards(response.data.giftCards);
+        setTotalPages(response.data.pagination.totalPages);
+        
+        // Auto-expand logic if 1 result or exact match
+        const cards = response.data.giftCards;
+        const lowerQuery = search.toLowerCase();
+        if (search && cards.length === 1) {
+          setExpandedId(cards[0]._id);
+        } else if (search) {
+          const exactMatch = cards.find(c => c.public_code?.toLowerCase() === lowerQuery);
+          if (exactMatch) {
+            setExpandedId(exactMatch._id);
+          } else {
+            setExpandedId(null);
+          }
+        } else {
+            setExpandedId(null);
+        }
       } else {
         toast.error(response.data.msg || 'Failed to fetch gift cards.');
       }
@@ -34,35 +58,8 @@ const VerifyGiftCard = () => {
   };
 
   const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    if (!query) {
-      setFilteredCards(giftCards);
-      setExpandedId(null);
-      return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const filtered = giftCards.filter(card => 
-      card.public_code?.toLowerCase().includes(lowerQuery) ||
-      card.sender_user_id?.email?.toLowerCase().includes(lowerQuery) ||
-      card.recipient_email?.toLowerCase().includes(lowerQuery)
-    );
-    
-    setFilteredCards(filtered);
-
-    // Auto-expand if exact code match or only 1 result
-    if (filtered.length === 1) {
-      setExpandedId(filtered[0]._id);
-    } else {
-      const exactMatch = filtered.find(c => c.public_code?.toLowerCase() === lowerQuery);
-      if (exactMatch) {
-        setExpandedId(exactMatch._id);
-      } else {
-        setExpandedId(null);
-      }
-    }
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset to first page on new search
   };
 
   const handleStatusUpdate = async (id, currentStatus, newStatus) => {
@@ -136,7 +133,7 @@ const VerifyGiftCard = () => {
         <div className="flex justify-center items-center py-20">
           <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
-      ) : filteredCards.length === 0 ? (
+      ) : giftCards.length === 0 ? (
         <div className="bg-white rounded-3xl border border-gray-200 border-dashed p-12 text-center">
           <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
             <Search size={32} />
@@ -146,7 +143,7 @@ const VerifyGiftCard = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filteredCards.map((card, idx) => {
+          {giftCards.map((card, idx) => {
             const statusConfig = getStatusConfig(card.status);
             const isExpanded = expandedId === card._id;
             
@@ -334,6 +331,37 @@ const VerifyGiftCard = () => {
               </motion.div>
             );
           })}
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-6">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+                className={`px-4 py-2 rounded-xl font-bold text-sm transition-colors ${
+                  page === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                }`}
+              >
+                Previous
+              </button>
+              <span className="text-sm font-semibold text-gray-600">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={page === totalPages}
+                className={`px-4 py-2 rounded-xl font-bold text-sm transition-colors ${
+                  page === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
