@@ -60,6 +60,7 @@ import ReferralSettings from "./pages/settings/ReferralSettings"
 import NotificationRecipients from "./pages/settings/NotificationRecipients"
 import GstSettings from "./pages/settings/GstSettings"
 import HomeStatsSettings from "./pages/settings/HomeStatsSettings"
+import ChatbotSettings from "./pages/settings/ChatbotSettings"
 import AuditLogs from "./pages/audit/AuditLogs"
 import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
 import BulkGiftCard from "./pages/giftcards/BulkGiftCard"
@@ -205,6 +206,7 @@ function App() {
             <Route path="settings/referral" element={<ReferralSettings />} />
             <Route path="settings/gst" element={<GstSettings />} />
             <Route path="settings/stats" element={<HomeStatsSettings />} />
+            <Route path="settings/chatbot" element={<ChatbotSettings />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
