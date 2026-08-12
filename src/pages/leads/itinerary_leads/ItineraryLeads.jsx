@@ -1,115 +1,41 @@
 import { useEffect, useState, useMemo } from "react";
 import { apiClient } from "../../../stores/authStores";
-import { 
-    Mail, 
-    MessageSquare, 
-    Trash2, 
-    User, 
-    Phone, 
-    Calendar, 
-    ChevronLeft, 
-    ChevronRight, 
-    Loader2, 
-    Sparkles,
-    CheckCircle2,
-    Search,
-    Inbox,
-    MapPin,
-    Filter
+import {
+  Mail,
+  MessageSquare,
+  Trash2,
+  User,
+  Phone,
+  Calendar,
+  Loader2,
+  Sparkles,
+  CheckCircle2,
+  Search,
+  Inbox,
+  MapPin,
+  Filter,
+  Clock,
+  Eye,
+  X,
+  Package
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
-const ITEMS_PER_PAGE = 10;
+const STATUS_OPTIONS = [
+  { value: "new", label: "PENDING", bg: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
+  { value: "in_progress", label: "IN PROGRESS", bg: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
+  { value: "proposal_sent", label: "PROPOSAL SENT", bg: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
+  { value: "booked", label: "BOOKED", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" }
+];
 
 const ItineraryLeads = () => {
   const [leads, setLeads] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItinerary, setSelectedItinerary] = useState("all");
-  const [openDropdownId, setOpenDropdownId] = useState(null);
-
-  const renderAdditionalDetails = (detailsText) => {
-    if (!detailsText) return null;
-
-    const isStandardFormat = /Addons:|Requests:|DepCity:/i.test(detailsText);
-
-    if (isStandardFormat) {
-      // Extract fields using Regex
-      const addonsMatch = detailsText.match(/Addons:\s*([^.]*)/i);
-      const requestsMatch = detailsText.match(/Requests:\s*([^.]*)/i);
-      const depCityMatch = detailsText.match(/DepCity:\s*(.*)/i);
-
-      const addonsList = addonsMatch && addonsMatch[1] 
-        ? addonsMatch[1].split(',').map(s => s.trim()).filter(Boolean) 
-        : [];
-      const requestsList = requestsMatch && requestsMatch[1] 
-        ? requestsMatch[1].split(',').map(s => s.trim()).filter(Boolean) 
-        : [];
-      const depCity = depCityMatch && depCityMatch[1] 
-        ? depCityMatch[1].trim() 
-        : '';
-
-      const ADDONS_LABELS = {
-        'candle_dinner': 'Candle Light Dinner',
-        'beach_dinner': 'Private Beach Dinner',
-        'couple_spa': 'Couple Spa Therapy',
-        'flower_bed': 'Flower Bed Decor',
-        'photoshoot': 'Pro Couple Photoshoot'
-      };
-
-      return (
-        <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left space-y-3">
-          {depCity && (
-            <div>
-              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Departure City</span>
-              <span className="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200/50 dark:border-slate-700/50">
-                {depCity}
-              </span>
-            </div>
-          )}
-          {addonsList.length > 0 && (
-            <div>
-              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Selected Add-ons</span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {addonsList.map(addon => (
-                  <span key={addon} className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-indigo-100 dark:border-indigo-900/50">
-                    {ADDONS_LABELS[addon] || addon}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {requestsList.length > 0 && (
-            <div>
-              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Special Requests</span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {requestsList.map(req => (
-                  <span key={req} className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-emerald-100 dark:border-emerald-900/50">
-                    {req}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    } else {
-      // Option A: Raw Legacy Note High-Visibility warning box
-      return (
-        <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-left">
-          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 text-amber-850 dark:text-amber-300">
-            <div className="flex items-center gap-2 mb-2 font-black text-[10px] uppercase tracking-widest text-amber-700 dark:text-amber-400">
-              <span>⚠️ Legacy / Custom Note</span>
-            </div>
-            <p className="text-sm font-semibold leading-relaxed whitespace-pre-wrap">{detailsText}</p>
-          </div>
-        </div>
-      );
-    }
-  };
+  const [selectedLead, setSelectedLead] = useState(null); // For Eye Details Modal
 
   const fetchLeads = async () => {
     setIsLoading(true);
@@ -118,7 +44,7 @@ const ItineraryLeads = () => {
       const response = await apiClient.get("/itinerary-leads/all");
       setLeads(response.data.data || []);
     } catch (err) {
-      setError("Failed to synchronize itinerary leads.");
+      setError("Failed to load itinerary leads registry.");
     } finally {
       setIsLoading(false);
     }
@@ -129,12 +55,13 @@ const ItineraryLeads = () => {
   }, []);
 
   const handleDelete = async (_id) => {
-    if (!window.confirm("Permanently remove this booking request?")) return;
+    if (!window.confirm("Permanently delete this booking request?")) return;
     try {
       await apiClient.delete(`/itinerary-leads/${_id}`);
-      fetchLeads();
-    } catch (err) {
-      alert("Removal failed.");
+      toast.success("Lead removed");
+      setLeads((prev) => prev.filter((l) => l._id !== _id));
+    } catch {
+      toast.error("Removal failed.");
     }
   };
 
@@ -144,263 +71,384 @@ const ItineraryLeads = () => {
 
     try {
       await apiClient.put(`/itinerary-leads/${leadId}/status`, { status: newStatus });
-      toast.success("Lead status updated successfully", {
-        position: "bottom-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: false,
-        theme: "colored"
-      });
+      toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
     } catch (err) {
       setLeads(previousLeads);
-      toast.error("Failed to update status", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("Failed to update status");
     }
   };
 
-  const STATUS_STYLES = {
-    new: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/50",
-    in_progress: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/50",
-    proposal_sent: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/50",
-    booked: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50"
-  };
-
   const uniqueItineraries = useMemo(() => {
-    const titles = leads.map(l => l.itineraryTitle);
+    const titles = leads.map(l => l.itineraryTitle).filter(Boolean);
     return ["all", ...new Set(titles)];
   }, [leads]);
 
   const filteredLeads = useMemo(() => {
     return leads.filter(l => {
-      const matchesSearch = 
-        l.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        l.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        l.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+      const q = searchTerm.toLowerCase();
+      const matchesSearch =
+        l.name?.toLowerCase().includes(q) ||
+        l.email?.toLowerCase().includes(q) ||
+        l.phone?.toLowerCase().includes(q) ||
+        l.itineraryTitle?.toLowerCase().includes(q);
+
       const matchesItinerary = selectedItinerary === "all" || l.itineraryTitle === selectedItinerary;
-      
       return matchesSearch && matchesItinerary;
     });
   }, [leads, searchTerm, selectedItinerary]);
 
-  const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
-  const currentLeads = filteredLeads.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const newLeadsCount = leads.filter(l => l.status === 'new' || !l.status).length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6 text-left">
-      {/* HEADER HUB */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none text-indigo-700"><MessageSquare size={120} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-                <h1 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-                    <Sparkles className="text-indigo-700" size={32} /> ITINERARY LEADS
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">Leads generated from specific trip itineraries</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative group w-full sm:w-64">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={18} />
-                    <input 
-                        type="text" 
-                        placeholder="Search leads..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-12 pr-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-indigo-600/20 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-black w-full outline-none transition-all placeholder:text-slate-400 shadow-sm"
-                    />
-                </div>
-                <div className="relative w-full sm:w-64">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <select 
-                        value={selectedItinerary}
-                        onChange={(e) => setSelectedItinerary(e.target.value)}
-                        className="pl-12 pr-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-indigo-600/20 rounded-xl text-sm font-black w-full outline-none transition-all shadow-sm appearance-none cursor-pointer"
-                    >
-                        {uniqueItineraries.map(title => (
-                            <option key={title} value={title}>
-                                {title === "all" ? "All Itineraries" : title}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="px-5 py-2.5 bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/40">
-                    <CheckCircle2 size={16} /> {filteredLeads.length} LEADS
-                </div>
-            </div>
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
+            <Sparkles size={14} className="text-blue-600 dark:text-blue-400 animate-pulse" /> BUSINESS INTELLIGENCE
+          </span>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Plan Trip <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Leads</span>
+          </h1>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+            Orchestrating high-intent engagement signals and strategic customer acquisition pipelines.
+          </p>
+        </div>
+
+        {/* SEARCH & FILTER CONTROLS */}
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search leads..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+            />
+          </div>
+
+          <select
+            value={selectedItinerary}
+            onChange={(e) => setSelectedItinerary(e.target.value)}
+            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-300 outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer shadow-sm"
+          >
+            {uniqueItineraries.map(title => (
+              <option key={title} value={title}>
+                {title === "all" ? "All Itineraries" : title}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* LEADS LIST */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-32 gap-6">
-            <Loader2 className="animate-spin text-indigo-700" size={48} strokeWidth={1.5} />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Itinerary Leads...</p>
+      {/* 4 TOP METRIC CARDS */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* CARD 1: REQUEST VOLUME */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <Sparkles size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">REQUEST VOLUME</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{leads.length}</h3>
+          </div>
         </div>
-      ) : error ? (
-        <div className="py-16 text-center bg-red-50 dark:bg-red-950/20 rounded-2xl border-2 border-red-100 dark:border-red-900/30">
-            <p className="text-red-700 font-black uppercase tracking-wide text-xs">{error}</p>
+
+        {/* CARD 2: NEW ARRIVAL */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-amber-50 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <Clock size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">NEW ARRIVAL</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{newLeadsCount}</h3>
+          </div>
         </div>
-      ) : currentLeads.length > 0 ? (
-        <div className="space-y-8">
-            <AnimatePresence mode='popLayout'>
-                {currentLeads.map((lead) => (
-                    <motion.div 
-                        layout key={lead._id} 
-                        initial={{ opacity: 0, x: -20 }} 
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === lead._id ? 'z-50' : 'z-10'}`}
-                    >
-                        <div className="p-6">
-                            <div className="flex flex-col lg:flex-row justify-between gap-8">
-                                <div className="flex-1 space-y-6 text-left">
-                                    <div className="flex items-center gap-4">
-                                        <div className="size-12 bg-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
-                                            {lead.name?.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="text-[10px] font-black text-indigo-700 uppercase tracking-wide mb-0.5">Booking Inquiry</p>
-                                            <h2 className="text-xl font-black text-slate-950 dark:text-white tracking-tight">{lead.name}</h2>
-                                        </div>
-                                    </div>
 
-                                    <div className="flex flex-wrap gap-6 py-4 border-y border-slate-50 dark:border-slate-800">
-                                        <a href={`mailto:${lead.email}`} className="flex items-center gap-3 text-slate-600 hover:text-indigo-700 transition-colors group/link">
-                                            <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center group-hover/link:bg-indigo-700 group-hover/link:text-white transition-all shadow-sm border border-slate-100"><Mail size={14} /></div>
-                                            <span className="text-xs font-black uppercase tracking-wide text-slate-950 dark:text-slate-300">{lead.email}</span>
-                                        </a>
-                                        <div className="flex items-center gap-3 text-slate-600">
-                                            <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 shadow-sm"><Phone size={14} /></div>
-                                            <span className="text-xs font-black uppercase tracking-wide text-slate-950 dark:text-slate-300">{lead.phone}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-slate-500">
-                                            <div className="size-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100"><Calendar size={14} /></div>
-                                            <span className="text-[10px] font-black uppercase tracking-tight">{new Date(lead.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                        {(lead.city || lead.state) && (
-                                            <div className="flex items-center gap-3 text-indigo-700">
-                                                <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center border border-indigo-100 shadow-sm"><MapPin size={14} /></div>
-                                                <span className="text-xs font-black uppercase tracking-wide">{[lead.city, lead.state].filter(Boolean).join(', ')}</span>
-                                            </div>
-                                        )}
-                                        {lead.travelDate && (
-                                            <div className="flex items-center gap-3 text-emerald-700">
-                                                <div className="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center border border-emerald-100 shadow-sm"><Calendar size={14} /></div>
-                                                <span className="text-xs font-black uppercase tracking-wide">Travel Date: {new Date(lead.travelDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                                            </div>
-                                        )}
-                                        {lead.travelers && (
-                                            <div className="flex items-center gap-3 text-indigo-700">
-                                                <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center border border-indigo-100 shadow-sm"><User size={14} /></div>
-                                                <span className="text-xs font-black uppercase tracking-wide">{lead.travelers}</span>
-                                            </div>
-                                        )}
-                                        {lead.budget && (
-                                            <div className="flex items-center gap-3 text-amber-700">
-                                                <div className="size-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 shadow-sm"><span className="text-xs font-black">₹</span></div>
-                                                <span className="text-xs font-black uppercase tracking-wide">Budget: ₹{lead.budget.toLocaleString('en-IN')}</span>
-                                            </div>
-                                        )}
-                                    </div>
+        {/* CARD 3: MATCHED SIGNALS */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <Filter size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">MATCHED SIGNALS</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{filteredLeads.length}</h3>
+          </div>
+        </div>
 
-                                    <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 relative shadow-inner">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Sparkles size={14} className="text-indigo-700" />
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requested Itinerary</span>
-                                        </div>
-                                        <p className="text-lg font-black text-slate-900 dark:text-slate-200 tracking-tight">
-                                            {lead.itineraryTitle}
-                                        </p>
-                                        {renderAdditionalDetails(lead.additionalDetails)}
-                                    </div>
-                                </div>
+        {/* CARD 4: TOTAL ASSETS */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">TOTAL ASSETS</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Normal</h3>
+          </div>
+        </div>
+      </div>
 
-                                <div className="flex flex-col sm:flex-row lg:flex-col justify-end gap-3 shrink-0 items-end">
-                                    <div className="relative">
-                                        <button 
-                                            onClick={() => setOpenDropdownId(openDropdownId === lead._id ? null : lead._id)}
-                                            className={`flex items-center justify-between font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm min-w-[150px] text-center ${STATUS_STYLES[lead.status || 'new']}`}
-                                        >
-                                            <span className="mx-auto flex items-center gap-2">
-                                                {(lead.status === 'new' || !lead.status) && "🆕 NEW"}
-                                                {lead.status === 'in_progress' && "⏳ IN PROGRESS"}
-                                                {lead.status === 'proposal_sent' && "📨 PROPOSAL"}
-                                                {lead.status === 'booked' && "✅ BOOKED"}
-                                            </span>
-                                        </button>
+      {/* TRIP REGISTRY TABLE SECTION */}
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <Package size={20} />
+            </div>
+            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Trip Registry</h3>
+          </div>
 
-                                        <AnimatePresence>
-                                            {openDropdownId === lead._id && (
-                                                <>
-                                                    <div 
-                                                        className="fixed inset-0 z-40" 
-                                                        onClick={() => setOpenDropdownId(null)}
-                                                    />
-                                                    <motion.div 
-                                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                                        transition={{ duration: 0.15 }}
-                                                        className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 z-50 overflow-hidden py-2"
-                                                    >
-                                                        {['new', 'in_progress', 'proposal_sent', 'booked'].map((status) => (
-                                                            <button
-                                                                key={status}
-                                                                onClick={() => {
-                                                                    handleStatusChange(lead._id, status);
-                                                                    setOpenDropdownId(null);
-                                                                }}
-                                                                className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-3 ${(lead.status || 'new') === status ? 'text-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/10 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
-                                                            >
-                                                                {status === 'new' && "🆕 NEW"}
-                                                                {status === 'in_progress' && "⏳ IN PROGRESS"}
-                                                                {status === 'proposal_sent' && "📨 PROPOSAL"}
-                                                                {status === 'booked' && "✅ BOOKED"}
-                                                            </button>
-                                                        ))}
-                                                    </motion.div>
-                                                </>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                    <button onClick={() => handleDelete(lead._id)} className="flex items-center justify-center w-full sm:w-auto lg:w-full py-2.5 px-4 bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 gap-2 font-bold text-xs uppercase tracking-wider">
-                                        <Trash2 size={16} /> Delete
-                                    </button>
-                                </div>
-                            </div>
+          <div className="flex items-center gap-3">
+            <button className="hidden sm:block px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider">
+              SELECT MULTIPLE
+            </button>
+            <span className="px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-slate-700 text-xs font-black">
+              {filteredLeads.length} RECORDS
+            </span>
+          </div>
+        </div>
+
+        {/* TABLE CONTENT */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2 className="animate-spin text-blue-500" size={48} strokeWidth={2} />
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Loading Trip Registry...</p>
+          </div>
+        ) : error ? (
+          <div className="py-20 text-center bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl">
+            <p className="text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wide text-xs">{error}</p>
+          </div>
+        ) : filteredLeads.length === 0 ? (
+          <div className="py-28 text-center bg-slate-50 dark:bg-slate-950/60 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed shadow-sm">
+            <Inbox className="mx-auto mb-4 text-slate-400 dark:text-slate-600" size={56} strokeWidth={1} />
+            <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Signals Detected</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">No itinerary leads match your search criteria.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800/80">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="p-4 pl-6">CLIENT NAME</th>
+                  <th className="p-4">CONTACT INFO</th>
+                  <th className="p-4">JOURNEY DETAIL</th>
+                  <th className="p-4">STATUS</th>
+                  <th className="p-4">DATE</th>
+                  <th className="p-4 text-right pr-6">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
+                {filteredLeads.map((item) => {
+                  const currentStatus = item.status || 'new';
+                  const activeOpt = STATUS_OPTIONS.find(o => o.value === currentStatus) || STATUS_OPTIONS[0];
+
+                  return (
+                    <tr key={item._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
+                      {/* CLIENT NAME WITH BLUE EDGE BAR */}
+                      <td className="p-4 pl-6 border-l-4 border-blue-500">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black text-xs shrink-0">
+                            <User size={16} />
+                          </div>
+                          <div>
+                            <p className="font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase">
+                              {item.name || 'Anonymous Client'}
+                            </p>
+                          </div>
                         </div>
-                    </motion.div>
-                ))}
-            </AnimatePresence>
+                      </td>
 
-            {/* PAGINATION */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wide">
-                        Archive Segment: <span className="text-slate-950 dark:text-white">{currentPage}</span> <span className="mx-2 text-slate-200">/</span> {totalPages}
-                    </p>
-                    <div className="flex gap-3">
-                        <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-950 dark:text-white border border-transparent hover:border-indigo-700/20 disabled:opacity-30 transition-all">
-                            <ChevronLeft size={18} strokeWidth={3} />
-                        </button>
-                        <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-950 dark:text-white border border-transparent hover:border-indigo-700/20 disabled:opacity-30 transition-all">
-                            <ChevronRight size={18} strokeWidth={3} />
-                        </button>
-                    </div>
+                      {/* CONTACT INFO */}
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1 text-xs">
+                          {item.email && (
+                            <a href={`mailto:${item.email}`} className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                              <Mail size={13} className="text-blue-600 dark:text-blue-400" /> {item.email}
+                            </a>
+                          )}
+                          {item.phone && (
+                            <p className="flex items-center gap-2 font-mono text-slate-500 dark:text-slate-400">
+                              <Phone size={13} className="text-blue-600 dark:text-blue-400" /> {item.phone}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* JOURNEY DETAIL / DESTINATION & BUDGET */}
+                      <td className="p-4 max-w-xs">
+                        <div className="flex flex-col gap-1">
+                          <span className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white truncate uppercase">
+                            <MapPin size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                            {item.itineraryTitle || item.city || 'Custom Trip'}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {item.budget && (
+                              <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                                ₹{Number(item.budget).toLocaleString('en-IN')}
+                              </span>
+                            )}
+                            <span className="w-fit text-[9px] font-black uppercase tracking-wider bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-500/20">
+                              INTEREST
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* STATUS DROPDOWN SELECT */}
+                      <td className="p-4">
+                        <select
+                          value={currentStatus}
+                          onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border outline-none cursor-pointer transition-all ${activeOpt.bg}`}
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      {/* DATE */}
+                      <td className="p-4">
+                        <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+                          <Calendar size={13} />
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'AUG 4, 2026'}
+                        </div>
+                      </td>
+
+                      {/* ACTIONS: EYE BUTTON & TRASH BUTTON */}
+                      <td className="p-4 text-right pr-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedLead(item)}
+                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 transition-all cursor-pointer"
+                            title="View Lead Details"
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item._id)}
+                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-600 hover:text-white text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 transition-all cursor-pointer"
+                            title="Delete Lead"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* EYE BUTTON DETAILS MODAL */}
+      <AnimatePresence>
+        {selectedLead && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden text-slate-900 dark:text-white"
+            >
+              {/* MODAL HEADER */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="size-11 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <User size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-slate-900 dark:text-white uppercase tracking-tight">{selectedLead.name}</h3>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-extrabold tracking-widest uppercase mt-0.5">LEAD DETAILS DOSSIER</p>
+                  </div>
                 </div>
-            )}
-        </div>
-      ) : (
-        <div className="py-32 text-center bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800">
-            <Inbox className="mx-auto mb-4 text-slate-100 dark:text-slate-800" size={64} strokeWidth={1} />
-            <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight mb-2">No New Leads</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide text-[10px] italic">The itinerary lead archive is currently clean</p>
-        </div>
-      )}
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="size-9 bg-slate-100 dark:bg-slate-800 hover:bg-rose-600 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-white transition-all cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* CONTACT & TRIP METRICS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Mail size={12} className="text-blue-600 dark:text-blue-400" /> CONTACT EMAIL
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{selectedLead.email || 'N/A'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Phone size={12} className="text-blue-600 dark:text-blue-400" /> DIRECT PHONE
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white font-mono">{selectedLead.phone || 'N/A'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <User size={12} className="text-blue-600 dark:text-blue-400" /> TRAVELERS / PEOPLE
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">{selectedLead.travelers || '2 People'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" /> BUDGET
+                  </span>
+                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    {selectedLead.budget ? `₹${Number(selectedLead.budget).toLocaleString('en-IN')}` : '₹50,000'}
+                  </p>
+                </div>
+              </div>
+
+              {/* REQUESTED ITINERARY */}
+              <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2">
+                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <MapPin size={12} className="text-blue-600 dark:text-blue-400" /> REQUESTED ITINERARY
+                </span>
+                <p className="text-sm font-extrabold text-slate-900 dark:text-white">{selectedLead.itineraryTitle || 'Custom Honeymoon Blueprint'}</p>
+              </div>
+
+              {/* ADDITIONAL DETAILS / NOTES */}
+              {selectedLead.additionalDetails && (
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2">
+                  <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <MessageSquare size={12} /> SPECIAL REQUESTS & ADD-ONS
+                  </span>
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap italic">
+                    "{selectedLead.additionalDetails}"
+                  </p>
+                </div>
+              )}
+
+              {/* MODAL FOOTER */}
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-600/30"
+                >
+                  Close Dossier
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

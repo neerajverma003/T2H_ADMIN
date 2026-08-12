@@ -20,6 +20,7 @@ import { usePlaceStore } from "../../stores/usePlaceStore"
 import { useNavigate } from "react-router-dom"
 import { apiClient } from "../../stores/authStores"
 import axios from "axios"
+import { convertImageFileToWebP } from "../../utils/imageConverter"
 import { motion } from "framer-motion"
 
 const inputStyle = "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500";
@@ -75,11 +76,12 @@ const CreateDestination = () => {
       const destinationFolder = `destination/${capitalizedType}/${data.destination_name.replace(/\s+/g, '_')}`;
 
       for (const img of data.image) {
+        const uploadImage = await convertImageFileToWebP(img)
         const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-          fileName: img.name, fileType: img.type, folder: destinationFolder
+          fileName: uploadImage.name, fileType: uploadImage.type, folder: destinationFolder
         })
         const { uploadUrl, key } = presignedRes.data
-        await axios.put(uploadUrl, img, { headers: { "Content-Type": img.type } })
+        await axios.put(uploadUrl, uploadImage, { headers: { "Content-Type": uploadImage.type } })
         imageUrls.push(key)
       }
 
@@ -153,13 +155,13 @@ const CreateDestination = () => {
             <div className="space-y-8">
               <div>
                 <label className={labelStyle}><Sparkles size={16} className="text-indigo-600" /> Short Description (Max 150 characters)</label>
-                <textarea 
-                  name="short_description" 
-                  value={data.short_description} 
-                  onChange={handleChange} 
+                <textarea
+                  name="short_description"
+                  value={data.short_description}
+                  onChange={handleChange}
                   maxLength={150}
-                  placeholder="A romantic blurb for the destination cards..." 
-                  className={`${inputStyle} h-32 resize-none`} 
+                  placeholder="A romantic blurb for the destination cards..."
+                  className={`${inputStyle} h-32 resize-none`}
                 />
                 <p className="text-[10px] text-slate-400 mt-2 text-right">{data.short_description?.length || 0}/150</p>
               </div>

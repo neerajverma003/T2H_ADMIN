@@ -10,12 +10,21 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   MessageSquare,
   Sparkles,
   ShieldCheck,
-  Info,
-  CheckSquare
+  CheckSquare,
+  Building2,
+  UserPlus,
+  UserCheck,
+  Mail,
+  Tag,
+  PlusCircle,
+  Gift,
+  Percent,
+  BarChart3
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -24,27 +33,49 @@ import { motion, AnimatePresence } from "framer-motion"
 /* =========================
    REUSABLE DROPDOWN
 ========================= */
-const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive }) => {
+const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive, isCollapsed, onExpand }) => {
+  if (isCollapsed) {
+    return (
+      <div className="relative group mb-2 flex justify-center">
+        <button
+          onClick={() => {
+            if (onExpand) onExpand();
+            if (onClick) onClick();
+          }}
+          className={`size-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
+            isActive
+              ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
+          }`}
+          title={title}
+        >
+          <Icon size={20} strokeWidth={2} />
+        </button>
+        <span className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+          {title}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-1">
       <button
         onClick={onClick}
         className={`
-          flex w-full items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200
+          flex w-full items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer group
           ${isActive
-            ? "bg-indigo-50 text-indigo-600"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50"}
+            ? "bg-blue-50 dark:bg-[#2563eb]/15 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 font-extrabold"
+            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"}
         `}
       >
-        <span className="flex items-center gap-3">
-          <div className={`p-1.5 rounded-lg ${isActive ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>
-            <Icon size={16} strokeWidth={2.5} />
-          </div>
-          {title}
+        <span className="flex items-center gap-3.5">
+          <Icon size={18} strokeWidth={2} className={isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"} />
+          <span className="tracking-wide">{title}</span>
         </span>
         <ChevronDown
           size={14}
-          className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+          className={`transition-transform duration-300 ${isOpen ? "rotate-180 text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"}`}
         />
       </button>
 
@@ -54,15 +85,53 @@ const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive })
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="ml-10 mt-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 pl-4 py-1">
+            <div className="ml-9 mt-1 space-y-1 border-l-2 border-slate-200 dark:border-slate-800/80 pl-3 py-1">
               {children}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+/* =========================
+   NAV ITEM COMPONENT
+========================= */
+const NavItem = ({ to, label, icon: Icon, isCollapsed, handleNavClick }) => {
+  return (
+    <NavLink
+      to={to}
+      onClick={handleNavClick}
+      className={({ isActive }) =>
+        isCollapsed
+          ? `flex items-center justify-center size-11 mx-auto rounded-2xl transition-all duration-200 mb-2 cursor-pointer relative group ${
+              isActive
+                ? "bg-[#2563eb] text-white shadow-lg shadow-blue-600/30"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
+            }`
+          : `flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 mb-1 cursor-pointer group ${
+              isActive
+                ? "bg-[#2563eb] text-white shadow-lg shadow-blue-600/30 font-extrabold"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
+            }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon size={20} strokeWidth={2} className={!isCollapsed && isActive ? "text-white" : ""} />
+          {!isCollapsed && <span className="tracking-wide">{label}</span>}
+          {isCollapsed && (
+            <span className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+              {label}
+            </span>
+          )}
+        </>
+      )}
+    </NavLink>
   )
 }
 
@@ -78,21 +147,25 @@ const Sidebar = ({ open, setOpen }) => {
   const [openMenus, setOpenMenus] = useState({})
 
   useEffect(() => {
+    if (window.innerWidth < 768) {
+      setOpen(false)
+    }
+
     const path = location.pathname
     if (path.includes('/users')) toggleMenu('users', true)
     if (path.includes('/destinations')) toggleMenu('destinations', true)
     if (path.includes('/itineraries')) toggleMenu('itineraries', true)
     if (path.includes('/resorts')) toggleMenu('resorts', true)
-    if (path.includes('/testimonials/video')) toggleMenu('videoReviews', true)
-    if (path.includes('/testimonials/written')) toggleMenu('writtenReviews', true)
-    if (path.includes('/testimonials/written-list') || path.includes('/itineraries/reviews')) toggleMenu('reviews', true)
+    if (path.includes('/hotels')) toggleMenu('hotels', true)
+    if (path.includes('/testimonials')) toggleMenu('testimonials', true)
     if (path.includes('/blogs')) toggleMenu('blogs', true)
     if (path.includes('/articles')) toggleMenu('articles', true)
     if (path.includes('/giftcards')) toggleMenu('giftcards', true)
     if (path.includes('/leads')) toggleMenu('leads', true)
     if (path.includes('/hero')) toggleMenu('hero', true)
+    if (path.includes('/team')) toggleMenu('team', true)
     if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
-  }, [location])
+  }, [location, setOpen])
 
   const toggleMenu = (menu, force) => {
     setOpenMenus(prev => ({
@@ -101,107 +174,209 @@ const Sidebar = ({ open, setOpen }) => {
     }))
   }
 
+  const handleNavClick = () => {
+    if (window.innerWidth < 768) {
+      setOpen(false)
+    }
+  }
+
   const handleLogout = () => {
     logout()
-    setOpen(false)
+    if (window.innerWidth < 768) setOpen(false)
     navigate("/login", { replace: true })
   }
 
-  const navLinkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 mb-1
+  const subLinkClass = ({ isActive }) =>
+    `flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition-all duration-200 cursor-pointer
      ${isActive
-      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50"
+      ? "text-blue-600 dark:text-blue-400 font-extrabold bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20"
+      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50"
     }`
 
-  const subLinkClass = ({ isActive }) =>
-    `flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all duration-200
-     ${isActive
-      ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20"
-      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/30"
-    }`
+  const isCollapsed = !open;
 
   return (
-    <aside
-      className={`fixed z-40 flex h-full w-[270px] flex-col overflow-hidden border-r border-slate-100 dark:border-slate-800/40
-      bg-white dark:bg-slate-900/95 backdrop-blur-xl transition-all duration-500 ease-in-out
-      ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
-    >
-      {/* LOGO AREA */}
-      <div className="p-6 mb-2">
-        <div className="flex items-center gap-3">
-          <div className="size-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <Sparkles className="text-white" size={20} strokeWidth={2.5} />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-none uppercase">
-              T2H {role === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN'}
-            </h1>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Honeymoon Portal</p>
-          </div>
-        </div>
-      </div>
+    <>
+      {/* MOBILE BACKDROP OVERLAY */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          aria-label="Close menu overlay"
+          className="fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-md md:hidden transition-opacity duration-300 cursor-pointer"
+        />
+      )}
 
-      {/* NAV LINKS */}
-      <nav className="flex-1 overflow-y-auto px-4 pb-6 custom-scrollbar">
-        <div className="space-y-1">
-          <p className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main Hub</p>
+      <aside
+        className={`fixed top-0 left-0 z-40 flex h-full flex-col overflow-hidden border-r border-slate-200 dark:border-slate-800/80
+        bg-white dark:bg-[#070b16] transition-all duration-300 ease-in-out shadow-2xl
+        ${open ? "w-[270px] translate-x-0" : "w-[270px] -translate-x-full md:translate-x-0 md:w-[80px]"}`}
+      >
+        {/* TRIP2HONEYMOON LOGO HEADER */}
+        {open ? (
+          <div className="p-4 pb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center justify-start max-w-[230px] w-full py-1">
+              <img
+                src="/TripLogo-light.png"
+                alt="Trip2Honeymoon"
+                className="h-18 md:h-20 w-full object-contain dark:hidden"
+              />
+              <img
+                src="/TripLogo-dark.png"
+                alt="Trip2Honeymoon"
+                className="h-18 md:h-20 w-full object-contain hidden dark:block"
+              />
+            </div>
 
-          <NavLink to="/" onClick={() => setOpen(false)} className={navLinkClass}>
-            <LayoutDashboard size={18} strokeWidth={2} />
-            Dashboard
-          </NavLink>
-
-
-
-
-
-          {role === 'superadmin' && (
-            <NavDropdown
-              title="Users"
-              icon={Users}
-              isOpen={openMenus.users}
-              onClick={() => toggleMenu('users')}
-              isActive={location.pathname.includes('/users')}
+            <button
+              onClick={() => setOpen(false)}
+              className="text-slate-400 hover:text-slate-800 dark:hover:text-white p-2 transition-colors cursor-pointer"
+              title="Collapse Sidebar"
+              aria-label="Collapse sidebar"
             >
-              <NavLink to="/users/add" onClick={() => setOpen(false)} className={subLinkClass}>Add New User</NavLink>
-              <NavLink to="/users/list" onClick={() => setOpen(false)} className={subLinkClass}>User Directory</NavLink>
-              <NavLink to="/users/referrals" onClick={() => setOpen(false)} className={subLinkClass}>Referral Audit</NavLink>
-            </NavDropdown>
+              <ChevronsLeft size={20} />
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 pb-2 flex items-center justify-center">
+            <button
+              onClick={() => setOpen(true)}
+              className="size-11 rounded-2xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 hover:scale-105 transition-all cursor-pointer relative group"
+              title="Expand Sidebar"
+            >
+              <ChevronsRight size={20} />
+              <span className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+                Expand Sidebar
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* NAVIGATION LINKS */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-6 custom-scrollbar space-y-1">
+          {/* DASHBOARD SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              DASHBOARD
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavItem to="/" label="Dashboard" icon={LayoutDashboard} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+
+          {/* PUBLIC USER SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              PUBLIC USER
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavItem to="/customers" label="Registered Users" icon={UserCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+
+          {/* USERS SECTION */}
+          {role === 'superadmin' && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  USERS
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              <NavItem to="/users/add" label="Add User" icon={UserPlus} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/users/list" label="Users List" icon={Users} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/users/referrals" label="Referral Audit" icon={ShieldCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
+
+          {/* DESTINATIONS SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              DESTINATIONS
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavItem to="/destinations/create" label="Create Destination" icon={MapPin} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/destinations/city" label="Create City" icon={Building2} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+
+          {/* ITINERARIES SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              ITINERARIES
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavItem to="/itineraries/create" label="Create Itinerary" icon={PlusCircle} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/itineraries/list" label="Itinerary List" icon={FileText} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+
+          {/* HOTELS & RESORTS SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              HOTELS & RESORTS
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
           )}
 
           <NavDropdown
-            title="Destinations"
-            icon={MapPin}
-            isOpen={openMenus.destinations}
-            onClick={() => toggleMenu('destinations')}
-            isActive={location.pathname.includes('/destinations')}
-          >
-            <NavLink to="/destinations/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Destination</NavLink>
-            <NavLink to="/destinations/city" onClick={() => setOpen(false)} className={subLinkClass}>City Manager</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Itineraries"
-            icon={MapPin}
-            isOpen={openMenus.itineraries}
-            onClick={() => toggleMenu('itineraries')}
-            isActive={location.pathname.includes('/itineraries')}
-          >
-            <NavLink to="/itineraries/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Itinerary</NavLink>
-            <NavLink to="/itineraries/list" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary List</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
             title="Resorts"
-            icon={MapPin}
+            icon={Building2}
             isOpen={openMenus.resorts}
             onClick={() => toggleMenu('resorts')}
             isActive={location.pathname.includes('/resorts')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <NavLink to="/resorts/create" onClick={() => setOpen(false)} className={subLinkClass}>Create Resort</NavLink>
-            <NavLink to="/resorts/list" onClick={() => setOpen(false)} className={subLinkClass}>Resort Directory</NavLink>
+            <NavLink to="/resorts/create" onClick={handleNavClick} className={subLinkClass}>Create Resort</NavLink>
+            <NavLink to="/resorts/list" onClick={handleNavClick} className={subLinkClass}>Resort Directory</NavLink>
           </NavDropdown>
+
+          <NavDropdown
+            title="Hotels"
+            icon={Building2}
+            isOpen={openMenus.hotels}
+            onClick={() => toggleMenu('hotels')}
+            isActive={location.pathname.includes('/hotels')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
+          >
+            <NavLink to="/hotels/create" onClick={handleNavClick} className={subLinkClass}>Create Hotel</NavLink>
+            <NavLink to="/hotels/list" onClick={handleNavClick} className={subLinkClass}>Hotel List</NavLink>
+          </NavDropdown>
+
+          <NavItem to="/bookings" label="Booked Packages" icon={CheckSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+
+          {/* BANNER MANAGEMENT & CONTENT */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              BANNER MANAGEMENT & MEDIA
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavDropdown
+            title="Hero & Banners"
+            icon={Video}
+            isOpen={openMenus.hero}
+            onClick={() => toggleMenu('hero')}
+            isActive={location.pathname.includes("hero")}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
+          >
+            <NavLink to="/hero-content" onClick={handleNavClick} className={subLinkClass}>Hero Content</NavLink>
+            <NavLink to="/hero-media" onClick={handleNavClick} className={subLinkClass}>Hero Media</NavLink>
+          </NavDropdown>
+
+          <NavItem to="/gallery/images" label="Customer Gallery" icon={ImageIcon} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/social-management" label="Social Management" icon={MessageSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
 
           <NavDropdown
             title="Gift Cards"
@@ -209,104 +384,68 @@ const Sidebar = ({ open, setOpen }) => {
             isOpen={openMenus.giftcards}
             onClick={() => toggleMenu('giftcards')}
             isActive={location.pathname.includes('/giftcards')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <NavLink to="/giftcards/verify" onClick={() => setOpen(false)} className={subLinkClass}>Verify & Manage</NavLink>
-            <NavLink to="/giftcards/bulk" onClick={() => setOpen(false)} className={subLinkClass}>Bulk Issue</NavLink>
+            <NavLink to="/giftcards/verify" onClick={handleNavClick} className={subLinkClass}>Verify & Manage</NavLink>
+            <NavLink to="/giftcards/bulk" onClick={handleNavClick} className={subLinkClass}>Bulk Issue</NavLink>
           </NavDropdown>
 
-          <NavLink to="/bookings" onClick={() => setOpen(false)} className={navLinkClass}>
-            <CheckSquare size={18} strokeWidth={2} />
-            Booked Packages
-          </NavLink>
-
           <NavDropdown
-            title="Reviews"
-            icon={MessageSquare}
-            isOpen={openMenus.reviews}
-            onClick={() => toggleMenu('reviews')}
-            isActive={location.pathname.includes('/testimonials/written-list') || location.pathname.includes('/itineraries/reviews') || location.pathname.includes('/testimonials/written')}
+            title="Blog & Articles"
+            icon={FileText}
+            isOpen={openMenus.blogs || openMenus.articles}
+            onClick={() => toggleMenu('blogs')}
+            isActive={location.pathname.includes('/blogs') || location.pathname.includes('/articles')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
-            <NavLink to="/testimonials/written-list" onClick={() => setOpen(false)} className={subLinkClass}>General Reviews</NavLink>
-            {role === 'superadmin' && (
-              <NavLink to="/itineraries/reviews" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Reviews</NavLink>
-            )}
+            <NavLink to="/blogs/create" onClick={handleNavClick} className={subLinkClass}>Write Blog</NavLink>
+            <NavLink to="/blogs/list" onClick={handleNavClick} className={subLinkClass}>Blog List</NavLink>
+            <NavLink to="/articles/create" onClick={handleNavClick} className={subLinkClass}>Write Article</NavLink>
+            <NavLink to="/articles/list" onClick={handleNavClick} className={subLinkClass}>Article List</NavLink>
           </NavDropdown>
 
-          <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Content</p>
-
-          <NavLink to="/gallery/images" onClick={() => setOpen(false)} className={navLinkClass}>
-            <ImageIcon size={18} strokeWidth={2} />
-            Customer Gallery
-          </NavLink>
-
-          {/* Testimonials */}
           <NavDropdown
-            title="Testimonials"
+            title="Testimonials & Reviews"
             icon={Sparkles}
             isOpen={openMenus.testimonials}
             onClick={() => toggleMenu('testimonials')}
             isActive={location.pathname.includes('/testimonials')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <div className="px-3 pb-2 space-y-1">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-2 pb-1">Video Stories</div>
-              <NavLink to="/testimonials/video" onClick={() => setOpen(false)} className={subLinkClass}>Upload Video</NavLink>
-              <NavLink to="/testimonials/video-list" onClick={() => setOpen(false)} className={subLinkClass}>Video Storyboard</NavLink>
-
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-4 pb-1 border-t border-slate-50 dark:border-slate-800/50 mt-2">Written Reviews</div>
-              <NavLink to="/testimonials/written" onClick={() => setOpen(false)} className={subLinkClass}>Compose Review</NavLink>
-            </div>
+            <NavLink to="/testimonials/video" onClick={handleNavClick} className={subLinkClass}>Upload Video Story</NavLink>
+            <NavLink to="/testimonials/video-list" onClick={handleNavClick} className={subLinkClass}>Video Storyboard</NavLink>
+            <NavLink to="/testimonials/written" onClick={handleNavClick} className={subLinkClass}>Compose Review</NavLink>
+            <NavLink to="/testimonials/written-list" onClick={handleNavClick} className={subLinkClass}>General Reviews</NavLink>
           </NavDropdown>
 
-          <NavDropdown
-            title="Hero Media"
-            icon={Video}
-            isOpen={openMenus.hero}
-            onClick={() => toggleMenu('hero')}
-            isActive={location.pathname.includes("hero")}
-          >
-            <NavLink to="/hero-content" onClick={() => setOpen(false)} className={subLinkClass}>Hero Content</NavLink>
-            <NavLink to="/hero-media" onClick={() => setOpen(false)} className={subLinkClass}>Hero Media</NavLink>
-          </NavDropdown>
+          {/* LEADS & COMPLIANCE SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              LEADS & COMPLIANCE
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
 
           <NavDropdown
-            title="Blog"
-            icon={ImageIcon}
-            isOpen={openMenus.blogs}
-            onClick={() => toggleMenu('blogs')}
-            isActive={location.pathname.includes('/blogs')}
-          >
-            <NavLink to="/blogs/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Blog</NavLink>
-            <NavLink to="/blogs/list" onClick={() => setOpen(false)} className={subLinkClass}>Blog List</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Articles (Spotlight & Trending)"
-            icon={FileText}
-            isOpen={openMenus.articles}
-            onClick={() => toggleMenu('articles')}
-            isActive={location.pathname.includes('/articles')}
-          >
-            <NavLink to="/articles/create" onClick={() => setOpen(false)} className={subLinkClass}>Write Article (Spotlight/Trending)</NavLink>
-            <NavLink to="/articles/list" onClick={() => setOpen(false)} className={subLinkClass}>Article List (Spotlight/Trending)</NavLink>
-          </NavDropdown>
-
-          <p className="px-4 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Leads & Policy</p>
-
-          <NavDropdown
-            title="Leads"
-            icon={MessageSquare}
+            title="Customer Leads"
+            icon={Tag}
             isOpen={openMenus.leads}
             onClick={() => toggleMenu('leads')}
             isActive={location.pathname.includes('/leads')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <NavLink to="/leads/consultation" onClick={() => setOpen(false)} className={subLinkClass}>Consultations</NavLink>
-            <NavLink to="/leads/honeymoon-requests" onClick={() => setOpen(false)} className={subLinkClass}>Trip Requests</NavLink>
-            <NavLink to="/leads/itinerary-leads" onClick={() => setOpen(false)} className={subLinkClass}>Itinerary Leads</NavLink>
-            <NavLink to="/leads/plan-journey" onClick={() => setOpen(false)} className={subLinkClass}>Journey Plans</NavLink>
-            <NavLink to="/leads/contacts" onClick={() => setOpen(false)} className={subLinkClass}>Contact Leads</NavLink>
-            <NavLink to="/leads/suggestions" onClick={() => setOpen(false)} className={subLinkClass}>Suggestions</NavLink>
-            <NavLink to="/leads/subscribe" onClick={() => setOpen(false)} className={subLinkClass}>Blog Newsletter</NavLink>
+            <NavLink to="/leads/consultation" onClick={handleNavClick} className={subLinkClass}>Consultations</NavLink>
+            <NavLink to="/leads/honeymoon-requests" onClick={handleNavClick} className={subLinkClass}>Trip Requests</NavLink>
+            <NavLink to="/leads/itinerary-leads" onClick={handleNavClick} className={subLinkClass}>Itinerary Leads</NavLink>
+            <NavLink to="/leads/plan-journey" onClick={handleNavClick} className={subLinkClass}>Journey Plans</NavLink>
+            <NavLink to="/leads/contacts" onClick={handleNavClick} className={subLinkClass}>Contact Leads</NavLink>
+            <NavLink to="/leads/suggestions" onClick={handleNavClick} className={subLinkClass}>Suggestions</NavLink>
+            <NavLink to="/leads/subscribe" onClick={handleNavClick} className={subLinkClass}>Newsletter</NavLink>
           </NavDropdown>
 
           <NavDropdown
@@ -314,57 +453,95 @@ const Sidebar = ({ open, setOpen }) => {
             icon={FileText}
             isOpen={openMenus.terms}
             onClick={() => toggleMenu('terms')}
-            isActive={location.pathname.includes('/terms') || location.pathname.includes('/policy')}
+            isActive={location.pathname.includes('/terms') || location.pathname.includes('/global-terms') || location.pathname.includes('/user-agreement') || location.pathname.includes('/policy')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
           >
-            <NavLink to="/terms-and-conditions" onClick={() => setOpen(false)} className={subLinkClass}>Terms & Conditions</NavLink>
-            <NavLink to="/payment-mode-terms" onClick={() => setOpen(false)} className={subLinkClass}>Payment Terms</NavLink>
-            <NavLink to="/cancellation-policy" onClick={() => setOpen(false)} className={subLinkClass}>Cancellation Policy</NavLink>
+            <NavLink to="/global-terms" onClick={handleNavClick} className={subLinkClass}>Global Terms</NavLink>
+            <NavLink to="/user-agreement" onClick={handleNavClick} className={subLinkClass}>User Agreement</NavLink>
+            <NavLink to="/terms-and-conditions" onClick={handleNavClick} className={subLinkClass}>Destination T&C</NavLink>
+            <NavLink to="/payment-mode-terms" onClick={handleNavClick} className={subLinkClass}>Payment Terms</NavLink>
+            <NavLink to="/cancellation-policy" onClick={handleNavClick} className={subLinkClass}>Cancellation Policy</NavLink>
           </NavDropdown>
 
+          <NavDropdown
+            title="Our Team"
+            icon={UserPlus}
+            isOpen={openMenus.team}
+            onClick={() => toggleMenu('team')}
+            isActive={location.pathname.includes('/team')}
+            isCollapsed={isCollapsed}
+            onExpand={() => setOpen(true)}
+          >
+            <NavLink to="/team/create" onClick={handleNavClick} className={subLinkClass}>Add Member</NavLink>
+            <NavLink to="/team/list" onClick={handleNavClick} className={subLinkClass}>Manage Team</NavLink>
+          </NavDropdown>
+
+          {/* SETTINGS & AUDIT */}
           {role === 'superadmin' && (
             <>
-              <NavLink to="/reports" onClick={() => setOpen(false)} className={navLinkClass}>
-                <BarChart2 size={18} strokeWidth={2} />
-                Analytics
-              </NavLink>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  SYSTEM AUDIT
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-              <NavLink to="/audit-logs" onClick={() => setOpen(false)} className={navLinkClass}>
-                <ShieldCheck size={18} strokeWidth={2} />
-                Security Audit
-              </NavLink>
+              <NavItem to="/reports" label="Analytics" icon={BarChart2} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/audit-logs" label="Security Audit" icon={ShieldCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
             </>
           )}
-          <NavLink to="/about-settings" onClick={() => setOpen(false)} className={navLinkClass}>
-            <Info size={18} strokeWidth={2} />
-            About Us Settings
-          </NavLink>
-          <NavLink to="/settings" onClick={() => setOpen(false)} className={navLinkClass}>
-            <Settings size={18} strokeWidth={2} />
-            Settings
-          </NavLink>
-        </div>
-      </nav>
 
-      {/* LOGOUT AREA */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800/50">
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-500
-          hover:bg-red-50 transition-all duration-300"
-        >
-          <LogOut size={18} strokeWidth={2} />
-          Sign Out
-        </button>
-      </div>
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              SETTINGS
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
 
-      {/* MOBILE CLOSE */}
-      <button
-        onClick={() => setOpen(false)}
-        className="md:hidden absolute top-6 right-6 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl"
-      >
-        <ChevronRight size={20} className="rotate-180" />
-      </button>
-    </aside>
+          <NavItem to="/settings/notifications" label="Notification Emails" icon={Mail} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/settings/referral" label="Referral Rewards" icon={Gift} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/settings/gst" label="GST & Business Settings" icon={Percent} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/settings/stats" label="Home Stats Settings" icon={BarChart3} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+          <NavItem to="/settings" label="Settings" icon={Settings} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+        </nav>
+
+        {/* LOGOUT BOX CONTAINER - MATCHING ADMIRE HOLIDAYS */}
+        {open ? (
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#070b16]">
+            <button
+              onClick={handleLogout}
+              className="w-full bg-white dark:bg-[#0f172a] hover:bg-rose-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-center justify-between transition-all cursor-pointer group shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center border border-rose-500/30 group-hover:scale-105 transition-transform shrink-0">
+                  <LogOut size={16} strokeWidth={2.5} />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-extrabold text-rose-500 leading-tight">Sign Out</p>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">END SESSION</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#070b16] flex justify-center">
+            <button
+              onClick={handleLogout}
+              className="size-11 rounded-2xl bg-rose-500/15 text-rose-500 flex items-center justify-center border border-rose-500/30 hover:scale-105 transition-all cursor-pointer relative group"
+              title="Sign Out"
+            >
+              <LogOut size={18} strokeWidth={2.5} />
+              <span className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50">
+                Sign Out
+              </span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
   )
 }
 

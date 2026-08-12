@@ -1,59 +1,94 @@
-import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { Loader2, FileText, Edit, Save, CreditCard, Sparkles, Zap, ShieldCheck, Globe, MapPin, Info } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import { apiClient } from "../../stores/authStores";
-import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import { 
+    CreditCard, 
+    Save, 
+    Edit, 
+    Loader2, 
+    Globe, 
+    MapPin, 
+    Sparkles, 
+    Plus,
+    Trash2
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 const HoneymoonPaymentMode = () => {
+  const [category, setCategory] = useState("domestic");
+  const [rules, setRules] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [travelType, setTravelType] = useState("domestic");
-  const [textContent, setTextContent] = useState("");
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchPaymentMode = async () => {
       try {
-        setIsLoading(true);
-        const res = await apiClient.get(`/admin/honeymoon/payment-mode/${travelType}`);
-        const content = res?.data?.destinationPaymentModeData?.honeymoon_payment_mode || "";
-        setTextContent(content);
+        setLoading(true);
+        const res = await apiClient.get(`/admin/honeymoon/payment-mode/${category}`);
+        if (res.data?.success) {
+          const rawText = res.data.destinationPaymentModeData?.honeymoon_payment_mode || "";
+          const parsedRules = rawText.split('\n').map(r => r.trim()).filter(Boolean);
+          setRules(parsedRules);
+        }
       } catch (error) {
-        toast.error("Failed to load honeymoon payment mode.");
+        toast.error("Failed to load payment mode terms.");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
-    if (travelType) fetchContent();
-  }, [travelType]);
+
+    fetchPaymentMode();
+    setIsEditing(false);
+  }, [category]);
+
+  const handleRuleChange = (index, value) => {
+    const updated = [...rules];
+    updated[index] = value;
+    setRules(updated);
+  };
+
+  const handleAddRule = () => {
+    setRules([...rules, ""]);
+  };
+
+  const handleDeleteRule = (index) => {
+    setRules(rules.filter((_, i) => i !== index));
+  };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      await apiClient.post(`/admin/honeymoon/payment-mode`, {
-        type: travelType,
-        honeymoon_payment_mode: textContent,
+      const combinedText = rules.map(r => r.trim()).filter(Boolean).join('\n');
+      await apiClient.post("/admin/honeymoon/payment-mode", {
+        type: category,
+        honeymoon_payment_mode: combinedText,
       });
-      toast.success("Payment protocols synchronized 💕");
+      toast.success(`${category.toUpperCase()} payment terms updated! ✨`);
       setIsEditing(false);
     } catch (error) {
-      toast.error("Synchronization failure");
+      toast.error("Failed to save payment terms.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6 text-left">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-8 pb-20 px-6 text-left">
       {/* HEADER HUB */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none text-indigo-700"><CreditCard size={160} /></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 mb-1">
+                    Governance & Risk
+                </p>
                 <h1 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-3">
-                    <ShieldCheck className="text-indigo-700" size={28} /> PAYMENT ARCHIVE
+                    Payment Mode <span className="text-indigo-600">Terms & Policy</span>
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">Strategic financial protocols and transactional guidelines</p>
+                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">
+                    Defining transactional payment schedules and deposit guidelines for all packages.
+                </p>
             </div>
             <div className="flex items-center gap-4">
                 <div className="px-5 py-2.5 bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-lg shadow-indigo-500/40">
@@ -63,96 +98,130 @@ const HoneymoonPaymentMode = () => {
         </div>
       </div>
 
-      <div className="space-y-12">
-        {/* SELECTION PANEL */}
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-                {["domestic", "international"].map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => { setTravelType(type); setIsEditing(false); }}
-                        className={`flex-1 flex items-center justify-between p-5 rounded-2xl border-4 transition-all group ${
-                            travelType === type 
-                            ? "bg-indigo-700 border-indigo-700 text-white shadow-xl shadow-indigo-500/40" 
-                            : "bg-slate-50 dark:bg-slate-800 border-transparent text-slate-500 hover:border-indigo-700/20"
-                        }`}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className={`size-12 rounded-xl flex items-center justify-center transition-all shadow-md ${
-                                travelType === type ? "bg-white/20" : "bg-white dark:bg-slate-900 text-indigo-700"
-                            }`}>
-                                {type === 'domestic' ? <MapPin size={24} strokeWidth={2.5} /> : <Globe size={24} strokeWidth={2.5} />}
-                            </div>
-                            <span className="text-base font-black uppercase tracking-[0.15em] capitalize">{type} Registry</span>
-                        </div>
-                        <Zap size={20} className={travelType === type ? "opacity-100 animate-pulse" : "opacity-0 group-hover:opacity-100 transition-opacity"} />
-                    </button>
-                ))}
-            </div>
-            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-4 p-5 rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 shadow-inner">
-                    <Info size={24} className="text-amber-600 shrink-0" />
-                    <p className="text-xs font-black text-amber-800 dark:text-amber-500 uppercase tracking-widest leading-relaxed">
-                        Payment protocols synchronized here reflect regional transactional governance standards.
-                    </p>
-                </div>
-            </div>
-        </div>
+      {/* REGIONAL CATEGORY SELECTOR (MATCHING ADMIRE HOLIDAYS) */}
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl space-y-4">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">
+              REGIONAL CATEGORY
+          </label>
+          <div className="flex gap-4 max-w-md">
+              {[
+                  { id: "domestic", label: "DOMESTIC", icon: MapPin },
+                  { id: "international", label: "INTERNATIONAL", icon: Globe }
+              ].map((tab) => (
+                  <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setCategory(tab.id)}
+                      className={`flex-1 py-3 px-6 rounded-xl border-2 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                          category === tab.id 
+                          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30" 
+                          : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-500/40"
+                      }`}
+                  >
+                      <tab.icon size={16} />
+                      {tab.label}
+                  </button>
+              ))}
+          </div>
+      </div>
 
-        {/* EDITOR PANEL */}
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 pb-6 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-indigo-700 rounded-lg flex items-center justify-center text-white shadow-md">
-                        <FileText size={20} />
-                    </div>
-                    <div className="text-left">
-                       <h2 className="text-xl font-black text-slate-950 dark:text-white tracking-tight uppercase">Payment Protocol</h2>
-                       <p className="text-[10px] font-black text-indigo-700 uppercase tracking-widest mt-0.5">Authorized Transaction Logic Context</p>
-                    </div>
-                </div>
+      {/* TRANSACTION INSTRUCTIONS BOX-WISE VIEW (ADMIRE HOLIDAYS STYLE) */}
+      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+              <div className="flex items-center gap-4">
+                  <div className="size-12 bg-indigo-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-600">
+                      <CreditCard size={24} />
+                  </div>
+                  <div>
+                      <h2 className="text-xl font-black text-slate-950 dark:text-white tracking-tight capitalize">
+                          Transaction Instructions — {category}
+                      </h2>
+                      <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mt-0.5">
+                          {rules.length} GATEWAYS CONFIGURED
+                      </p>
+                  </div>
+              </div>
 
-                <div className="flex items-center gap-4 w-full md:w-auto">
-                    {!isEditing ? (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="w-full md:w-auto px-6 py-3 bg-slate-950 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-lg shadow-black/20 flex items-center justify-center gap-3"
-                        >
-                            <Edit size={16} /> Edit Protocol Registry
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="w-full md:w-auto px-6 py-3 bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-indigo-800 transition-all shadow-lg shadow-indigo-500/40 flex items-center justify-center gap-3"
-                        >
-                            {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
-                            {isSaving ? "Syncing Logic..." : "Commit Protocol"}
-                        </button>
-                    )}
-                </div>
-            </div>
+              {!isEditing ? (
+                  <button
+                      onClick={() => setIsEditing(true)}
+                      disabled={loading}
+                      className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                  >
+                      <Edit size={14} /> MODIFY CONFIG
+                  </button>
+              ) : (
+                  <div className="flex items-center gap-3">
+                      <button
+                          onClick={() => setIsEditing(false)}
+                          className="px-4 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-300 transition-all"
+                      >
+                          CANCEL
+                      </button>
+                      <button
+                          onClick={handleSave}
+                          disabled={isSaving}
+                          className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
+                      >
+                          {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                          {isSaving ? "SAVING..." : "SAVE CHANGES"}
+                      </button>
+                  </div>
+              )}
+          </div>
 
-            <div className="flex-1 flex flex-col">
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-32 gap-6">
-                        <Loader2 className="animate-spin text-indigo-700" size={48} strokeWidth={1.5} />
-                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Loading Protocol Registry...</p>
-                    </div>
-                ) : isEditing ? (
-                    <textarea
-                        value={textContent}
-                        onChange={(e) => setTextContent(e.target.value)}
-                        className="flex-1 w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-indigo-700/30 rounded-2xl p-6 lg:p-8 text-base font-medium text-slate-950 dark:text-slate-200 leading-relaxed placeholder:text-slate-400 outline-none transition-all no-scrollbar shadow-inner min-h-[400px]"
-                        placeholder={`Drafting transactional protocols for ${travelType} journeys...`}
-                    />
-                ) : (
-                    <div className="flex-1 p-6 lg:p-8 text-slate-800 dark:text-slate-300 text-base font-medium leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100 dark:border-slate-800/50 shadow-inner text-left min-h-[400px]">
-                        {textContent || <span className="italic text-slate-400">No payment mode defined for {travelType} trips in the current framework.</span>}
-                    </div>
-                )}
-            </div>
-        </div>
+          {loading ? (
+              <div className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-indigo-600" size={36} /></div>
+          ) : isEditing ? (
+              <div className="space-y-4">
+                  {rules.map((rule, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-sm group">
+                          <span className="text-slate-400 font-black px-2 text-sm">&gt;</span>
+                          <input
+                              type="text"
+                              value={rule}
+                              onChange={(e) => handleRuleChange(idx, e.target.value)}
+                              className="flex-1 bg-transparent text-slate-900 dark:text-white font-semibold text-sm outline-none placeholder:text-slate-400"
+                              placeholder="Enter payment instruction rule..."
+                          />
+                          <button
+                              type="button"
+                              onClick={() => handleDeleteRule(idx)}
+                              className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                          >
+                              <Trash2 size={16} />
+                          </button>
+                      </div>
+                  ))}
+
+                  <button
+                      type="button"
+                      onClick={handleAddRule}
+                      className="w-full py-4 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-600/50 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-indigo-600 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all mt-4"
+                  >
+                      <Plus size={16} /> APPEND PAYMENT INSTRUCTION
+                  </button>
+              </div>
+          ) : (
+              <div className="space-y-3">
+                  {rules.length > 0 ? (
+                      rules.map((rule, idx) => (
+                          <div key={idx} className="p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3 shadow-xs hover:border-indigo-500/30 transition-all">
+                              <div className="flex items-start gap-3">
+                                  <span className="text-slate-400 font-black text-sm shrink-0 mt-0.5">&gt;</span>
+                                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed text-left">
+                                      {rule}
+                                  </p>
+                              </div>
+                          </div>
+                      ))
+                  ) : (
+                      <div className="p-8 text-center text-slate-400 italic bg-slate-50 dark:bg-slate-800/30 rounded-2xl">
+                          No payment mode terms defined for {category} packages yet. Click MODIFY CONFIG to add instructions.
+                      </div>
+                  )}
+              </div>
+          )}
       </div>
     </motion.div>
   );

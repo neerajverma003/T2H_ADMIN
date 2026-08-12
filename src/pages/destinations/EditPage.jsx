@@ -3,9 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { apiClient } from "../../stores/authStores";
 import axios from "axios";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Upload, X, Check, Image as ImageIcon, Trash2, Plus, 
+import {
+  Upload, X, Check, Image as ImageIcon, Trash2, Plus,
   MapPin, Globe, Navigation, Calendar, Clock, Layers, Eye, Sparkles, Loader2, Heart, Pencil
 } from "lucide-react";
 
@@ -21,8 +22,8 @@ const EditDestination = () => {
   const [data, setData] = useState({
     type: "",
     destination_name: "",
-    newFiles: [],           
-    existingImages: [],     
+    newFiles: [],
+    existingImages: [],
     destination_type: [],
     show_image: [],
     best_time: "",
@@ -117,7 +118,7 @@ const EditDestination = () => {
   };
 
   const handleDeleteImage = async (img) => {
-    if(!window.confirm("Delete this image permanently?")) return;
+    if (!window.confirm("Delete this image permanently?")) return;
     try {
       const res = await apiClient.patch(`/admin/destination/${id}/delete-image`, { imagePath: img });
       if (res.data.success) {
@@ -147,9 +148,10 @@ const EditDestination = () => {
         for (let i = 0; i < data.newFiles.length; i++) {
           const file = data.newFiles[i];
           setUploadProgress(`${i + 1}/${data.newFiles.length}`);
-          const presignedRes = await apiClient.post("/admin/generate-presigned-url", { fileName: file.name, fileType: file.type, folder });
+          const uploadImage = await convertImageFileToWebP(file);
+          const presignedRes = await apiClient.post("/admin/generate-presigned-url", { fileName: uploadImage.name, fileType: uploadImage.type, folder });
           const { uploadUrl, key } = presignedRes.data;
-          await axios.put(uploadUrl, file, { headers: { "Content-Type": file.type } });
+          await axios.put(uploadUrl, uploadImage, { headers: { "Content-Type": uploadImage.type } });
           newImageKeys.push(key);
         }
       }
@@ -195,13 +197,13 @@ const EditDestination = () => {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-             <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl flex">
-               {["domestic", "international"].map((t) => (
-                 <button key={t} type="button" onClick={() => setData({...data, type: t})} className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${data.type === t ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400'}`}>
-                   {t}
-                 </button>
-               ))}
-             </div>
+            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl flex">
+              {["domestic", "international"].map((t) => (
+                <button key={t} type="button" onClick={() => setData({ ...data, type: t })} className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${data.type === t ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-slate-400'}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -213,66 +215,66 @@ const EditDestination = () => {
             <label className={labelStyle}><MapPin size={14} /> Destination Name</label>
             <input name="destination_name" value={data.destination_name} onChange={handleChange} placeholder="Destination name" className={`${inputStyle} text-xl font-bold h-16`} />
             <div className="mt-8">
-               <label className={labelStyle}><Sparkles size={14} /> Short Description (Max 150 characters)</label>
-               <textarea 
-                 name="short_description" 
-                 value={data.short_description} 
-                 onChange={handleChange} 
-                 maxLength={150}
-                 placeholder="A romantic blurb for the destination cards..." 
-                 className={`${inputStyle} h-32 resize-none`} 
-               />
-               <p className="text-[10px] text-slate-400 mt-2 text-right">{data.short_description?.length || 0}/150</p>
+              <label className={labelStyle}><Sparkles size={14} /> Short Description (Max 150 characters)</label>
+              <textarea
+                name="short_description"
+                value={data.short_description}
+                onChange={handleChange}
+                maxLength={150}
+                placeholder="A romantic blurb for the destination cards..."
+                className={`${inputStyle} h-32 resize-none`}
+              />
+              <p className="text-[10px] text-slate-400 mt-2 text-right">{data.short_description?.length || 0}/150</p>
             </div>
           </div>
 
           {/* MEDIA MANAGEMENT */}
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-8">
-             <div>
-                <label className={labelStyle}><Upload size={14} /> Add New Media</label>
-                <label className="group relative block w-full h-32 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400">
-                   <ImageIcon size={24} strokeWidth={1.5} />
-                   <p className="mt-2 text-[10px] font-black uppercase tracking-widest">{data.newFiles.length > 0 ? `${data.newFiles.length} New Photos` : 'Click to add more photos'}</p>
-                   <input type="file" name="image" multiple accept="image/*" onChange={handleChange} hidden />
-                </label>
-             </div>
+            <div>
+              <label className={labelStyle}><Upload size={14} /> Add New Media</label>
+              <label className="group relative block w-full h-32 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-500 flex flex-col items-center justify-center text-slate-400">
+                <ImageIcon size={24} strokeWidth={1.5} />
+                <p className="mt-2 text-[10px] font-black uppercase tracking-widest">{data.newFiles.length > 0 ? `${data.newFiles.length} New Photos` : 'Click to add more photos'}</p>
+                <input type="file" name="image" multiple accept="image/*" onChange={handleChange} hidden />
+              </label>
+            </div>
 
-             {/* Existing Gallery */}
-             {data.existingImages.length > 0 && (
-               <div>
-                  <label className={labelStyle}><Sparkles size={14} /> Active Gallery</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {data.existingImages.map((img, idx) => {
-                      const isSelected = data.show_image.includes(img);
-                      const isThumbnail = idx === 0;
-                      return (
-                        <div key={idx} className={`group relative aspect-video rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-100 dark:border-slate-800'}`}>
-                           <img src={img} alt="" className={`w-full h-full object-cover transition-transform group-hover:scale-110 ${!isSelected && 'grayscale opacity-50'}`} />
-                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                           
-                           {/* Thumbnail Overlay Badge & Controls */}
-                           {isThumbnail ? (
-                             <div className="absolute top-2 left-2 px-3 py-1 bg-amber-500 text-white rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md z-10">
-                               <Heart size={10} fill="currentColor" /> Thumbnail
-                             </div>
-                           ) : (
-                             <button type="button" onClick={() => handleSetThumbnail(img)} className="absolute top-2 left-2 p-1.5 bg-white/90 hover:bg-amber-500 hover:text-white text-slate-800 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-md z-10 flex items-center gap-1 text-[9px] font-black uppercase tracking-wider" title="Set as main thumbnail">
-                               <Heart size={10} /> Make Main
-                             </button>
-                           )}
+            {/* Existing Gallery */}
+            {data.existingImages.length > 0 && (
+              <div>
+                <label className={labelStyle}><Sparkles size={14} /> Active Gallery</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {data.existingImages.map((img, idx) => {
+                    const isSelected = data.show_image.includes(img);
+                    const isThumbnail = idx === 0;
+                    return (
+                      <div key={idx} className={`group relative aspect-video rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-100 dark:border-slate-800'}`}>
+                        <img src={img} alt="" className={`w-full h-full object-cover transition-transform group-hover:scale-110 ${!isSelected && 'grayscale opacity-50'}`} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                           <button type="button" onClick={() => handleShowImageToggle(img)} className={`absolute bottom-2 left-2 p-2 rounded-lg backdrop-blur-md transition-all ${isSelected ? 'bg-indigo-600 text-white' : 'bg-white/90 text-slate-900'}`}>
-                              <Eye size={14} />
-                           </button>
-                           <button type="button" onClick={() => handleDeleteImage(img)} className="absolute bottom-2 right-2 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                              <Trash2 size={14} />
-                           </button>
-                        </div>
-                      )
-                    })}
-                  </div>
-               </div>
-             )}
+                        {/* Thumbnail Overlay Badge & Controls */}
+                        {isThumbnail ? (
+                          <div className="absolute top-2 left-2 px-3 py-1 bg-amber-500 text-white rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md z-10">
+                            <Heart size={10} fill="currentColor" /> Thumbnail
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => handleSetThumbnail(img)} className="absolute top-2 left-2 p-1.5 bg-white/90 hover:bg-amber-500 hover:text-white text-slate-800 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-md z-10 flex items-center gap-1 text-[9px] font-black uppercase tracking-wider" title="Set as main thumbnail">
+                            <Heart size={10} /> Make Main
+                          </button>
+                        )}
+
+                        <button type="button" onClick={() => handleShowImageToggle(img)} className={`absolute bottom-2 left-2 p-2 rounded-lg backdrop-blur-md transition-all ${isSelected ? 'bg-indigo-600 text-white' : 'bg-white/90 text-slate-900'}`}>
+                          <Eye size={14} />
+                        </button>
+                        <button type="button" onClick={() => handleDeleteImage(img)} className="absolute bottom-2 right-2 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -296,7 +298,7 @@ const EditDestination = () => {
           </button>
 
           <button type="button" onClick={() => navigate("/destinations/create")} className="w-full text-slate-500 font-bold text-xs uppercase tracking-widest py-4 hover:text-indigo-600 transition-all">
-             Cancel & Return
+            Cancel & Return
           </button>
         </div>
       </form>

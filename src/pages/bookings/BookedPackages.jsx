@@ -1,25 +1,25 @@
 import { useEffect, useState, useMemo } from "react";
 import { apiClient } from "../../stores/authStores";
-import { 
-    Mail, 
-    User, 
-    Phone, 
-    Calendar, 
-    ChevronLeft, 
-    ChevronRight, 
-    Loader2, 
-    Sparkles,
-    Search,
-    MapPin,
-    Download,
-    DollarSign,
-    CheckCircle2,
-    Clock,
-    AlertTriangle,
-    ChevronDown,
-    ChevronUp,
-    Copy,
-    FileText
+import {
+  Mail,
+  User,
+  Phone,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Sparkles,
+  Search,
+  MapPin,
+  Download,
+  DollarSign,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -29,9 +29,9 @@ const ITEMS_PER_PAGE = 10;
 // Helper to calculate start date, end date and duration
 const getTravelDates = (travelDateStr, itinerary) => {
   if (!travelDateStr) return { start: "N/A", end: "N/A", duration: "N/A" };
-  
+
   const start = new Date(travelDateStr);
-  
+
   // Try to parse days count from duration (e.g., "5 Days / 4 Nights" -> 5)
   let daysCount = 1;
   if (itinerary?.duration) {
@@ -45,17 +45,17 @@ const getTravelDates = (travelDateStr, itinerary) => {
       }
     }
   }
-  
+
   // Fallback to days_information length if daysCount is still 1
   if (daysCount === 1 && itinerary?.days_information?.length) {
     daysCount = itinerary.days_information.length;
   }
-  
+
   const end = new Date(start);
   if (daysCount > 1) {
     end.setDate(start.getDate() + (daysCount - 1));
   }
-  
+
   const options = { year: "numeric", month: "short", day: "numeric" };
   return {
     start: start.toLocaleDateString("en-IN", options),
@@ -130,7 +130,7 @@ const BookedPackages = () => {
       const isToken = b.payment_type === "token";
       const paid = isToken ? 5000 : b.total_price;
       const due = isToken ? Math.max(0, b.total_price - 5000) : 0;
-      
+
       totalPaid += paid;
       totalPending += due;
 
@@ -191,14 +191,14 @@ const BookedPackages = () => {
       const requestsMatch = notesText.match(/Requests:\s*([^.]*)/i);
       const depCityMatch = notesText.match(/DepCity:\s*(.*)/i);
 
-      const addonsList = addonsMatch && addonsMatch[1] 
-        ? addonsMatch[1].split(",").map(s => s.trim()).filter(Boolean) 
+      const addonsList = addonsMatch && addonsMatch[1]
+        ? addonsMatch[1].split(",").map(s => s.trim()).filter(Boolean)
         : [];
-      const requestsList = requestsMatch && requestsMatch[1] 
-        ? requestsMatch[1].split(",").map(s => s.trim()).filter(Boolean) 
+      const requestsList = requestsMatch && requestsMatch[1]
+        ? requestsMatch[1].split(",").map(s => s.trim()).filter(Boolean)
         : [];
-      const depCity = depCityMatch && depCityMatch[1] 
-        ? depCityMatch[1].trim() 
+      const depCity = depCityMatch && depCityMatch[1]
+        ? depCityMatch[1].trim()
         : "";
 
       const ADDONS_LABELS = {
@@ -261,7 +261,7 @@ const BookedPackages = () => {
 
   return (
     <div className="p-4 md:p-8 w-full min-h-screen">
-      
+
       {/* HEADER SECTION */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-150 dark:border-slate-800 p-8 mb-8 relative overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
@@ -358,18 +358,17 @@ const BookedPackages = () => {
             const isToken = b.payment_type === "token";
             const paidAmount = isToken ? 5000 : b.total_price;
             const dateInfo = getTravelDates(b.travel_date, b.itinerary_id);
-            
+
             return (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(idx * 0.05, 0.3) }}
                 key={b._id}
-                className={`bg-white dark:bg-slate-900 border transition-all duration-300 overflow-hidden ${
-                  isExpanded 
-                    ? 'border-indigo-200 dark:border-indigo-900/60 shadow-xl rounded-3xl' 
+                className={`bg-white dark:bg-slate-900 border transition-all duration-300 overflow-hidden ${isExpanded
+                    ? 'border-indigo-200 dark:border-indigo-900/60 shadow-xl rounded-3xl'
                     : 'border-slate-200 dark:border-slate-800/80 shadow-sm rounded-2xl hover:border-indigo-300 dark:hover:border-indigo-850 hover:shadow-md'
-                }`}
+                  }`}
               >
                 {/* Horizontal Compact Header Row */}
                 <div
@@ -377,11 +376,10 @@ const BookedPackages = () => {
                   className="px-6 py-5.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 cursor-pointer select-none group"
                 >
                   <div className="flex items-center gap-5 w-full lg:w-auto">
-                    <div className={`w-13 h-13 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
-                      isToken 
-                        ? 'bg-amber-500/10 text-amber-600' 
+                    <div className={`w-13 h-13 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isToken
+                        ? 'bg-amber-500/10 text-amber-600'
                         : 'bg-emerald-500/10 text-emerald-600'
-                    }`}>
+                      }`}>
                       <FileText size={24} />
                     </div>
                     <div>
@@ -400,11 +398,10 @@ const BookedPackages = () => {
                             <Copy size={16} />
                           </button>
                         </h3>
-                        <span className={`text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded ${
-                          isToken 
-                            ? 'bg-amber-55 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200/50' 
+                        <span className={`text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded ${isToken
+                            ? 'bg-amber-55 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200/50'
                             : 'bg-emerald-55 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50'
-                        }`}>
+                          }`}>
                           {isToken ? 'Token' : 'Paid'}
                         </span>
                       </div>
@@ -446,10 +443,10 @@ const BookedPackages = () => {
                       className="border-t border-slate-150 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-955/10"
                     >
                       <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        
+
                         {/* Left Side: Traveller Info & Package Config */}
                         <div className="space-y-6">
-                          
+
                           {/* Traveller Credentials */}
                           <div>
                             <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3.5">

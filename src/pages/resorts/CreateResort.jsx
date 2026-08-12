@@ -2,18 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { apiClient } from "../../stores/authStores";
 import { ENV } from "../../constants/api";
-import { 
-    Building, 
-    MapPin, 
-    Globe, 
-    Phone, 
-    Mail, 
-    Calendar, 
-    ShieldCheck, 
-    Sparkles, 
-    Image as ImageIcon, 
-    Plus, 
-    X, 
+import { convertImageFileToWebP } from "../../utils/imageConverter";
+import { toast } from "react-toastify";
+import {
+    Building,
+    MapPin,
+    Globe,
+    Phone,
+    Mail,
+    Calendar,
+    ShieldCheck,
+    Sparkles,
+    Image as ImageIcon,
+    Plus,
+    X,
     Loader2,
     Eye,
     Tag,
@@ -32,19 +34,19 @@ const HoneymoonResortForm = ({ editId }) => {
         description: "",
         images: null,
         is_active: true,
-        price_per_night: 0,
+        price_per_night: "",
         destination: "",
         city: "",
         state: "",
         country: "",
-        duration_days: 1,
-        average_rating: 0,
-        review_count: 0,
-        number_of_ratings: 0,
+        duration_days: "",
+        average_rating: "",
+        review_count: "",
+        number_of_ratings: "",
         inclusions: [],
         tags: [],
         visibility: "public",
-        discount: 0,
+        discount: "",
         start_date: "",
         end_date: "",
         availability_status: "Available",
@@ -75,6 +77,9 @@ const HoneymoonResortForm = ({ editId }) => {
 
             setFormData({
                 ...resort,
+                price_per_night: resort.price_per_night ?? "",
+                duration_days: resort.duration_days ?? "",
+                discount: resort.discount ?? "",
                 images: null,
                 is_active: resort.is_active !== false,
             });
@@ -84,6 +89,7 @@ const HoneymoonResortForm = ({ editId }) => {
             }
         } catch (error) {
             console.error("Error fetching resort:", error);
+            toast.error("Failed to load resort details");
             if (error.response?.status === 401) navigate("/login");
         } finally {
             setPageLoading(false);
@@ -98,6 +104,10 @@ const HoneymoonResortForm = ({ editId }) => {
             setPreviewUrls(urls);
         } else if (type === "checkbox") {
             setFormData((prev) => ({ ...prev, [name]: checked }));
+        } else if (type === "number") {
+            // Strip leading zeros unless it's empty string
+            const cleanedVal = value === "" ? "" : String(Number(value));
+            setFormData((prev) => ({ ...prev, [name]: cleanedVal === "NaN" ? "" : cleanedVal }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
@@ -105,41 +115,60 @@ const HoneymoonResortForm = ({ editId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!formData.title || !formData.title.trim()) {
+            toast.error("Please enter a Resort Title");
+            return;
+        }
+
         setLoading(true);
 
         try {
             const imageUrls = [];
-            const resortFolder = `resort/${formData.title.replace(/\s+/g, '_')}`;
+            const safeTitle = (formData.title || "resort").trim().replace(/\s+/g, '_');
+            const resortFolder = `resort/${safeTitle}`;
 
             if (formData.images && formData.images.length > 0) {
                 for (let i = 0; i < formData.images.length; i++) {
                     const img = formData.images[i];
+                    const uploadImage = await convertImageFileToWebP(img);
                     const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                        fileName: img.name,
-                        fileType: img.type,
+                        fileName: uploadImage.name,
+                        fileType: uploadImage.type,
                         folder: resortFolder
                     });
                     const { uploadUrl, key } = presignedRes.data;
-                    await fetch(uploadUrl, { method: "PUT", body: img, headers: { "Content-Type": img.type } });
+                    await fetch(uploadUrl, { method: "PUT", body: uploadImage, headers: { "Content-Type": uploadImage.type } });
                     imageUrls.push(key);
                 }
             }
 
+            // Clean payload to prevent sending DB metadata or empty image overrides
+            const { _id, createdAt, updatedAt, __v, images: unusedImages, ...cleanData } = formData;
+
             const payload = {
-                ...formData,
-                images: imageUrls,
+                ...cleanData,
+                title: cleanData.title.trim(),
+                price_per_night: cleanData.price_per_night !== "" ? Number(cleanData.price_per_night) : 0,
+                duration_days: cleanData.duration_days !== "" ? Number(cleanData.duration_days) : 1,
+                discount: cleanData.discount !== "" ? Number(cleanData.discount) : 0,
+                images: imageUrls.length > 0 ? imageUrls : undefined,
                 removedImageIndexes: removedImageIndexes.length > 0 ? removedImageIndexes : undefined
             };
 
             if (id) {
-                await apiClient.patch(`/admin/resort/update/${id}`, payload);
+                const res = await apiClient.patch(`/admin/resort/update/${id}`, payload);
+                toast.success(res.data?.message || "Resort updated successfully!");
             } else {
-                await apiClient.post("/admin/resort", payload);
+                const res = await apiClient.post("/admin/resort", payload);
+                toast.success(res.data?.message || "Resort created successfully!");
             }
 
             navigate("/resorts/list");
         } catch (error) {
             console.error("Error saving resort:", error);
+            const msg = error.response?.data?.message || error.response?.data?.msg || "Error saving resort. Please try again.";
+            toast.error(msg);
             if (error.response?.status === 401) navigate("/login");
         } finally {
             setLoading(false);
@@ -173,14 +202,14 @@ const HoneymoonResortForm = ({ editId }) => {
                         <p className="text-slate-500 dark:text-slate-400 font-bold mt-1 text-sm italic">Defining luxury standards for romantic getaways</p>
                     </div>
                     <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem]">
-                         <div className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest ${formData.is_active ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'bg-slate-300 text-slate-600'}`}>
+                        <div className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest ${formData.is_active ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'bg-slate-300 text-slate-600'}`}>
                             {formData.is_active ? 'Live on Portal' : 'Draft / Offline'}
-                         </div>
-                         {formData.is_featured && (
+                        </div>
+                        {formData.is_featured && (
                             <div className="px-6 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-amber-500/30">
                                 <Sparkles size={16} /> Featured Premium
                             </div>
-                         )}
+                        )}
                     </div>
                 </div>
             </div>
@@ -208,14 +237,14 @@ const HoneymoonResortForm = ({ editId }) => {
                                 <label className={styleProps.labelStyle}>Price Per Night (₹)</label>
                                 <div className="relative group">
                                     <div className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-600 group-focus-within:text-indigo-700 transition-colors">₹</div>
-                                    <input disabled={isViewMode} type="number" name="price_per_night" value={formData.price_per_night} onChange={handleChange} className={`${styleProps.inputStyle} pl-12`} />
+                                    <input disabled={isViewMode} type="number" name="price_per_night" value={formData.price_per_night} onChange={handleChange} placeholder="e.g. 25000" min="0" className={`${styleProps.inputStyle} pl-12`} />
                                 </div>
                             </div>
                             <div>
                                 <label className={styleProps.labelStyle}>Duration Preference</label>
                                 <div className="relative group">
                                     <Calendar size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-indigo-700 transition-colors" />
-                                    <input disabled={isViewMode} type="number" name="duration_days" value={formData.duration_days} onChange={handleChange} className={`${styleProps.inputStyle} pl-14`} />
+                                    <input disabled={isViewMode} type="number" name="duration_days" value={formData.duration_days} onChange={handleChange} placeholder="e.g. 7" min="1" className={`${styleProps.inputStyle} pl-14`} />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Days</div>
                                 </div>
                             </div>
@@ -267,7 +296,7 @@ const HoneymoonResortForm = ({ editId }) => {
                         <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><ImageIcon size={20} /></div>
                         <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Premium Media Hub</h2>
                     </div>
-                    
+
                     <div className="space-y-12">
                         {!isViewMode && <label className="group relative flex flex-col items-center justify-center w-full aspect-[21/7] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all hover:border-indigo-600">
                             <div className="size-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-3">
@@ -284,8 +313,8 @@ const HoneymoonResortForm = ({ editId }) => {
                         {(previewUrls.length > 0 || existingImages.length > 0) && (
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 bg-slate-50 dark:bg-slate-800/30 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-inner">
                                 {existingImages.map((src, idx) => (
-                                    <div 
-                                        key={idx} 
+                                    <div
+                                        key={idx}
                                         onClick={() => { if (isViewMode) setSelectedImage(src.startsWith('http') ? src : `${ENV.API_BASE_URL}${src}`); }}
                                         className={`relative aspect-square rounded-[2rem] overflow-hidden group border-4 ${removedImageIndexes.includes(idx) ? 'border-red-600 opacity-50' : 'border-transparent shadow-xl'} ${isViewMode ? 'cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/30' : ''}`}
                                     >
@@ -377,22 +406,22 @@ const HoneymoonResortForm = ({ editId }) => {
             {/* LIGHTBOX MODAL */}
             <AnimatePresence>
                 {selectedImage && (
-                    <motion.div 
-                        initial={{ opacity: 0 }} 
-                        animate={{ opacity: 1 }} 
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setSelectedImage(null)}
                         className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4 cursor-zoom-out"
                     >
-                        <motion.img 
+                        <motion.img
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            src={selectedImage} 
-                            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl" 
-                            alt="Resort Detail" 
+                            src={selectedImage}
+                            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+                            alt="Resort Detail"
                         />
-                        <button 
+                        <button
                             onClick={() => setSelectedImage(null)}
                             className="absolute top-6 right-6 p-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
                         >

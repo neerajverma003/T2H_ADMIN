@@ -12,6 +12,7 @@ import {
     Film
 } from "lucide-react";
 import { apiClient } from "../../../stores/authStores";
+import { getCdnUrl } from "../../../utils/media";
 
 const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
     const { labelStyle, cardStyle, inputStyle } = styles;
@@ -100,16 +101,21 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
             };
             reader.readAsDataURL(file);
         } else {
-            files.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    setFormData((prev) => ({
-                        ...prev,
-                        [key]: [...prev[key], ev.target.result],
-                        [`${key}_files`]: [...(prev[`${key}_files`] || []), file],
-                    }));
-                };
-                reader.readAsDataURL(file);
+            Promise.all(
+                files.map(
+                    (file) =>
+                        new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => resolve({ preview: ev.target.result, file });
+                            reader.readAsDataURL(file);
+                        })
+                )
+            ).then((results) => {
+                setFormData((prev) => ({
+                    ...prev,
+                    [key]: [...prev[key], ...results.map((r) => r.preview)],
+                    [`${key}_files`]: [...(prev[`${key}_files`] || []), ...results.map((r) => r.file)],
+                }));
             });
         }
         e.target.value = '';
@@ -136,7 +142,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                             className={`group relative aspect-square cursor-pointer rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-transparent bg-slate-100 dark:bg-slate-800'}`}
                         >
                             {url ? (
-                                <img src={url} alt="" className={`h-full w-full object-cover transition-transform group-hover:scale-110 ${!isSelected && 'grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100'}`} />
+                                <img src={getCdnUrl(url)} alt="" className={`h-full w-full object-cover transition-transform group-hover:scale-110 ${!isSelected && 'grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100'}`} />
                             ) : (
                                 <div className="h-full w-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black uppercase text-slate-400">Missing</div>
                             )}
@@ -191,7 +197,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                                         onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
                                         className={`group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg ${isViewMode ? 'cursor-pointer hover:shadow-indigo-500/30 hover:scale-105 transition-all' : ''}`}
                                     >
-                                        {img && <img src={img} className="h-full w-full object-cover" alt="" />}
+                                        {img && <img src={getCdnUrl(img)} className="h-full w-full object-cover" alt="" />}
                                         {(!isViewMode) && <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <button 
                                                 type="button"
@@ -221,7 +227,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                                     onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
                                     className={`group relative aspect-square rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900 shadow-lg ${isViewMode ? 'cursor-pointer hover:shadow-indigo-500/30 hover:scale-105 transition-all' : ''}`}
                                 >
-                                    {img && <img src={img} className="h-full w-full object-cover" alt="" />}
+                                {img && <img src={getCdnUrl(img)} className="h-full w-full object-cover" alt="" />}
                                     {(!isViewMode) && <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <button 
                                             type="button"

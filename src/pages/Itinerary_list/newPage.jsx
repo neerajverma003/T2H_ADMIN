@@ -89,13 +89,23 @@ const ItineraryDetailsPage = () => {
             const formDataToSend = new FormData();
 
             Object.entries(formData).forEach(([key, value]) => {
-                if (
+                if (key === "stay_hotels") {
+                    const cleaned = (value || []).map(item => ({
+                        location: item.location || "",
+                        standard_hotel: (typeof item.standard_hotel === "object" ? item.standard_hotel?._id : item.standard_hotel) || null,
+                        deluxe_hotel: (typeof item.deluxe_hotel === "object" ? item.deluxe_hotel?._id : item.deluxe_hotel) || null,
+                        super_deluxe_hotel: (typeof item.super_deluxe_hotel === "object" ? item.super_deluxe_hotel?._id : item.super_deluxe_hotel) || null,
+                        luxury_hotel: (typeof item.luxury_hotel === "object" ? item.luxury_hotel?._id : item.luxury_hotel) || null,
+                    }));
+                    formDataToSend.append(key, JSON.stringify(cleaned));
+                } else if (
                     [
                         "days_information",
                         "classification",
                         "itinerary_theme",
                         "destination_images",
                         "destination_thumbnails",
+                        "pricing",
                     ].includes(key)
                 ) {
                     formDataToSend.append(key, JSON.stringify(value));

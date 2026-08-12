@@ -44,7 +44,7 @@ const Dashboard = () => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       variants={container}
       initial="hidden"
       animate="show"
@@ -52,38 +52,38 @@ const Dashboard = () => {
     >
       {/* 4 STAT CARDS - MATERIAL STYLE */}
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 pt-6">
-        <MaterialStatCard 
-          icon={<DollarSign size={24} />} 
-          title="Today's Revenue" 
-          value="$53,240" 
-          trend="+55%" 
+        <MaterialStatCard
+          icon={<DollarSign size={24} />}
+          title="Today's Revenue"
+          value="$53,240"
+          trend="+55%"
           trendText="vs last week"
           isPositive={true}
           color="bg-slate-950"
         />
-        <MaterialStatCard 
-          icon={<Users size={24} />} 
-          title="Active Users" 
-          value="2,300" 
-          trend="+3.2%" 
+        <MaterialStatCard
+          icon={<Users size={24} />}
+          title="Active Users"
+          value="2,300"
+          trend="+3.2%"
           trendText="growth rate"
           isPositive={true}
           color="bg-indigo-700"
         />
-        <MaterialStatCard 
-          icon={<Activity size={24} />} 
-          title="Global Views" 
-          value="3.4M" 
-          trend="-2.1%" 
+        <MaterialStatCard
+          icon={<Activity size={24} />}
+          title="Global Views"
+          value="3.4M"
+          trend="-2.1%"
           trendText="daily change"
           isPositive={false}
           color="bg-emerald-700"
         />
-        <MaterialStatCard 
-          icon={<Package size={24} />} 
-          title="Total Sales" 
-          value="$103,430" 
-          trend="+5.4%" 
+        <MaterialStatCard
+          icon={<Package size={24} />}
+          title="Total Sales"
+          value="$103,430"
+          trend="+5.4%"
           trendText="market share"
           isPositive={true}
           color="bg-rose-700"
@@ -92,109 +92,109 @@ const Dashboard = () => {
 
       {/* 3 CHARTS LAYOUT */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
-        <ChartCard 
-            title="Campaign Reach" 
-            subtitle="Performance of current marketing blast" 
-            footer="Updated 2 hours ago"
-            color="bg-emerald-700"
-            icon={<MousePointer2 size={20} />}
+        <ChartCard
+          title="Campaign Reach"
+          subtitle="Performance of current marketing blast"
+          footer="Updated 2 hours ago"
+          color="bg-emerald-700"
+          icon={<MousePointer2 size={20} />}
         />
-        <ChartCard 
-            title="Sales Velocity" 
-            subtitle="Real-time conversion metrics" 
-            footer="Syncing now..."
-            color="bg-indigo-700"
-            icon={<TrendingUp size={20} />}
+        <ChartCard
+          title="Sales Velocity"
+          subtitle="Real-time conversion metrics"
+          footer="Syncing now..."
+          color="bg-indigo-700"
+          icon={<TrendingUp size={20} />}
         />
-        <ChartCard 
-            title="Fulfillment" 
-            subtitle="Operations queue status" 
-            footer="All systems clear"
-            color="bg-slate-950"
-            icon={<CheckCircle2 size={20} />}
+        <ChartCard
+          title="Fulfillment"
+          subtitle="Operations queue status"
+          footer="All systems clear"
+          color="bg-slate-950"
+          icon={<CheckCircle2 size={20} />}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
         {/* PROJECTS / PACKAGES */}
         <motion.div variants={item} className="col-span-1 lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
-           <div className="mb-10 flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Active Packages</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mt-1 flex items-center gap-2 italic">
-                  <CheckCircle2 size={16} className="text-indigo-700" /> <span className="font-black text-indigo-700 underline underline-offset-4">30 completions</span> this cycle
-                </p>
-              </div>
-              <div className="size-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-950 dark:text-white border-2 border-slate-100 dark:border-slate-700 shadow-sm">
-                 <Package size={32} />
-              </div>
-           </div>
-           
-           <div className="overflow-x-auto rounded-3xl border border-slate-100 dark:border-slate-800">
-             <table className="w-full">
-               <thead className="bg-slate-100 dark:bg-slate-800">
-                 <tr>
-                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Destination</th>
-                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Price Point</th>
-                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Status</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                 {packages.map((p, i) => (
-                   <tr key={i} className="group hover:bg-indigo-50 dark:hover:bg-indigo-900/5 transition-colors">
-                     <td className="px-8 py-8">
-                        <div className="flex items-center gap-5">
-                           <div className="size-12 rounded-2xl bg-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/30">{p.d.charAt(0)}</div>
-                           <span className="font-black text-slate-950 dark:text-white text-lg uppercase tracking-widest">{p.d}</span>
+          <div className="mb-10 flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Active Packages</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mt-1 flex items-center gap-2 italic">
+                <CheckCircle2 size={16} className="text-indigo-700" /> <span className="font-black text-indigo-700 underline underline-offset-4">30 completions</span> this cycle
+              </p>
+            </div>
+            <div className="size-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-950 dark:text-white border-2 border-slate-100 dark:border-slate-700 shadow-sm">
+              <Package size={32} />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto rounded-3xl border border-slate-100 dark:border-slate-800">
+            <table className="w-full">
+              <thead className="bg-slate-100 dark:bg-slate-800">
+                <tr>
+                  <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Destination</th>
+                  <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Price Point</th>
+                  <th className="px-8 py-5 text-left text-[10px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-wide">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {packages.map((p, i) => (
+                  <tr key={i} className="group hover:bg-indigo-50 dark:hover:bg-indigo-900/5 transition-colors">
+                    <td className="px-8 py-8">
+                      <div className="flex items-center gap-5">
+                        <div className="size-12 rounded-2xl bg-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/30">{p.d.charAt(0)}</div>
+                        <span className="font-black text-slate-950 dark:text-white text-lg uppercase tracking-widest">{p.d}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-8 text-xl font-black text-indigo-700 dark:text-indigo-400 tracking-tighter">{p.p}</td>
+                    <td className="px-8 py-8">
+                      <div className="w-48">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-black text-indigo-700 uppercase tracking-widest">In Progress</span>
                         </div>
-                     </td>
-                     <td className="px-8 py-8 text-xl font-black text-indigo-700 dark:text-indigo-400 tracking-tighter">{p.p}</td>
-                     <td className="px-8 py-8">
-                        <div className="w-48">
-                           <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-black text-indigo-700 uppercase tracking-widest">In Progress</span>
-                           </div>
-                           <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner border border-slate-200 dark:border-slate-700">
-                              <div className="h-full bg-indigo-700 rounded-full shadow-lg" style={{ width: '65%' }}></div>
-                           </div>
+                        <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner border border-slate-200 dark:border-slate-700">
+                          <div className="h-full bg-indigo-700 rounded-full shadow-lg" style={{ width: '65%' }}></div>
                         </div>
-                     </td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
-           </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </motion.div>
 
         {/* ORDERS OVERVIEW */}
         <motion.div variants={item} className="col-span-1 lg:col-span-4 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
-           <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-2 uppercase tracking-tight">Activity Log</h3>
-           <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mb-8 flex items-center gap-2 italic">
-              <TrendingUp size={16} className="text-emerald-700" /> <span className="font-black text-emerald-700 underline underline-offset-4">24% velocity increase</span>
-           </p>
+          <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-2 uppercase tracking-tight">Activity Log</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 font-bold mb-8 flex items-center gap-2 italic">
+            <TrendingUp size={16} className="text-emerald-700" /> <span className="font-black text-emerald-700 underline underline-offset-4">24% velocity increase</span>
+          </p>
 
-           <div className="space-y-10 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[3px] before:bg-slate-100 dark:before:bg-slate-800">
-              <TimelineItem 
-                icon={<Bell size={16} className="text-emerald-700" />} 
-                title="$2,400 Revenue Sync" 
-                date="22 DEC 7:20 PM" 
-              />
-              <TimelineItem 
-                icon={<Zap size={16} className="text-rose-700" />} 
-                title="System Update #183" 
-                date="21 DEC 11 PM" 
-              />
-              <TimelineItem 
-                icon={<DollarSign size={16} className="text-indigo-700" />} 
-                title="Vendor Settlement" 
-                date="21 DEC 9:34 PM" 
-              />
-              <TimelineItem 
-                icon={<Heart size={16} className="text-amber-700" />} 
-                title="Customer Review #439" 
-                date="20 DEC 2:20 AM" 
-              />
-           </div>
+          <div className="space-y-10 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[3px] before:bg-slate-100 dark:before:bg-slate-800">
+            <TimelineItem
+              icon={<Bell size={16} className="text-emerald-700" />}
+              title="$2,400 Revenue Sync"
+              date="22 DEC 7:20 PM"
+            />
+            <TimelineItem
+              icon={<Zap size={16} className="text-rose-700" />}
+              title="System Update #183"
+              date="21 DEC 11 PM"
+            />
+            <TimelineItem
+              icon={<DollarSign size={16} className="text-indigo-700" />}
+              title="Vendor Settlement"
+              date="21 DEC 9:34 PM"
+            />
+            <TimelineItem
+              icon={<Heart size={16} className="text-amber-700" />}
+              title="Customer Review #439"
+              date="20 DEC 2:20 AM"
+            />
+          </div>
         </motion.div>
       </div>
     </motion.div>
@@ -222,28 +222,28 @@ const MaterialStatCard = ({ icon, title, value, trend, trendText, isPositive, co
 const ChartCard = ({ title, subtitle, footer, color, icon }) => (
   <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
     <div className={`-mt-14 mb-10 h-64 rounded-3xl ${color} shadow-2xl flex items-center justify-center p-10 relative overflow-hidden group`}>
-        <div className="flex items-end gap-4 h-full w-full justify-around pt-10">
-            {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
-                <motion.div 
-                    key={i} 
-                    initial={{ height: 0 }} 
-                    animate={{ height: `${h}%` }} 
-                    transition={{ delay: i * 0.1, duration: 1 }}
-                    className="w-full bg-white/30 rounded-t-xl group-hover:bg-white/50 transition-colors shadow-sm"
-                />
-            ))}
-        </div>
-        <div className="absolute top-6 right-6 text-white/30">
-            {icon}
-        </div>
+      <div className="flex items-end gap-4 h-full w-full justify-around pt-10">
+        {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+          <motion.div
+            key={i}
+            initial={{ height: 0 }}
+            animate={{ height: `${h}%` }}
+            transition={{ delay: i * 0.1, duration: 1 }}
+            className="w-full bg-white/30 rounded-t-xl group-hover:bg-white/50 transition-colors shadow-sm"
+          />
+        ))}
+      </div>
+      <div className="absolute top-6 right-6 text-white/30">
+        {icon}
+      </div>
     </div>
     <div className="px-2 text-center sm:text-left">
-        <h4 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight">{title}</h4>
-        <p className="text-lg font-bold text-slate-600 dark:text-slate-400 mt-3 italic">{subtitle}</p>
-        <div className="mt-10 pt-8 border-t-2 border-slate-50 dark:border-slate-800 flex items-center justify-center sm:justify-start gap-4 text-slate-950 dark:text-slate-400">
-            <Clock size={20} className="text-indigo-700" />
-            <span className="text-xs font-black uppercase tracking-[0.4em]">{footer}</span>
-        </div>
+      <h4 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight">{title}</h4>
+      <p className="text-lg font-bold text-slate-600 dark:text-slate-400 mt-3 italic">{subtitle}</p>
+      <div className="mt-10 pt-8 border-t-2 border-slate-50 dark:border-slate-800 flex items-center justify-center sm:justify-start gap-4 text-slate-950 dark:text-slate-400">
+        <Clock size={20} className="text-indigo-700" />
+        <span className="text-xs font-black uppercase tracking-[0.4em]">{footer}</span>
+      </div>
     </div>
   </div>
 )

@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { 
-  FiInfo, FiSave, FiPlus, FiTrash2, FiEdit2, FiUsers, 
-  FiEye, FiTarget, FiSettings, FiLoader, FiCheck, FiX 
+import {
+  FiInfo, FiSave, FiPlus, FiTrash2, FiEdit2, FiUsers,
+  FiEye, FiTarget, FiSettings, FiLoader, FiCheck, FiX
 } from "react-icons/fi";
 import { ShieldCheck, Sparkles, RefreshCcw, Save, Trash, UploadCloud, Loader2 } from "lucide-react";
 import { apiClient } from "../../stores/authStores";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 
 const AboutSettings = () => {
   const [activeTab, setActiveTab] = useState("story"); // 'story' or 'team'
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [teamList, setTeamList] = useState([]);
-  
+
   // S3 File Upload states
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -22,14 +23,19 @@ const AboutSettings = () => {
   // Reusable S3 upload orchestrator
   const uploadFileToS3 = async (file, folder) => {
     try {
+      let fileToUpload = file;
+      if (file?.type?.startsWith("image/")) {
+        fileToUpload = await convertImageFileToWebP(file);
+      }
+
       const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-        fileName: file.name,
-        fileType: file.type,
+        fileName: fileToUpload.name,
+        fileType: fileToUpload.type,
         folder: folder
       });
       const { uploadUrl, key } = presignedRes.data;
-      await axios.put(uploadUrl, file, {
-        headers: { "Content-Type": file.type }
+      await axios.put(uploadUrl, fileToUpload, {
+        headers: { "Content-Type": fileToUpload.type }
       });
       return key; // return clean S3 key 
     } catch (error) {
@@ -91,7 +97,7 @@ const AboutSettings = () => {
       setUploadingAvatar(false);
     }
   };
-  
+
   // Dynamic Story Form Data
   const [storyForm, setStoryForm] = useState({
     hero: { mediaUrl: "", tagline: "", title: "", subtitle: "" },
@@ -267,7 +273,7 @@ const AboutSettings = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-12 pb-24 px-6 text-left">
-      
+
       {/* 1. HEADER */}
       <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-100/50 dark:shadow-none relative overflow-hidden">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-700"><FiSettings size={200} /></div>
@@ -285,23 +291,21 @@ const AboutSettings = () => {
 
       {/* 2. TABS SELECTOR */}
       <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800/60 p-2 rounded-2xl w-fit">
-        <button 
+        <button
           onClick={() => setActiveTab("story")}
-          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${
-            activeTab === "story" 
-              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md" 
+          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${activeTab === "story"
+              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md"
               : "text-slate-600 hover:text-indigo-700"
-          }`}
+            }`}
         >
           <FiInfo size={16} /> Story & Settings
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab("team")}
-          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${
-            activeTab === "team" 
-              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md" 
+          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${activeTab === "team"
+              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md"
               : "text-slate-600 hover:text-indigo-700"
-          }`}
+            }`}
         >
           <FiUsers size={16} /> Team Directory
         </button>
@@ -344,7 +348,7 @@ const AboutSettings = () => {
                 <textarea
                   value={storyForm.story.content}
                   onChange={(e) => handleNestedChange("story", "content", e.target.value)}
-                  placeholder="At TripToHoneymoon, our journey began..."
+                  placeholder="At Trip2Honeymoon, our journey began..."
                   rows="6"
                   className={`${styleProps.inputStyle} h-40 pt-4 resize-none`}
                   required
@@ -355,7 +359,7 @@ const AboutSettings = () => {
 
           {/* MISSION & VISION */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            
+
             {/* MISSION CARD */}
             <div className={styleProps.cardStyle}>
               <div className="flex items-center gap-3 mb-6">
@@ -499,7 +503,7 @@ const AboutSettings = () => {
       {/* 4. TEAM TAB CONTENT */}
       {activeTab === "team" && (
         <div className="space-y-12">
-          
+
           <div className={styleProps.cardStyle}>
             <div className="flex items-center justify-between mb-10">
               <div>
@@ -518,13 +522,13 @@ const AboutSettings = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {teamList.map((member) => (
-                <div 
+                <div
                   key={member._id}
                   className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center relative group"
                 >
                   <div className="relative w-36 h-36 rounded-full overflow-hidden mb-4 border border-slate-200 dark:border-slate-700 shadow-md">
-                    <img 
-                      src={member.image.startsWith("http") ? member.image : `https://media.trip2honeymoon.com/${member.image}`} 
+                    <img
+                      src={member.image.startsWith("http") ? member.image : `https://media.trip2honeymoon.com/${member.image}`}
                       alt={member.name}
                       className="w-full h-full object-cover"
                     />
@@ -537,11 +541,10 @@ const AboutSettings = () => {
                     <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-slate-200 dark:bg-slate-800 rounded-md text-slate-600 dark:text-slate-400">
                       Sort: {member.order || 0}
                     </span>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md ${
-                      member.status 
-                        ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600" 
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md ${member.status
+                        ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600"
                         : "bg-red-50 dark:bg-red-950/20 text-red-500"
-                    }`}>
+                      }`}>
                       {member.status ? "Active" : "Disabled"}
                     </span>
                   </div>
@@ -579,7 +582,7 @@ const AboutSettings = () => {
       <AnimatePresence>
         {modalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -589,8 +592,8 @@ const AboutSettings = () => {
                 <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">
                   {editingMember ? "✏️ Edit Team Profile" : "👥 Register Team Profile"}
                 </h3>
-                <button 
-                  onClick={() => setModalOpen(false)} 
+                <button
+                  onClick={() => setModalOpen(false)}
                   className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition-colors"
                 >
                   <FiX size={18} />
@@ -635,7 +638,7 @@ const AboutSettings = () => {
 
                   {/* Drag & Drop Team Avatar Zone */}
                   <div className="mt-3">
-                    <label 
+                    <label
                       className="flex flex-col items-center justify-center gap-3 cursor-pointer rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 p-4 hover:border-indigo-500 transition-all text-center group"
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={handleAvatarDrop}

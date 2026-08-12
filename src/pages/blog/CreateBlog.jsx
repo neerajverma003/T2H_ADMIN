@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { ENV } from "../../constants/api";
 import { motion } from "framer-motion";
 import { useQuill } from "react-quilljs";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 import "quill/dist/quill.snow.css";
 
 const styleProps = {
@@ -56,7 +57,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
       toolbar: [
         [{ 'header': [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
         [{ 'color': [] }, { 'background': [] }],
         ['blockquote', 'code-block'],
         ['clean']
@@ -107,17 +108,17 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Dynamic Validation check
     const missingFields = [];
     if (!title.trim()) missingFields.push("Story Title");
-    
+
     const isContentEmpty = !content.trim() || content.trim() === "<p><br></p>" || content.trim() === "<p></p>";
     if (isContentEmpty) missingFields.push("Story Manuscript (Content)");
-    
+
     const hasImage = coverImage || (isEditMode && imagePreview);
     if (!hasImage) missingFields.push("Story Visual Identity (Cover Image)");
-    
+
     if (postType === 'article' && !quote.trim()) {
       missingFields.push("Editorial Quote / Spotlight Summary");
     }
@@ -142,6 +143,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
       if (coverImage) {
         const blogFolder = `blog/${title.replace(/\s+/g, '_')}`;
+        const convertedCoverImage = await convertImageFileToWebP(coverImage);
         const presignedRes = await fetch(`${ENV.API_BASE_URL}/admin/generate-presigned-url`, {
           method: "POST",
           headers: {
@@ -149,8 +151,8 @@ const CreateBlog = ({ postType = 'blog' }) => {
             "Authorization": `Bearer ${localStorage.getItem("token")}`
           },
           body: JSON.stringify({
-            fileName: coverImage.name,
-            fileType: coverImage.type,
+            fileName: convertedCoverImage.name,
+            fileType: convertedCoverImage.type,
             folder: blogFolder
           })
         });
@@ -159,8 +161,8 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
         await fetch(uploadUrl, {
           method: "PUT",
-          body: coverImage,
-          headers: { "Content-Type": coverImage.type }
+          body: convertedCoverImage,
+          headers: { "Content-Type": convertedCoverImage.type }
         });
 
         finalCoverImage = key;
@@ -203,7 +205,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-full mx-auto space-y-6 pb-24 text-left"
@@ -215,28 +217,28 @@ const CreateBlog = ({ postType = 'blog' }) => {
           <div>
             <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
               {isEditMode ? <Edit className="text-indigo-600" size={32} /> : <PlusCircle className="text-indigo-600" size={32} />}
-              {postType === 'article' 
-                ? (isEditMode ? "EDIT SPOTLIGHT/TRENDING ARTICLE" : "WRITE SPOTLIGHT/TRENDING ARTICLE") 
+              {postType === 'article'
+                ? (isEditMode ? "EDIT SPOTLIGHT/TRENDING ARTICLE" : "WRITE SPOTLIGHT/TRENDING ARTICLE")
                 : (isEditMode ? "EDIT STORY" : "NEW STORY")}
             </h1>
             <p className="text-slate-500 font-medium mt-1">
-              {postType === 'article' 
-                ? "Forge high-fidelity narratives displayed in the Editorial Spotlight & Trending sections" 
+              {postType === 'article'
+                ? "Forge high-fidelity narratives displayed in the Editorial Spotlight & Trending sections"
                 : "Share your honeymoon wisdom and strategic travel insights"}
             </p>
           </div>
           <div className="flex items-center gap-4">
-              <button 
-                type="button"
-                onClick={() => navigate(postType === 'article' ? '/articles/list' : '/blogs/list')} 
-                className="px-8 py-4 rounded-2xl font-black text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm"
-              >
-                Discard
-              </button>
-              <button onClick={handleSubmit} disabled={isLoading} className={styleProps.buttonStyle + " flex items-center gap-3 active:scale-95 disabled:opacity-50"}>
-                 {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
-                 {isEditMode ? "PUSH CHANGES" : "PUBLISH STORY"}
-              </button>
+            <button
+              type="button"
+              onClick={() => navigate(postType === 'article' ? '/articles/list' : '/blogs/list')}
+              className="px-8 py-4 rounded-2xl font-black text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm"
+            >
+              Discard
+            </button>
+            <button onClick={handleSubmit} disabled={isLoading} className={styleProps.buttonStyle + " flex items-center gap-3 active:scale-95 disabled:opacity-50"}>
+              {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
+              {isEditMode ? "PUSH CHANGES" : "PUBLISH STORY"}
+            </button>
           </div>
         </div>
       </div>
@@ -250,9 +252,9 @@ const CreateBlog = ({ postType = 'blog' }) => {
               <>
                 <img src={imagePreview} alt="preview" className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-1000" />
                 <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[4px]">
-                    <div className="px-8 py-4 bg-white text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-2">
-                      <UploadCloud size={16} /> Replace Visual
-                    </div>
+                  <div className="px-8 py-4 bg-white text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-2">
+                    <UploadCloud size={16} /> Replace Visual
+                  </div>
                 </div>
               </>
             ) : (
@@ -297,7 +299,7 @@ const CreateBlog = ({ postType = 'blog' }) => {
             </select>
           </div>
         </div>
-       {/* SECTION 2.5: EDITORIAL QUOTE (Only for Spotlight/Trending Articles) */}
+        {/* SECTION 2.5: EDITORIAL QUOTE (Only for Spotlight/Trending Articles) */}
         {postType === 'article' && (
           <div className={styleProps.cardStyle}>
             <label className={styleProps.labelStyle}><Sparkles size={18} className="text-indigo-600" /> Editorial Quote / Spotlight Summary</label>
@@ -318,24 +320,23 @@ const CreateBlog = ({ postType = 'blog' }) => {
         <div className={styleProps.cardStyle}>
           <label className={styleProps.labelStyle}><Eye size={18} className="text-indigo-600" /> Visibility Matrix</label>
           <div className="flex gap-4">
-             {[
-               { id: 'public', label: 'Live Broadcast', icon: Zap },
-               { id: 'private', label: 'Draft Archive', icon: ShieldCheck }
-             ].map((v) => (
-               <button
-                 key={v.id}
-                 type="button"
-                 onClick={() => setVisibility(v.id)}
-                 className={`flex-1 p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
-                   visibility === v.id 
-                   ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 shadow-lg' 
-                   : 'border-slate-100 dark:border-slate-800 text-slate-400'
-                 }`}
-               >
-                 <v.icon size={24} />
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">{v.label}</span>
-               </button>
-             ))}
+            {[
+              { id: 'public', label: 'Live Broadcast', icon: Zap },
+              { id: 'private', label: 'Draft Archive', icon: ShieldCheck }
+            ].map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => setVisibility(v.id)}
+                className={`flex-1 p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${visibility === v.id
+                  ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 shadow-lg'
+                  : 'border-slate-100 dark:border-slate-800 text-slate-400'
+                  }`}
+              >
+                <v.icon size={24} />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{v.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -353,7 +354,8 @@ const CreateBlog = ({ postType = 'blog' }) => {
           <div className="mt-2 overflow-hidden rounded-2xl">
             <div ref={quillRef} />
           </div>
-          <style dangerouslySetInnerHTML={{__html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             .ql-toolbar.ql-snow {
               border: 1px solid #e2e8f0 !important;
               background-color: #f8fafc !important;
@@ -388,10 +390,10 @@ const CreateBlog = ({ postType = 'blog' }) => {
             }
           `}} />
           <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex items-start gap-4">
-              <Sparkles size={20} className="text-indigo-600 shrink-0" />
-              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-widest">
-                Ensuring all narratives adhere to the brand's premium linguistic standards. High-fidelity storytelling is mandatory.
-              </p>
+            <Sparkles size={20} className="text-indigo-600 shrink-0" />
+            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-widest">
+              Ensuring all narratives adhere to the brand's premium linguistic standards. High-fidelity storytelling is mandatory.
+            </p>
           </div>
         </div>
       </form>

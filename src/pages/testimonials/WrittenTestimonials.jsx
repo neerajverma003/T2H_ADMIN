@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Sparkles, Send, User, MapPin, Star, Calendar, MessageSquare, Image as ImageIcon, Loader2 } from "lucide-react";
 import { apiClient } from "../../stores/authStores";
 import { toast } from "react-toastify";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 
 const WrittenTestimonials = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profilePreview, setProfilePreview] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -37,10 +38,15 @@ const WrittenTestimonials = () => {
     reader.readAsDataURL(file);
 
     try {
+      let fileToUpload = file;
+      if (file?.type?.startsWith("image/")) {
+        fileToUpload = await convertImageFileToWebP(file);
+      }
+
       // 1. Get Presigned URL
       const { data } = await apiClient.post("/admin/generate-presigned-url", {
-        fileName: file.name,
-        fileType: file.type,
+        fileName: fileToUpload.name,
+        fileType: fileToUpload.type,
         folder: "testimonials/profiles"
       });
 
@@ -48,8 +54,8 @@ const WrittenTestimonials = () => {
         // 2. Upload to S3
         await fetch(data.uploadUrl, {
           method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type }
+          body: fileToUpload,
+          headers: { "Content-Type": fileToUpload.type }
         });
 
         // 3. Save Key
@@ -69,7 +75,7 @@ const WrittenTestimonials = () => {
     try {
       setIsSubmitting(true);
       const res = await apiClient.post("/admin/text-testimonial", formData);
-      
+
       if (res.data.success) {
         toast.success("Testimonial added successfully!");
         setFormData({
@@ -113,7 +119,7 @@ const WrittenTestimonials = () => {
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Couple Profile</h3>
-            
+
             <div className="flex flex-col items-center">
               <div className="relative group">
                 <div className="size-32 rounded-full overflow-hidden border-4 border-slate-50 dark:border-slate-800 shadow-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -188,7 +194,7 @@ const WrittenTestimonials = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Trip Experience</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Destination Visited</label>
@@ -230,11 +236,10 @@ const WrittenTestimonials = () => {
                     key={num}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, rating: num }))}
-                    className={`p-2 rounded-lg transition-all ${
-                      formData.rating >= num 
-                        ? "text-amber-400 bg-amber-50 dark:bg-amber-900/20 scale-110" 
-                        : "text-slate-300 hover:text-amber-200"
-                    }`}
+                    className={`p-2 rounded-lg transition-all ${formData.rating >= num
+                      ? "text-amber-400 bg-amber-50 dark:bg-amber-900/20 scale-110"
+                      : "text-slate-300 hover:text-amber-200"
+                      }`}
                   >
                     <Star size={24} fill={formData.rating >= num ? "currentColor" : "none"} />
                   </button>

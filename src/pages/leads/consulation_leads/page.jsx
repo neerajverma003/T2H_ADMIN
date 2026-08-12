@@ -11,36 +11,30 @@ import {
     Loader2, 
     Sparkles, 
     Search, 
-    ChevronLeft, 
-    ChevronRight,
-    ArrowUpRight,
     Inbox,
-    Target,
-    Navigation,
-    CheckCircle2
+    Clock,
+    Filter,
+    Package,
+    Eye,
+    X
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ITEMS_PER_PAGE = 10;
-
-const STATUS_STYLES = {
-  new: 'bg-indigo-600 text-white border-transparent hover:bg-indigo-700 shadow-lg shadow-indigo-500/30',
-  in_progress: 'bg-amber-500 text-white border-transparent hover:bg-amber-600 shadow-lg shadow-amber-500/30',
-  proposal_sent: 'bg-purple-600 text-white border-transparent hover:bg-purple-700 shadow-lg shadow-purple-500/30',
-  booked: 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600 shadow-lg shadow-emerald-500/30'
-};
+const STATUS_OPTIONS = [
+  { value: "new", label: "PENDING", bg: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
+  { value: "in_progress", label: "CONTACTED", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" },
+  { value: "proposal_sent", label: "PROPOSAL SENT", bg: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
+  { value: "booked", label: "BOOKED", bg: "bg-purple-500/10 text-purple-400 border-purple-500/30" }
+];
 
 const ConsultationLeads = () => {
   const [leads, setLeads] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalLeads, setTotalLeads] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openDropdownId, setOpenDropdownId] = useState(null);
-
-  const totalPages = useMemo(() => Math.ceil(totalLeads / ITEMS_PER_PAGE), [totalLeads]);
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [selectedLead, setSelectedLead] = useState(null);
 
   useEffect(() => {
     const loadLeads = async () => {
@@ -50,10 +44,9 @@ const ConsultationLeads = () => {
         const response = await apiClient.get("/admin/consultation-leads");
         if (response.data.Data) {
           setLeads(response.data.Data);
-          setTotalLeads(response.data.Data.length);
         }
       } catch (err) {
-        setError("Failed to synchronize consultation vault.");
+        setError("Failed to load consultation leads registry.");
       } finally {
         setIsLoading(false);
       }
@@ -62,29 +55,35 @@ const ConsultationLeads = () => {
   }, []);
 
   const filteredLeads = useMemo(() => {
-    return leads.filter(lead =>
-      lead.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.phone?.includes(searchTerm) ||
-      lead.city?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [leads, searchTerm]);
+    return leads.filter(lead => {
+      const q = searchTerm.toLowerCase();
+      const matchesSearch = 
+        lead.name?.toLowerCase().includes(q) ||
+        lead.email?.toLowerCase().includes(q) ||
+        lead.phone?.includes(q) ||
+        lead.city?.toLowerCase().includes(q) ||
+        lead.to?.toLowerCase().includes(q) ||
+        lead.itineraryTitle?.toLowerCase().includes(q);
 
-  const paginatedLeads = useMemo(() => {
-    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredLeads.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-  }, [filteredLeads, currentPage]);
+      if (!matchesSearch) return false;
+
+      if (timeFilter === "today") {
+        const today = new Date().toDateString();
+        return new Date(lead.createdAt).toDateString() === today;
+      }
+      return true;
+    });
+  }, [leads, searchTerm, timeFilter]);
 
   const handleDelete = async (leadId) => {
-    if (!window.confirm("Permanently remove this consultation request?")) return;
+    if (!window.confirm("Permanently delete this consultation request?")) return;
     try {
       const response = await apiClient.delete(`/admin/consultation-leads/${leadId}`);
       if (response.data.success) {
         setLeads((prev) => prev.filter((lead) => lead._id !== leadId));
-        setTotalLeads((prev) => prev - 1);
-        toast.success("Consultation archived");
+        toast.success("Lead removed");
       }
-    } catch (err) {
+    } catch {
       toast.error("Removal failed");
     }
   };
@@ -96,7 +95,6 @@ const ConsultationLeads = () => {
     ));
 
     try {
-      // NOTE: Using plan-your-trip API because consultations share the same model under the hood
       const response = await apiClient.put(`/admin/plan-your-trip/${leadId}/status`, { status: newStatus });
       if (response.data.success) {
         toast.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
@@ -109,200 +107,344 @@ const ConsultationLeads = () => {
     }
   };
 
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString("en-IN", {
-      year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
-    });
+  const newLeadsCount = leads.filter(l => l.status === 'new' || !l.status).length;
+  const inProgressCount = leads.filter(l => l.status === 'in_progress' || l.status === 'proposal_sent').length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-10 pb-20 px-6 text-left">
-      {/* HEADER HUB */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none text-indigo-700"><Target size={120} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-                <h1 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-                    <MessageSquare className="text-indigo-700" size={32} /> CONSULTATION HUB
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 font-bold mt-1 text-xs italic text-left">High-intent consultation requests from destination seekers</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative group w-full sm:w-64">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-700 transition-colors" size={18} />
-                    <input 
-                        type="text" 
-                        placeholder="Filter consultants..." 
-                        value={searchTerm}
-                        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                        className="pl-12 pr-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-2 border-transparent focus:border-indigo-600/20 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-black w-full outline-none transition-all placeholder:text-slate-400 shadow-sm"
-                    />
-                </div>
-                <div className="px-5 py-2.5 bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/40">
-                    <Sparkles size={16} /> {totalLeads} PORTAL LEADS
-                </div>
-            </div>
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
+            <Sparkles size={14} className="text-blue-600 dark:text-blue-400 animate-pulse" /> BUSINESS INTELLIGENCE
+          </span>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Consultation <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Leads</span>
+          </h1>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+            Orchestrating high-intent engagement signals and strategic customer acquisition pipelines.
+          </p>
+        </div>
+
+        {/* SEARCH & TIME FILTER */}
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search leads..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+            />
+          </div>
+
+          <select 
+            value={timeFilter}
+            onChange={(e) => setTimeFilter(e.target.value)}
+            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-300 outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer shadow-sm"
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+          </select>
         </div>
       </div>
 
-      {/* LEAD GRID */}
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-32 gap-6">
-            <Loader2 className="animate-spin text-indigo-700" size={48} strokeWidth={1.5} />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Consultation Archive...</p>
+      {/* 4 TOP METRIC CARDS */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* CARD 1: REGISTRY VOLUME */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <MessageSquare size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">REGISTRY VOLUME</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{leads.length}</h3>
+          </div>
         </div>
-      ) : error ? (
-        <div className="py-16 text-center bg-red-50 dark:bg-red-950/20 rounded-2xl border-2 border-red-100 dark:border-red-900/30">
-            <p className="text-red-700 font-black uppercase tracking-wide text-xs">{error}</p>
+
+        {/* CARD 2: NEW ARRIVAL */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-amber-50 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <Clock size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">NEW ARRIVAL</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{newLeadsCount}</h3>
+          </div>
         </div>
-      ) : paginatedLeads.length > 0 ? (
-        <>
-        <div className="space-y-10">
-            {/* LEAD LIST */}
-      <div className="grid grid-cols-1 gap-10">
-        <AnimatePresence mode='popLayout'>
-            {paginatedLeads.map((lead) => (
-            <motion.div 
-              layout 
-              key={lead._id} 
-              initial={{ opacity: 0, x: -20 }} 
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className={`group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${openDropdownId === lead._id ? 'z-50' : 'z-10'}`}
-            >
-              <div className="p-6">
-                <div className="flex flex-col xl:flex-row xl:items-center gap-8">
-                   {/* IDENTITY SECTION */}
-                   <div className="flex items-center gap-6 shrink-0">
-                      <div className="size-14 bg-indigo-700 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
-                        {lead.name?.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-black text-slate-950 dark:text-white tracking-tight">{lead.name}</h2>
-                        <div className="flex items-center gap-2 mt-1 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-md text-[8px] font-black uppercase tracking-wide border border-emerald-100 w-fit">
-                           <CheckCircle2 size={12} /> VIP Consultation
-                        </div>
-                      </div>
-                   </div>
 
-                   {/* DATA STRIP */}
-                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 py-6 xl:py-0 border-y xl:border-y-0 xl:border-x border-slate-100 dark:border-slate-800 xl:px-8">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-400 text-xs font-black uppercase tracking-wide">
-                           <Mail size={14} className="text-indigo-600" /> CONTACT EMAIL
-                        </div>
-                        <a href={`mailto:${lead.email}`} className="text-sm font-black text-slate-950 dark:text-slate-300 hover:text-indigo-700 transition-colors block truncate">{lead.email}</a>
-                      </div>
+        {/* CARD 3: MATCHED SIGNALS */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <Filter size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">MATCHED SIGNALS</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{inProgressCount}</h3>
+          </div>
+        </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-400 text-xs font-black uppercase tracking-wide">
-                           <Phone size={14} className="text-indigo-600" /> DIRECT LINE
-                        </div>
-                        <p className="text-sm font-black text-slate-950 dark:text-slate-300">{lead.phone}</p>
-                      </div>
+        {/* CARD 4: TOTAL REACH */}
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <MapPin size={22} strokeWidth={2.5} />
+            </div>
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">TOTAL REACH</span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{leads.length}</h3>
+          </div>
+        </div>
+      </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-slate-700 dark:text-slate-400 text-xs font-black uppercase tracking-wide">
-                           <MapPin size={14} className="text-indigo-600" /> DESTINATION TARGET
-                        </div>
-                        <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                           <p className="text-xs font-black text-slate-950 dark:text-slate-200 truncate">{lead.itineraryTitle || lead.to || 'Custom Itinerary'}</p>
-                        </div>
-                      </div>
-                   </div>
+      {/* LEAD REGISTRY TABLE SECTION */}
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <MessageSquare size={20} />
+            </div>
+            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Lead Registry</h3>
+          </div>
 
-                   {/* ACTION HUB */}
-                   <div className="flex flex-col xl:flex-col items-center justify-center gap-4 shrink-0 min-w-[150px]">
-                      <div className="relative w-full">
-                          <button 
-                              onClick={() => setOpenDropdownId(openDropdownId === lead._id ? null : lead._id)}
-                              className={`flex items-center justify-between w-full font-black text-[10px] uppercase tracking-widest px-4 py-3 rounded-xl border-2 transition-all shadow-sm text-center ${STATUS_STYLES[lead.status || 'new']}`}
+          <div className="flex items-center gap-3">
+            <button className="hidden sm:block px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider">
+              SELECT MULTIPLE
+            </button>
+            <span className="px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-slate-700 text-xs font-black">
+              {filteredLeads.length} RECORDS
+            </span>
+          </div>
+        </div>
+
+        {/* TABLE CONTENT */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2 className="animate-spin text-blue-500" size={48} strokeWidth={2} />
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Loading Lead Registry...</p>
+          </div>
+        ) : error ? (
+          <div className="py-20 text-center bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl">
+            <p className="text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wide text-xs">{error}</p>
+          </div>
+        ) : filteredLeads.length === 0 ? (
+          <div className="py-28 text-center bg-slate-50 dark:bg-slate-950/60 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed shadow-sm">
+            <Inbox className="mx-auto mb-4 text-slate-400 dark:text-slate-600" size={56} strokeWidth={1} />
+            <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Leads Found</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400">No consultation requests match your search criteria.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800/80">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="p-4 pl-6">CLIENT NAME</th>
+                  <th className="p-4">CONTACT INFO</th>
+                  <th className="p-4">ENGAGEMENT DETAIL</th>
+                  <th className="p-4">STATUS</th>
+                  <th className="p-4">DATE</th>
+                  <th className="p-4 text-right pr-6">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
+                {filteredLeads.map((lead) => {
+                  const currentStatus = lead.status || 'new';
+                  const activeOpt = STATUS_OPTIONS.find(o => o.value === currentStatus) || STATUS_OPTIONS[0];
+
+                  return (
+                    <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
+                      {/* CLIENT NAME WITH TEAL EDGE BAR */}
+                      <td className="p-4 pl-6 border-l-4 border-emerald-500">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black text-xs shrink-0">
+                            <User size={16} />
+                          </div>
+                          <div>
+                            <p className="font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {lead.name || 'Unnamed Client'}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* CONTACT INFO */}
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1 text-xs">
+                          {lead.email && (
+                            <a href={`mailto:${lead.email}`} className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                              <Mail size={13} className="text-blue-600 dark:text-blue-400" /> {lead.email}
+                            </a>
+                          )}
+                          {(lead.phone || lead.phone_no) && (
+                            <p className="flex items-center gap-2 font-mono text-slate-500 dark:text-slate-400">
+                              <Phone size={13} className="text-blue-600 dark:text-blue-400" /> {lead.phone || lead.phone_no}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* ENGAGEMENT DETAIL */}
+                      <td className="p-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white">
+                            <Package size={14} className="text-blue-600 dark:text-blue-400" />
+                            {lead.itineraryTitle || lead.to || lead.city || 'General Consultation'}
+                          </span>
+                          <span className="w-fit text-[9px] font-black uppercase tracking-wider bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-500/20">
+                            {lead.itineraryTitle ? 'PACKAGE' : (lead.to || lead.city ? 'DESTINATION' : 'ADVISORY')}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* STATUS DROPDOWN SELECT */}
+                      <td className="p-4">
+                        <select
+                          value={currentStatus}
+                          onChange={(e) => handleStatusChange(lead._id, e.target.value)}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border outline-none cursor-pointer transition-all ${activeOpt.bg}`}
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      {/* DATE */}
+                      <td className="p-4">
+                        <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+                          <Calendar size={13} />
+                          {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'MAR 21, 2026'}
+                        </div>
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="p-4 text-right pr-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 transition-all cursor-pointer"
+                            title="View Lead Details"
                           >
-                              <span className="mx-auto flex items-center gap-2">
-                                  {(lead.status === 'new' || !lead.status) && "🆕 NEW"}
-                                  {lead.status === 'in_progress' && "⏳ IN PROGRESS"}
-                                  {lead.status === 'proposal_sent' && "📨 PROPOSAL"}
-                                  {lead.status === 'booked' && "✅ BOOKED"}
-                              </span>
+                            <Eye size={15} />
                           </button>
+                          <button
+                            onClick={() => handleDelete(lead._id)}
+                            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-600 hover:text-white text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60 transition-all cursor-pointer"
+                            title="Delete Lead"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-                          <AnimatePresence>
-                              {openDropdownId === lead._id && (
-                                  <>
-                                      <div 
-                                          className="fixed inset-0 z-40" 
-                                          onClick={() => setOpenDropdownId(null)}
-                                      />
-                                      <motion.div 
-                                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                          transition={{ duration: 0.15 }}
-                                          className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-2"
-                                      >
-                                          {['new', 'in_progress', 'proposal_sent', 'booked'].map((status) => (
-                                              <button
-                                                  key={status}
-                                                  onClick={() => {
-                                                      handleStatusChange(lead._id, status);
-                                                      setOpenDropdownId(null);
-                                                  }}
-                                                  className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 ${(lead.status || 'new') === status ? 'bg-slate-50 dark:bg-slate-800/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`}
-                                              >
-                                                  {status === 'new' && "🆕 NEW"}
-                                                  {status === 'in_progress' && "⏳ IN PROGRESS"}
-                                                  {status === 'proposal_sent' && "📨 PROPOSAL"}
-                                                  {status === 'booked' && "✅ BOOKED"}
-                                              </button>
-                                          ))}
-                                      </motion.div>
-                                  </>
-                              )}
-                          </AnimatePresence>
-                      </div>
-                      
-                      <div className="flex w-full gap-2">
-                        <button onClick={() => handleDelete(lead._id)} className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
-                           <Trash2 size={16} />
-                        </button>
-                        <button className="flex-1 flex items-center justify-center bg-white dark:bg-slate-800 text-indigo-700 rounded-xl hover:bg-indigo-700 hover:text-white transition-all shadow-md border border-slate-100 dark:border-slate-700 py-2.5">
-                           <ArrowUpRight size={16} />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-tight xl:mt-2">
-                        <Calendar size={12} /> {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : 'N/A'}
-                      </div>
-                   </div>
+      {/* EYE BUTTON DETAILS MODAL */}
+      <AnimatePresence>
+        {selectedLead && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden text-slate-900 dark:text-white"
+            >
+              {/* MODAL HEADER */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="size-11 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <User size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-slate-900 dark:text-white uppercase tracking-tight">{selectedLead.name}</h3>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-extrabold tracking-widest uppercase mt-0.5">CONSULTATION DOSSIER</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="size-9 bg-slate-100 dark:bg-slate-800 hover:bg-rose-600 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-white transition-all cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* CONTACT METRICS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Mail size={12} className="text-blue-600 dark:text-blue-400" /> CONTACT EMAIL
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{selectedLead.email || 'N/A'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Phone size={12} className="text-blue-600 dark:text-blue-400" /> DIRECT PHONE
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white font-mono">{selectedLead.phone || selectedLead.phone_no || 'N/A'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <MapPin size={12} className="text-blue-600 dark:text-blue-400" /> DESTINATION / CITY
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">{selectedLead.city || selectedLead.to || selectedLead.itineraryTitle || 'N/A'}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-1">
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Calendar size={12} className="text-blue-600 dark:text-blue-400" /> CREATED AT
+                  </span>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white font-mono">
+                    {selectedLead.createdAt ? new Date(selectedLead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                  </p>
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>      </div>
 
-            {/* PAGINATION */}
-            <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-none">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wide">
-                    Registry Frame: <span className="text-slate-950 dark:text-white">{currentPage}</span> <span className="mx-2 text-slate-200">/</span> {totalPages}
-                </p>
-                <div className="flex gap-3">
-                    <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-950 dark:text-white border border-transparent hover:border-indigo-700/20 disabled:opacity-30 transition-all">
-                        <ChevronLeft size={18} strokeWidth={3} />
-                    </button>
-                    <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-950 dark:text-white border border-transparent hover:border-indigo-700/20 disabled:opacity-30 transition-all">
-                        <ChevronRight size={18} strokeWidth={3} />
-                    </button>
+              {/* SPECIAL MESSAGE / NOTE */}
+              {selectedLead.message && (
+                <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2">
+                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <MessageSquare size={12} /> SPECIAL INQUIRY NOTE
+                  </span>
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                    "{selectedLead.message}"
+                  </p>
                 </div>
-            </div>
-        </>
-      ) : (
-        <div className="py-32 text-center bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800">
-            <Inbox className="mx-auto mb-4 text-slate-100 dark:text-slate-800" size={64} strokeWidth={1} />
-            <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight mb-2">The Vault is Sealed</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide text-[10px] italic">No consultation requests detected in the registry</p>
-        </div>
-      )}
+              )}
+
+              {/* MODAL FOOTER */}
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-600/30"
+                >
+                  Close Dossier
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
 
 export default ConsultationLeads;
+

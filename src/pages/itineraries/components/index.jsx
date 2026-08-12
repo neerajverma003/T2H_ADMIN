@@ -8,7 +8,7 @@ import PricingSection from "./PricingSection";
 import TermsSection from "./TermsSection";
 import PaymentModeSection from "./PaymentModeSection";
 import CancellationPolicySection from "./CancellationPolicySection";
-import ReviewSection from "./ReviewSection";
+import CuratedAddonsSection from "./CuratedAddonsSection";
 
 export {
     CoreDetailsSection,
@@ -21,5 +21,5 @@ export {
     TermsSection,
     PaymentModeSection,
     CancellationPolicySection,
-    ReviewSection,
+    CuratedAddonsSection,
 };

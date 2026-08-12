@@ -16,6 +16,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    port: 5173,
+  },
   esbuild: {
     drop: ['console', 'debugger'],
   },

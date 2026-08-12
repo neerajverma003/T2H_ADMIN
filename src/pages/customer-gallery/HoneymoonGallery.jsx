@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ImagePlus, Trash2, CheckCircle, Sparkles, Navigation, Loader2, Plus, X, Heart } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiClient } from "../../stores/authStores";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 import { ENV } from "../../constants/api";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,9 +35,11 @@ const HoneymoonGallery = () => {
   }, []);
 
   const handleImageChange = (e) => {
+    const MAX_UPLOAD_IMAGES = 20;
     const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length + newImages.length > 50) {
-      toast.warn("Max 50 images allowed.");
+    if (selectedFiles.length === 0) return;
+    if (selectedFiles.length > MAX_UPLOAD_IMAGES || selectedFiles.length + newImages.length > MAX_UPLOAD_IMAGES) {
+      toast.warn(`Please upload no more than ${MAX_UPLOAD_IMAGES} images at a time.`);
       return;
     }
     setNewImages((prev) => [...prev, ...selectedFiles]);
@@ -61,13 +64,14 @@ const HoneymoonGallery = () => {
       const uploadedImageKeys = [];
 
       for (const file of newImages) {
+        const uploadImage = await convertImageFileToWebP(file);
         const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-          fileName: file.name,
-          fileType: file.type,
+          fileName: uploadImage.name,
+          fileType: uploadImage.type,
           folder: galleryFolder
         });
         const { uploadUrl, key } = presignedRes.data;
-        await fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+        await fetch(uploadUrl, { method: "PUT", body: uploadImage, headers: { "Content-Type": uploadImage.type } });
         uploadedImageKeys.push(key);
       }
 
@@ -76,12 +80,14 @@ const HoneymoonGallery = () => {
         images: uploadedImageKeys
       });
 
-      toast.update(toastId, { render: "Gallery synchronized successfully! ✨", type: "success", isLoading: false, autoClose: 3000 });
+      toast.dismiss(toastId);
+      toast.success("Gallery synchronized successfully! ✨");
       setNewImages([]);
       setPreviewUrls([]);
       fetchGalleryImages();
     } catch {
-      toast.update(toastId, { render: "Synchronization failed.", type: "error", isLoading: false, autoClose: 5000 });
+      toast.dismiss(toastId);
+      toast.error("Synchronization failed.");
     } finally {
       setIsLoading(false);
     }

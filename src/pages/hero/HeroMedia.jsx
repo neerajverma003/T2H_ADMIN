@@ -24,6 +24,7 @@ import { apiClient } from "../../stores/authStores"
 import { useHeroVideoStore } from "../../stores/heroVideoStore"
 import axios from "axios"
 import { motion, AnimatePresence } from "framer-motion"
+import { convertImageFileToWebP } from "../../utils/imageConverter"
 
 const HeroMedia = () => {
     const [mediaFile, setMediaFile] = useState(null)
@@ -99,15 +100,20 @@ const HeroMedia = () => {
             }
 
             const heroFolder = `hero-section/${activePage.replace(/\s+/g, '_')}`
+            let fileToUpload = mediaFile
+            if (mediaType === 'image') {
+                fileToUpload = await convertImageFileToWebP(mediaFile)
+            }
+            const uploadMimeType = fileToUpload.type || resolvedType
             const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                fileName: mediaFile.name,
-                fileType: resolvedType,
+                fileName: fileToUpload.name,
+                fileType: uploadMimeType,
                 folder: heroFolder
             })
             const { uploadUrl, key } = presignedRes.data
 
-            await axios.put(uploadUrl, mediaFile, {
-                headers: { "Content-Type": resolvedType }
+            await axios.put(uploadUrl, fileToUpload, {
+                headers: { "Content-Type": fileToUpload.type || resolvedType }
             })
 
             const payload = {
@@ -152,11 +158,10 @@ const HeroMedia = () => {
                         <button
                             key={p}
                             onClick={() => setActivePage(p)}
-                            className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                                activePage === p 
-                                ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-md border border-slate-200 dark:border-slate-600 scale-105" 
+                            className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activePage === p
+                                ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-md border border-slate-200 dark:border-slate-600 scale-105"
                                 : "text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/50"
-                            }`}
+                                }`}
                         >
                             {p}
                         </button>
@@ -182,7 +187,7 @@ const HeroMedia = () => {
                     <div className="space-y-6">
                         <AnimatePresence>
                             {videos.map((v) => (
-                                <motion.div 
+                                <motion.div
                                     key={v._id}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -191,7 +196,7 @@ const HeroMedia = () => {
                                 >
                                     <div className="flex flex-col xl:flex-row items-center gap-10">
                                         {/* Horizontal Thumbnail */}
-                                        <div 
+                                        <div
                                             onClick={() => setSelectedMedia(v)}
                                             className="w-full xl:w-96 aspect-video bg-slate-950 rounded-[2rem] overflow-hidden relative group-hover:shadow-2xl transition-all duration-700 cursor-pointer"
                                         >
@@ -229,14 +234,14 @@ const HeroMedia = () => {
                                             </div>
 
                                             <div className="flex items-center gap-4">
-                                                <button 
+                                                <button
                                                     onClick={() => updateVisibility(v._id, activePage)}
                                                     className="p-4 bg-white dark:bg-slate-800 text-slate-500 hover:text-indigo-600 rounded-2xl border border-slate-100 dark:border-slate-700 transition-all hover:shadow-xl hover:scale-110"
                                                     title="Toggle Visibility"
                                                 >
                                                     {v.visibility === "Public" ? <EyeOff size={22} /> : <Eye size={22} />}
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => deleteVideo(v._id, activePage)}
                                                     className="p-4 bg-rose-50 dark:bg-rose-900/10 text-rose-500 rounded-2xl border border-rose-100 dark:border-rose-900/30 transition-all hover:shadow-xl hover:bg-rose-600 hover:text-white hover:scale-110"
                                                     title="Delete Asset"
@@ -308,8 +313,8 @@ const HeroMedia = () => {
                                                     type="button"
                                                     onClick={() => setVisibility(v)}
                                                     className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all ${visibility === v
-                                                            ? "bg-slate-900 border-slate-900 text-white shadow-2xl scale-105"
-                                                            : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-300"
+                                                        ? "bg-slate-900 border-slate-900 text-white shadow-2xl scale-105"
+                                                        : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-300"
                                                         }`}
                                                 >
                                                     {v} Access
@@ -394,7 +399,7 @@ const HeroMedia = () => {
                 )}
             </AnimatePresence>
         </div>
-        
+
     )
 }
 

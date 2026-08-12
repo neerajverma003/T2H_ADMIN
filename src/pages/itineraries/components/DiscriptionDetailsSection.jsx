@@ -39,29 +39,37 @@ const DescriptionsSection = ({
         }
     };
 
-    const fetchPaymentMode = async (travelType) => {
-        if (!travelType || formData.payment_mode) return;
+    const fetchPaymentMode = async (targetType) => {
+        const destType = formData.destination_type || targetType || 'domestic';
+        if (formData.payment_mode && formData.payment_mode.trim()) return;
         try {
             setLoading((p) => ({ ...p, payment: true }));
-            const res = await apiClient.get(`/admin/payment-mode/${travelType}`);
-            const payment_mode = res?.data?.destinationPaymentModeData?.payment_mode || "";
-            setFormData((prev) => ({ ...prev, payment_mode }));
+            const res = await apiClient.get(`/admin/payment-mode/${destType}`);
+            const payment_mode = res?.data?.destinationPaymentModeData?.payment_mode || 
+                                 res?.data?.destinationPaymentModeData?.honeymoon_payment_mode || "";
+            if (payment_mode) {
+                setFormData((prev) => ({ ...prev, payment_mode }));
+            }
         } catch {
-            toast.error("Failed to load Payment Mode");
+            console.warn("Failed to load Payment Mode");
         } finally {
             setLoading((p) => ({ ...p, payment: false }));
         }
     };
 
     const fetchCancellationPolicy = async () => {
-        if (formData.cancellation_policy) return;
+        const destType = formData.destination_type || 'domestic';
+        if (formData.cancellation_policy && formData.cancellation_policy.trim() && formData.cancellation_policy !== "Standard honeymoon cancellation policy applies.") return;
         try {
             setLoading((p) => ({ ...p, cancellation: true }));
-            const res = await apiClient.get("/admin/cancellation-policy");
-            const policy = res?.data?.data?.cancellation_policy || "Standard honeymoon cancellation policy applies.";
-            setFormData((prev) => ({ ...prev, cancellation_policy: policy }));
+            const res = await apiClient.get(`/admin/honeymoon-cancellation-policy?type=${destType}`);
+            const policy = res?.data?.data?.cancellation_policy || 
+                           res?.data?.data?.honeymoon_cancellation_policy || "";
+            if (policy) {
+                setFormData((prev) => ({ ...prev, cancellation_policy: policy }));
+            }
         } catch {
-            toast.error("Failed to load Cancellation Policy");
+            console.warn("Failed to load Cancellation Policy");
         } finally {
             setLoading((p) => ({ ...p, cancellation: false }));
         }
@@ -69,15 +77,15 @@ const DescriptionsSection = ({
 
     useEffect(() => {
         fetchCancellationPolicy();
-    }, []);
+    }, [formData.destination_type]);
 
     useEffect(() => {
         fetchTerms(formData.selected_destination_id);
     }, [formData.selected_destination_id]);
 
     useEffect(() => {
-        fetchPaymentMode(formData.travel_type);
-    }, [formData.travel_type]);
+        fetchPaymentMode(formData.destination_type || formData.travel_type);
+    }, [formData.destination_type, formData.travel_type]);
 
     return (
         <div className={cardStyle}>

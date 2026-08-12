@@ -1,42 +1,49 @@
 import PropTypes from "prop-types"
 import { Bell, Menu, Moon, Search, Sun, User, Settings, LogOut, ChevronDown, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contexts/ThemeProvider"
 import useAuthStore from "../stores/authStores"
 import profileImg from "../assets/profile-image.jpg"
 
-const Header = ({ setOpen }) => {
+const Header = ({ open, setOpen }) => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
-  const { logout, role } = useAuthStore()
+  const { logout, role, profile, fetchAdminProfile } = useAuthStore()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+
+  useEffect(() => {
+    fetchAdminProfile()
+  }, [fetchAdminProfile])
 
   return (
     <header
       className="
         sticky top-0 z-20 flex h-20 items-center justify-between
         bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl
-        px-8 transition-all duration-500 border-b border-slate-50 dark:border-slate-800/50
+        px-4 md:px-8 transition-all duration-500 border-b border-slate-50 dark:border-slate-800/50
       "
     >
-      {/* LEFT: Mobile Menu & Search */}
-      <div className="flex items-center gap-6 flex-1">
+      {/* LEFT: Menu Bar Toggle & Search */}
+      <div className="flex items-center gap-4 md:gap-6 flex-1">
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setOpen(!open)}
           className="md:hidden flex items-center justify-center size-10 rounded-xl
-          bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-          aria-label="Open sidebar"
+          bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30 transition-all cursor-pointer shrink-0"
+          aria-label="Toggle mobile menu"
+          title="Toggle Menu"
         >
           <Menu size={20} strokeWidth={2.5} />
         </button>
 
+
+
         <div className="hidden md:flex items-center gap-3">
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-             {role === 'superadmin' ? 'Super Admin' : 'Admin'}
-           </p>
-           <ChevronRight size={12} className="text-slate-300" />
-           <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            {profile?.designation || (role === 'superadmin' ? 'Super Admin' : 'Admin')}
+          </p>
+          <ChevronRight size={12} className="text-slate-300" />
+          <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
         </div>
 
         <div className="relative group hidden lg:block max-w-sm w-full ml-6">
@@ -85,7 +92,7 @@ const Header = ({ setOpen }) => {
           >
             <div className="relative">
               <img
-                src={profileImg}
+                src={profile?.avatar || profileImg}
                 alt="Admin"
                 className="size-10 rounded-xl object-cover ring-2 ring-indigo-50 dark:ring-indigo-900/30 group-hover:ring-indigo-200 transition-all"
               />
@@ -93,33 +100,33 @@ const Header = ({ setOpen }) => {
             </div>
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1">
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Admin User</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">{profile?.name || "Admin User"}</p>
                 <ChevronDown size={14} className="text-slate-400" />
               </div>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                {role === 'superadmin' ? 'Super Admin' : 'Admin'}
+                {profile?.designation || (role === 'superadmin' ? 'Super Admin' : 'Admin')}
               </p>
             </div>
           </button>
 
           {showProfileMenu && (
             <div className="absolute right-0 mt-4 w-56 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden py-3 z-50">
-               <button 
-                  onClick={() => {
-                    setShowProfileMenu(false);
-                    navigate("/");
-                  }}
-                  className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-               >
-                  <User size={16} /> My Profile
-               </button>
-               <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
-               <button 
-                  onClick={logout}
-                  className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-                >
-                  <LogOut size={16} /> Sign Out
-               </button>
+              <button
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  navigate("/settings?edit=true");
+                }}
+                className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                <User size={16} /> My Profile
+              </button>
+              <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+              <button
+                onClick={logout}
+                className="flex items-center gap-3 w-full px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
             </div>
           )}
         </div>
@@ -129,6 +136,7 @@ const Header = ({ setOpen }) => {
 }
 
 Header.propTypes = {
+  open: PropTypes.bool,
   setOpen: PropTypes.func.isRequired,
 }
 

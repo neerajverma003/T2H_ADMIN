@@ -45,21 +45,20 @@ const DescriptionsSection = ({
   };
 
   const fetchPaymentMode = async (travelType) => {
-    if (!travelType) return;
+    const destType = formData.destination_type || travelType || 'domestic';
     try {
       setTermsLoading(true);
-      const res = await apiClient.get(`/admin/payment-mode/${travelType}`);
-      if (res?.data?.destinationPaymentModeData?.payment_mode) {
+      const res = await apiClient.get(`/admin/payment-mode/${destType}`);
+      const val = res?.data?.destinationPaymentModeData?.payment_mode ||
+                  res?.data?.destinationPaymentModeData?.honeymoon_payment_mode || "";
+      if (val) {
         setFormData((prev) => ({
           ...prev,
-          payment_mode:
-            res?.data?.destinationPaymentModeData?.payment_mode,
+          payment_mode: val,
         }));
-      } else {
-        toast.warning("No Payment Mode found for this destination.");
       }
     } catch {
-      toast.error("Failed to load Payment Mode");
+      console.warn("Failed to load Payment Mode");
     } finally {
       setTermsLoading(false);
     }

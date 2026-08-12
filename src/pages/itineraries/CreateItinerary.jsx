@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import { convertImageFileToWebP } from "../../utils/imageConverter";
 import {
     CoreDetailsSection,
     DayInfoSection,
@@ -9,7 +10,7 @@ import {
     ProvisionsSection,
     HotelDetailsSection,
     PricingSection,
-    ReviewSection
+    CuratedAddonsSection,
 } from "./components";
 
 import DiscriptionDetailsSection from "./components/DiscriptionDetailsSection";
@@ -58,6 +59,13 @@ const CreateItineriesPage = () => {
                         inclusion: data.inclusion || "",
                         exclusion: data.exclusion || "",
                         hotel_as_per_category: data.hotel_as_per_category || "",
+                        stay_hotels: (data.stay_hotels || []).map(s => ({
+                            location: s.location || "",
+                            standard_hotel: s.standard_hotel?._id || s.standard_hotel || "",
+                            deluxe_hotel: s.deluxe_hotel?._id || s.deluxe_hotel || "",
+                            super_deluxe_hotel: s.super_deluxe_hotel?._id || s.super_deluxe_hotel || "",
+                            luxury_hotel: s.luxury_hotel?._id || s.luxury_hotel || ""
+                        })),
                         pricing: data.pricing || "",
                         terms_and_conditions: data.terms_and_conditions || "",
                         payment_mode: data.payment_mode || "",
@@ -65,6 +73,7 @@ const CreateItineriesPage = () => {
                         about_the_tour: data.about_the_tour || "",
                         video: null,
                         reviews: data.reviews || [],
+                        addons: data.addons || [],
                     });
                 }
             } catch (error) {
@@ -72,10 +81,10 @@ const CreateItineriesPage = () => {
                 toast.error("Failed to load itinerary data");
             }
         };
- 
+
         fetchItinerary();
     }, [id]);
- 
+
     const [formData, setFormData] = useState({
         title: "",
         travel_type: "honeymoon",
@@ -86,9 +95,9 @@ const CreateItineriesPage = () => {
         destination_type: "domestic",
         selected_destination_id: "",
         duration: "",
-        days_information: [{ 
-            day: "1", 
-            locationName: "", 
+        days_information: [{
+            day: "1",
+            locationName: "",
             locationDetail: "",
             sightseeing: "",
             transfer: "",
@@ -107,19 +116,21 @@ const CreateItineriesPage = () => {
         inclusion: "",
         exclusion: "",
         hotel_as_per_category: "",
+        stay_hotels: [],
         pricing: "",
         terms_and_conditions: "",
         payment_mode: "",
         cancellation_policy: "",
         about_the_tour: "",
         reviews: [],
+        addons: [],
     });
 
     const [errors, setErrors] = useState({});
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        
+
         // Handle Custom Days Sync
         if (name === "custom_days_trigger") {
             const days = parseInt(value) || 1;
@@ -144,12 +155,12 @@ const CreateItineriesPage = () => {
 
         // Handle 'Custom' Selection Reset
         if (name === "itinerary_type" && value === "flexible") {
-            setFormData((prev) => ({ 
-                ...prev, 
+            setFormData((prev) => ({
+                ...prev,
                 itinerary_type: value,
-                days_information: [{ 
-                    day: "1", 
-                    locationName: "", 
+                days_information: [{
+                    day: "1",
+                    locationName: "",
                     locationDetail: "",
                     sightseeing: "",
                     transfer: "",
@@ -168,6 +179,60 @@ const CreateItineriesPage = () => {
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
+    // Auto-fetch Category Payment Terms and Cancellation Policy when destination_type changes
+    useEffect(() => {
+        const type = formData.destination_type || 'domestic';
+        const fetchCategoryPolicies = async () => {
+            try {
+                const [payRes, cancelRes] = await Promise.all([
+                    apiClient.get(`/admin/honeymoon/payment-mode/${type}`),
+                    apiClient.get(`/admin/honeymoon-cancellation-policy?type=${type}`)
+                ]);
+
+                const payText = payRes.data?.destinationPaymentModeData?.payment_mode || 
+                               payRes.data?.destinationPaymentModeData?.honeymoon_payment_mode;
+                const cancelText = cancelRes.data?.data?.honeymoon_cancellation_policy;
+
+                setFormData((prev) => ({
+                    ...prev,
+                    payment_mode: (prev.payment_mode && prev.payment_mode.trim()) ? prev.payment_mode : (payText || ""),
+                    cancellation_policy: (prev.cancellation_policy && prev.cancellation_policy.trim()) ? prev.cancellation_policy : (cancelText || ""),
+                }));
+            } catch (err) {
+                console.error("Error fetching category policies:", err);
+            }
+        };
+
+        fetchCategoryPolicies();
+    }, [formData.destination_type]);
+
+    // Auto-fetch Destination-specific Terms & Conditions when selected_destination_id changes
+    useEffect(() => {
+        const destId = formData.selected_destination_id;
+        if (!destId) return;
+
+        const fetchDestinationTerms = async () => {
+            try {
+                const res = await apiClient.get(`/admin/tnc/${destId}`);
+                if (res.data?.success && res.data?.tnc && res.data.tnc.terms_And_condition) {
+                    setFormData((prev) => ({
+                        ...prev,
+                        terms_and_conditions: res.data.tnc.terms_And_condition,
+                    }));
+                } else {
+                    setFormData((prev) => ({
+                        ...prev,
+                        terms_and_conditions: "",
+                    }));
+                }
+            } catch (err) {
+                console.error("Error fetching destination terms:", err);
+            }
+        };
+
+        fetchDestinationTerms();
+    }, [formData.selected_destination_id]);
+
     const handleArrayChange = (e, index, arrayName) => {
         const { name, value } = e.target;
         setFormData((prev) => {
@@ -179,16 +244,16 @@ const CreateItineriesPage = () => {
     };
 
     const handleAddItem = (arrayName, newItem) => {
-        setFormData((prev) => ({ 
-            ...prev, 
-            [arrayName]: [...(prev[arrayName] || []), newItem] 
+        setFormData((prev) => ({
+            ...prev,
+            [arrayName]: [...(prev[arrayName] || []), newItem]
         }));
     };
 
     const handleRemoveItem = (index, arrayName) => {
-        setFormData((prev) => ({ 
-            ...prev, 
-            [arrayName]: prev[arrayName].filter((_, i) => i !== index) 
+        setFormData((prev) => ({
+            ...prev,
+            [arrayName]: prev[arrayName].filter((_, i) => i !== index)
         }));
     };
 
@@ -206,9 +271,9 @@ const CreateItineriesPage = () => {
         if (invalidDays) newErrors.days_information = "All days must have location name & detail";
 
         // Accept media from either custom gallery OR destination source asset thumbnails
-        const hasCustomGallery = formData.destination_images.some((i) => typeof i === 'string' && i.startsWith('http'));
+        const hasCustomGallery = formData.destination_images.some((i) => typeof i === 'string' && i.trim() !== '');
         const hasUploadedGallery = (formData.destination_images_files || []).length > 0;
-        const hasThumbnails = formData.destination_thumbnails.some((i) => typeof i === 'string' && i.startsWith('http'));
+        const hasThumbnails = formData.destination_thumbnails.some((i) => typeof i === 'string' && i.trim() !== '');
         const hasUploadedThumbnails = (formData.destination_thumbnails_files || []).length > 0;
         if (!hasCustomGallery && !hasUploadedGallery && !hasThumbnails && !hasUploadedThumbnails) {
             newErrors.destination_images = "At least one image is required (select from Source Assets or upload a custom image)";
@@ -239,9 +304,13 @@ const CreateItineriesPage = () => {
             // Helper for parallel uploads
             const uploadFile = async (file, subfolder) => {
                 if (!file) return null;
+                let fileToUpload = file;
+                if (file.type?.startsWith('image/')) {
+                    fileToUpload = await convertImageFileToWebP(file);
+                }
                 const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-                    fileName: file.name,
-                    fileType: file.type,
+                    fileName: fileToUpload.name,
+                    fileType: fileToUpload.type,
                     folder: `${itineraryFolder}/${subfolder}`
                 });
                 const { uploadUrl, key } = presignedRes.data;
@@ -253,9 +322,9 @@ const CreateItineriesPage = () => {
                 try {
                     await fetch(uploadUrl, {
                         method: "PUT",
-                        body: file,
-                        headers: { "Content-Type": file.type },
-                        signal: controller.signal
+                        body: fileToUpload,
+                        headers: { "Content-Type": fileToUpload.type },
+                        signal: controller.signal,
                     });
                     return key;
                 } finally {
@@ -309,16 +378,25 @@ const CreateItineriesPage = () => {
                 return revObj;
             });
 
+            const cleanedStayHotels = (formData.stay_hotels || []).map(item => ({
+                location: item.location || "",
+                standard_hotel: item.standard_hotel || null,
+                deluxe_hotel: item.deluxe_hotel || null,
+                super_deluxe_hotel: item.super_deluxe_hotel || null,
+                luxury_hotel: item.luxury_hotel || null,
+            }));
+
             const payload = {
                 ...formData,
                 days_information: updatedDaysInfo,
                 reviews: updatedReviews,
+                stay_hotels: JSON.stringify(cleanedStayHotels),
                 destination_images: [
-                    ...formData.destination_images.filter(img => typeof img === 'string' && (img.startsWith('http') || img.startsWith('https'))),
+                    ...formData.destination_images.filter(img => typeof img === 'string' && img.trim() !== '' && !img.startsWith('data:')),
                     ...uploadedImageKeys.filter(k => k !== null)
                 ],
                 destination_thumbnails: [
-                    ...formData.destination_thumbnails.filter(img => typeof img === 'string' && (img.startsWith('http') || img.startsWith('https'))),
+                    ...formData.destination_thumbnails.filter(img => typeof img === 'string' && img.trim() !== '' && !img.startsWith('data:')),
                     ...uploadedThumbnailKeys.filter(k => k !== null)
                 ]
             };
@@ -328,11 +406,15 @@ const CreateItineriesPage = () => {
 
             const res = id ? await apiClient.patch(`/admin/itinerary/${id}`, payload) : await apiClient.post("/admin/itinerary", payload);
 
-            toast.update(toastId, { render: "Itinerary saved successfully! ✨", type: "success", isLoading: false, autoClose: 3000 });
+            toast.dismiss(toastId);
+            const successMsg = id ? "Itinerary updated successfully! ✨" : "Itinerary created successfully! 🎉";
+            toast.success(successMsg);
             setTimeout(() => navigate("/itineraries/list"), 1500);
         } catch (err) {
             console.error("Save Itinerary Error:", err);
-            toast.update(toastId, { render: err.name === 'AbortError' ? "Upload timed out" : "Failed to save itinerary", type: "error", isLoading: false, autoClose: 5000 });
+            toast.dismiss(toastId);
+            const serverMsg = err.response?.data?.message || (err.name === 'AbortError' ? "Upload timed out" : "Failed to save itinerary");
+            toast.error(serverMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -405,14 +487,14 @@ const CreateItineriesPage = () => {
                         <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
                         <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
                     </fieldset>
-                
+
                     <DayInfoSection isViewMode={isViewMode} formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
-                    
+
                     <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
                         <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                        <HotelDetailsSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
-                        <PricingSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} />
-                        <ReviewSection formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} />
+                        {/* <CuratedAddonsSection formData={formData} setFormData={setFormData} isViewMode={isViewMode} styles={styleProps} /> */}
+                        <HotelDetailsSection formData={formData} setFormData={setFormData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
+                        <PricingSection formData={formData} setFormData={setFormData} handleInputChange={handleInputChange} styles={styleProps} />
                     </fieldset>
                 </div>
 

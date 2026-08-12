@@ -6,6 +6,7 @@ import {
   Video,
   X,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { apiClient } from "../../../stores/authStore";
 
 const MediaSection = ({ formData, setFormData, styles }) => {
@@ -69,8 +70,8 @@ const MediaSection = ({ formData, setFormData, styles }) => {
     const isSelected = isImageSelected(formData.destination_images, imgUrl);
     const updatedImages = isSelected
       ? formData.destination_images.filter(
-          (url) => extractS3Key(url) !== imgKey
-        )
+        (url) => extractS3Key(url) !== imgKey
+      )
       : [...formData.destination_images, imgKey];
 
     setFormData((prev) => ({
@@ -84,8 +85,8 @@ const MediaSection = ({ formData, setFormData, styles }) => {
     const isSelected = isImageSelected(formData.destination_thumbnails, thumbUrl);
     const updatedThumbnails = isSelected
       ? formData.destination_thumbnails.filter(
-          (url) => extractS3Key(url) !== thumbKey
-        )
+        (url) => extractS3Key(url) !== thumbKey
+      )
       : [...formData.destination_thumbnails, thumbKey];
 
     setFormData((prev) => ({
@@ -116,9 +117,16 @@ const MediaSection = ({ formData, setFormData, styles }) => {
   };
 
   const handleDirectImageUpload = (e, type) => {
+    const MAX_UPLOAD_IMAGES = 20;
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+    if (files.length > MAX_UPLOAD_IMAGES) {
+      toast.warn(`Please select up to ${MAX_UPLOAD_IMAGES} images at a time.`);
+      e.target.value = "";
+      return;
+    }
 
+    const fileKey = `${type}_files`;
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -126,6 +134,7 @@ const MediaSection = ({ formData, setFormData, styles }) => {
         setFormData((prev) => ({
           ...prev,
           [type]: [...prev[type], dataUrl],
+          [fileKey]: [...(prev[fileKey] || []), file],
         }));
       };
       reader.readAsDataURL(file);
@@ -135,10 +144,37 @@ const MediaSection = ({ formData, setFormData, styles }) => {
   };
 
   const handleRemoveDirectImage = (index, type) => {
-    setFormData((prev) => ({
-      ...prev,
-      [type]: prev[type].filter((_, i) => i !== index),
-    }));
+    const fileKey = `${type}_files`;
+    setFormData((prev) => {
+      let removalCount = 0;
+      const updatedTypeArray = [];
+      const updatedFileArray = [];
+
+      for (let i = 0, fileIndex = 0; i < prev[type].length; i += 1) {
+        const item = prev[type][i];
+        const isDirectImage = typeof item === "string" && item.startsWith("data:");
+        if (isDirectImage) {
+          if (removalCount === index) {
+            removalCount += 1;
+            fileIndex += 1;
+            continue;
+          }
+          updatedTypeArray.push(item);
+          if (prev[fileKey] && prev[fileKey][fileIndex]) {
+            updatedFileArray.push(prev[fileKey][fileIndex]);
+          }
+          fileIndex += 1;
+        } else {
+          updatedTypeArray.push(item);
+        }
+      }
+
+      return {
+        ...prev,
+        [type]: updatedTypeArray,
+        [fileKey]: updatedFileArray,
+      };
+    });
   };
 
   const renderImageGrid = (images, selectedImages, onToggle) => {
@@ -162,11 +198,10 @@ const MediaSection = ({ formData, setFormData, styles }) => {
           return (
             <div
               key={idx}
-              className={`relative cursor-pointer rounded-lg border-2 transition ${
-                isSelected
-                  ? "border-pink-500"
-                  : "border-gray-300 dark:border-gray-600"
-              }`}
+              className={`relative cursor-pointer rounded-lg border-2 transition ${isSelected
+                ? "border-pink-500"
+                : "border-gray-300 dark:border-gray-600"
+                }`}
               onClick={() => onToggle(imgUrl)}
             >
               <img
@@ -240,33 +275,33 @@ const MediaSection = ({ formData, setFormData, styles }) => {
             )}
 
             <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload New Thumbnails
-                </label>
-                <input 
-                    type="file" 
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleDirectImageUpload(e, "destination_thumbnails")}
-                    className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-blue-100 file:px-4 file:py-2 file:font-semibold file:text-blue-700 hover:file:bg-blue-200"
-                />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload New Thumbnails
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleDirectImageUpload(e, "destination_thumbnails")}
+                className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-blue-100 file:px-4 file:py-2 file:font-semibold file:text-blue-700 hover:file:bg-blue-200"
+              />
             </div>
 
             <div className="grid grid-cols-3 gap-3 pt-2">
-                {formData.destination_thumbnails
-                    .filter((i) => typeof i === 'string' && i.startsWith("data:"))
-                    .map((img, i) => (
-                        <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
-                            <img src={img} className="h-20 w-full object-cover" alt="Preview" />
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveDirectImage(i, "destination_thumbnails")}
-                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    ))}
+              {formData.destination_thumbnails
+                .filter((i) => typeof i === 'string' && i.startsWith("data:"))
+                .map((img, i) => (
+                  <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
+                    <img src={img} className="h-20 w-full object-cover" alt="Preview" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDirectImage(i, "destination_thumbnails")}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
             </div>
           </div>
 
@@ -280,7 +315,7 @@ const MediaSection = ({ formData, setFormData, styles }) => {
               Honeymoon Destination Images
             </label>
             <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                <p className="text-sm text-gray-400">Gallery images are currently hidden. You can upload custom images below.</p>
+              <p className="text-sm text-gray-400">Gallery images are currently hidden. You can upload custom images below.</p>
             </div>
           </div>
 
@@ -299,22 +334,22 @@ const MediaSection = ({ formData, setFormData, styles }) => {
               }
               className="block w-full cursor-pointer text-sm file:rounded-md file:border-0 file:bg-green-100 file:px-4 file:py-2 file:font-semibold file:text-green-700 hover:file:bg-green-200"
             />
-            
+
             <div className="grid grid-cols-3 gap-3 pt-2">
-                {formData.destination_images
-                    .filter((i) => typeof i === 'string' && i.startsWith("data:"))
-                    .map((img, i) => (
-                        <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
-                            <img src={img} className="h-20 w-full object-cover" alt="Preview" />
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveDirectImage(i, "destination_images")}
-                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    ))}
+              {formData.destination_images
+                .filter((i) => typeof i === 'string' && i.startsWith("data:"))
+                .map((img, i) => (
+                  <div key={i} className="relative group border rounded-lg overflow-hidden shadow-sm">
+                    <img src={img} className="h-20 w-full object-cover" alt="Preview" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDirectImage(i, "destination_images")}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
             </div>
           </div>
         </>

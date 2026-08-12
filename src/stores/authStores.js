@@ -178,21 +178,31 @@ const useAuthStore = create(
           }
 
           const res = await apiClient.post("/admin/admin-login", payload)
-          //console.log(res.data);
-          
-          const { role, username, token, msg } = res.data
+
+          if (res.data.mfaRequired) {
+            set({ loading: false })
+            toast.info(res.data.msg || "MFA Required: 6-digit OTP code sent to your email.")
+            return { mfaRequired: true, adminId: res.data.adminId, email: res.data.email }
+          }
+
+          const { role, username, token, msg, name, email, designation } = res.data
           localStorage.setItem("token", token);
           set({
             isLoggedIn: true,
             role,
             username,
             token,
+            profile: {
+              name: name || 'Admin User',
+              email: email || '',
+              designation: designation || (role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+            },
             loading: false,
             authChecked: true,
           })
 
           toast.success(msg || "Login successful")
-          return true
+          return { mfaRequired: false }
         } catch (err) {
           const msg =
             err.response?.data?.msg ||
@@ -200,6 +210,47 @@ const useAuthStore = create(
             "Login failed"
 
           set({ loading: false, error: msg, authChecked: true })
+          toast.error(msg)
+          return false
+        }
+      },
+
+      verifyLoginOtp: async (adminId, otp, rememberDevice = false) => {
+        set({ loading: true, error: null })
+        try {
+          const res = await apiClient.post("/admin/verify-login-otp", { adminId, otp, rememberDevice })
+          const { role, username, token, msg, name, email, designation } = res.data
+          localStorage.setItem("token", token);
+          set({
+            isLoggedIn: true,
+            role,
+            username,
+            token,
+            profile: {
+              name: name || 'Admin User',
+              email: email || '',
+              designation: designation || (role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+            },
+            loading: false,
+            authChecked: true,
+          })
+          toast.success(msg || "MFA Verification successful! Welcome back.")
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || "Invalid OTP code"
+          set({ loading: false, error: msg })
+          toast.error(msg)
+          return false
+        }
+      },
+
+      resendLoginOtp: async (adminId) => {
+        try {
+          const res = await apiClient.post("/admin/resend-login-otp", { adminId })
+          toast.success(res.data.msg || "New OTP code sent to your email!")
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || "Failed to resend OTP"
           toast.error(msg)
           return false
         }
@@ -216,6 +267,7 @@ const useAuthStore = create(
           role: null,
           username: null,
           token: null,
+          profile: { name: 'Admin User', email: '', designation: 'SUPER ADMIN' },
           authChecked: true,
         })
 
@@ -236,6 +288,11 @@ const useAuthStore = create(
             isLoggedIn: true,
             role: res.data.role,
             username: res.data.userId,
+            profile: {
+              name: res.data.name || 'Admin User',
+              email: res.data.email || '',
+              designation: res.data.designation || (res.data.role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+            },
             authChecked: true,
           })
         } catch {
@@ -274,6 +331,83 @@ const useAuthStore = create(
           return false
         } finally {
           set({ isSubmitting: false })
+        }
+      },
+
+      // Profile management
+      profile: { firstName: 'Admin', lastName: '', name: 'Admin User', gender: 'Male', email: '', phone: '', designation: 'SUPER ADMIN', avatar: '' },
+      isLoadingProfile: false,
+
+      fetchAdminProfile: async () => {
+        set({ isLoadingProfile: true })
+        try {
+          const res = await apiClient.get('/admin/profile')
+          if (res.data.success && res.data.profile) {
+            set({ profile: res.data.profile, isLoadingProfile: false })
+            return res.data.profile
+          }
+        } catch (err) {
+          console.error('[fetchAdminProfile] error:', err)
+          set({ isLoadingProfile: false })
+        }
+      },
+
+      updateAdminProfile: async (data) => {
+        set({ isLoadingProfile: true })
+        try {
+          const res = await apiClient.put('/admin/profile/update', data)
+          if (res.data.success && res.data.profile) {
+            set({ profile: res.data.profile, isLoadingProfile: false })
+            toast.success(res.data.msg || 'Profile details updated successfully!')
+            return true
+          }
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || 'Failed to update profile'
+          toast.error(msg)
+          set({ isLoadingProfile: false })
+          return false
+        }
+      },
+
+      sendPasswordOtp: async () => {
+        try {
+          const res = await apiClient.post('/admin/profile/send-otp')
+          toast.success(res.data.msg || 'Verification OTP sent to your email!')
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || 'Failed to send OTP code'
+          toast.error(msg)
+          return false
+        }
+      },
+
+      verifyPasswordOtp: async (otp, newPassword) => {
+        try {
+          const res = await apiClient.post('/admin/profile/verify-otp-password', { otp, newPassword })
+          toast.success(res.data.msg || 'Password updated successfully!')
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || 'Invalid or expired OTP'
+          toast.error(msg)
+          return false
+        }
+      },
+
+      verifyUsernameOtp: async (otp, newUsername) => {
+        try {
+          const res = await apiClient.post('/admin/profile/verify-otp-username', { otp, newUsername })
+          if (res.data.success) {
+            set((state) => ({
+              username: res.data.username,
+              profile: { ...state.profile, username: res.data.username },
+            }))
+            toast.success(res.data.msg || 'Username updated successfully!')
+            return true
+          }
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || 'Invalid or expired OTP'
+          toast.error(msg)
+          return false
         }
       },
 

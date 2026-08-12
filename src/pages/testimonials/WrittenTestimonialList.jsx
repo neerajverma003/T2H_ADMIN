@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Sparkles, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
-  MapPin, 
-  Star, 
-  Calendar, 
-  Quote, 
+import {
+  Sparkles,
+  Trash2,
+  Eye,
+  EyeOff,
+  MapPin,
+  Star,
+  Calendar,
+  Quote,
   Loader2,
   Search,
   Filter,
@@ -63,7 +63,7 @@ const WrittenTestimonialList = () => {
         toShow: !currentStatus
       });
       if (res.data.success) {
-        setTestimonials(prev => prev.map(t => 
+        setTestimonials(prev => prev.map(t =>
           t._id === id ? { ...t, toShow: !currentStatus } : t
         ));
         toast.success(`Story is now ${!currentStatus ? 'Public' : 'Private'}`);
@@ -73,7 +73,7 @@ const WrittenTestimonialList = () => {
     }
   };
 
-  const filteredTestimonials = testimonials.filter(t => 
+  const filteredTestimonials = testimonials.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.destination.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -111,8 +111,8 @@ const WrittenTestimonialList = () => {
               <Filter size={16} />
             </div>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => navigate("/testimonials/written")}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 active:scale-95 transition-all text-sm whitespace-nowrap"
           >
@@ -180,11 +180,10 @@ const WrittenTestimonialList = () => {
                 className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-800/80 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Status Badge */}
-                <div className={`absolute top-6 right-6 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                  item.toShow 
-                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20" 
+                <div className={`absolute top-6 right-6 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.toShow
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20"
                     : "bg-slate-100 text-slate-400 dark:bg-slate-800"
-                }`}>
+                  }`}>
                   {item.toShow ? "Public" : "Private"}
                 </div>
 
@@ -192,9 +191,9 @@ const WrittenTestimonialList = () => {
                   {/* Avatar Section */}
                   <div className="shrink-0 flex items-start">
                     <div className="size-24 rounded-2xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800/80 ring-4 ring-indigo-50/50 dark:ring-slate-800/30">
-                      <img 
-                        src={getCdnUrl(item.profileImage) || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=200&q=80"} 
-                        alt={item.name} 
+                      <img
+                        src={getCdnUrl(item.profileImage) || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=200&q=80"}
+                        alt={item.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -240,22 +239,21 @@ const WrittenTestimonialList = () => {
                 {/* Actions Footer */}
                 <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-bold text-slate-300 dark:text-slate-500 uppercase tracking-widest">Controls</span>
+                    <span className="text-[10px] font-bold text-slate-300 dark:text-slate-500 uppercase tracking-widest">Controls</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => toggleVisibility(item._id, item.toShow)}
-                      className={`p-2.5 rounded-xl transition-all ${
-                        item.toShow 
-                          ? "text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50" 
+                      className={`p-2.5 rounded-xl transition-all ${item.toShow
+                          ? "text-indigo-600 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
                           : "text-slate-400 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
-                      }`}
+                        }`}
                       title={item.toShow ? "Make Private" : "Make Public"}
                     >
                       {item.toShow ? <Eye size={18} /> : <EyeOff size={18} />}
                     </button>
-                    
+
                     <button
                       onClick={() => handleDelete(item._id)}
                       className="p-2.5 text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 rounded-xl transition-all"
