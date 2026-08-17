@@ -43,8 +43,8 @@ const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive, i
             if (onClick) onClick();
           }}
           className={`size-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${isActive
-              ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
             }`}
           title={title}
         >

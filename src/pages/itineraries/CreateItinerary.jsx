@@ -24,6 +24,14 @@ const CreateItineriesPage = () => {
     const location = useLocation();
     const isViewMode = location.pathname.includes('/view/');
 
+    // Scroll main container to top on mount
+    useEffect(() => {
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            mainEl.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }, [id, location.pathname]);
+
     // ========================
     // DATA FETCHING (FOR EDIT)
     // ========================
@@ -189,8 +197,8 @@ const CreateItineriesPage = () => {
                     apiClient.get(`/admin/honeymoon-cancellation-policy?type=${type}`)
                 ]);
 
-                const payText = payRes.data?.destinationPaymentModeData?.payment_mode || 
-                               payRes.data?.destinationPaymentModeData?.honeymoon_payment_mode;
+                const payText = payRes.data?.destinationPaymentModeData?.payment_mode ||
+                    payRes.data?.destinationPaymentModeData?.honeymoon_payment_mode;
                 const cancelText = cancelRes.data?.data?.honeymoon_cancellation_policy;
 
                 setFormData((prev) => ({
@@ -291,7 +299,12 @@ const CreateItineriesPage = () => {
         const validation = validateForm();
         if (!validation.valid) {
             toast.error(validation.firstErrorMessage || "Please fix errors");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const mainEl = document.querySelector('main');
+            if (mainEl) {
+                mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
             return;
         }
 

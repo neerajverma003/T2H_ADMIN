@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Trash2, Users, Loader2, Search, UserPlus, Mail, Calendar } from "lucide-react"
-import  useAuthStore  from "../../stores/authStores"
+import useAuthStore from "../../stores/authStores"
 import ConfirmationModel from "../../newComponents/ConfirmationModel"
 import { motion } from "framer-motion"
 
@@ -34,7 +34,7 @@ const UserList = () => {
   })
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
@@ -46,19 +46,19 @@ const UserList = () => {
           <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic">Manage administrative access and roles</p>
         </div>
         <div className="flex items-center gap-3">
-           <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="text"
-                placeholder="Find users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-600/20 rounded-2xl text-base font-black text-slate-950 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 w-full md:w-80 transition-all"
-              />
-           </div>
-           <button className="bg-indigo-700 text-white p-4 rounded-2xl shadow-xl shadow-indigo-500/40 hover:bg-indigo-800 transition-all hover:scale-105 active:scale-95">
-              <UserPlus size={24} />
-           </button>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Find users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-600/20 rounded-2xl text-base font-black text-slate-950 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 w-full md:w-80 transition-all"
+            />
+          </div>
+          <button className="bg-indigo-700 text-white p-4 rounded-2xl shadow-xl shadow-indigo-500/40 hover:bg-indigo-800 transition-all hover:scale-105 active:scale-95">
+            <UserPlus size={24} />
+          </button>
         </div>
       </div>
 
@@ -72,7 +72,7 @@ const UserList = () => {
         ) : filteredUsers.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-               <thead className="bg-slate-100 dark:bg-slate-800">
+              <thead className="bg-slate-100 dark:bg-slate-800">
                 <tr>
                   <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Administrative User</th>
                   <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Access Level</th>
@@ -89,20 +89,20 @@ const UserList = () => {
                   >
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
-                         <div className="size-12 rounded-2xl bg-indigo-700 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/30">
-                            {(user.username || "A").charAt(0).toUpperCase()}
-                         </div>
-                         <div>
-                            <p className="font-black text-slate-950 dark:text-white text-lg leading-none mb-1.5">{user.username || "Unknown User"}</p>
-                            <p className="text-xs text-indigo-700 font-black uppercase tracking-widest">@{user.role || "admin_user"}</p>
-                         </div>
+                        <div className="size-12 rounded-2xl bg-indigo-700 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/30">
+                          {(user.username || "A").charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-950 dark:text-white text-lg leading-none mb-1.5">{user.username || "Unknown User"}</p>
+                          <p className="text-xs text-indigo-700 font-black uppercase tracking-widest">@{user.role || "admin_user"}</p>
+                        </div>
                       </div>
                     </td>
 
                     <td className="px-8 py-6">
-                       <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-[0.2em] shadow-sm">
-                          Full Access
-                       </span>
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-[0.2em] shadow-sm">
+                        Full Access
+                      </span>
                     </td>
 
                     <td className="px-8 py-6">

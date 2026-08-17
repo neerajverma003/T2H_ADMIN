@@ -108,8 +108,8 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
               {postType === 'article' ? "✦ SPOTLIGHT & TRENDING NARRATIVES ✦" : "STORYBOARD"}
             </h1>
             <p className="text-slate-500 font-medium mt-1">
-              {postType === 'article' 
-                ? "Manage active narratives displayed in the Editorial Spotlight & Trending This Month sections" 
+              {postType === 'article'
+                ? "Manage active narratives displayed in the Editorial Spotlight & Trending This Month sections"
                 : "Manage your elite narrative assets and strategic drafts"}
             </p>
           </div>
@@ -137,8 +137,8 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
             {postType === 'article' ? "Spotlight & Trending Archive is Vacant" : "Storyboard is Vacant"}
           </h3>
           <p className="text-slate-500 font-medium text-lg max-w-lg mb-10 leading-relaxed italic">
-            {postType === 'article' 
-              ? "You haven't written any spotlight or trending articles yet. Start curating your first feature story today." 
+            {postType === 'article'
+              ? "You haven't written any spotlight or trending articles yet. Start curating your first feature story today."
               : "You haven't forged any stories yet. Start sharing your strategic adventures today."}
           </p>
           <button onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")} className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">

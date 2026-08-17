@@ -141,7 +141,7 @@ const HoneymoonResortList = () => {
                   {/* IMAGE */}
                   <div className="relative aspect-[4/3] w-full overflow-hidden shrink-0">
                     <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    
+
                     {/* Badges */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                       {is_featured && (

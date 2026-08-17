@@ -23,7 +23,7 @@ const HotelList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  
+
   // Search, Filter & Pagination States
   const [searchQuery, setSearchQuery] = useState("");
   const [tierFilter, setTierFilter] = useState("All");
@@ -109,7 +109,12 @@ const HotelList = () => {
         if (headerEl) {
           headerEl.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          const mainEl = document.querySelector('main');
+          if (mainEl) {
+            mainEl.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
         }
       }, 50);
     }
@@ -418,11 +423,10 @@ const HotelList = () => {
                         )}
                         <button
                           onClick={() => handlePageChange(p)}
-                          className={`w-9 h-9 rounded-xl font-black text-xs transition-all cursor-pointer ${
-                            currentPage === p
+                          className={`w-9 h-9 rounded-xl font-black text-xs transition-all cursor-pointer ${currentPage === p
                               ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-105"
                               : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                          }`}
+                            }`}
                         >
                           {p}
                         </button>

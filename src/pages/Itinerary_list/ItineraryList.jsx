@@ -103,9 +103,9 @@ const ItineraryCard = ({ itinerary, onDelete, role }) => {
         >
             {/* Image Section */}
             <div className="relative aspect-[4/2.5] overflow-hidden bg-slate-950">
-                <img 
-                    src={thumbnail} 
-                    alt={title} 
+                <img
+                    src={thumbnail}
+                    alt={title}
                     onError={(e) => {
                         const altImg = itinerary.destination_images?.find(img => img && typeof img === 'string' && !img.startsWith('data:'));
                         if (altImg && e.target.src !== getCdnUrl(altImg)) {
@@ -114,7 +114,7 @@ const ItineraryCard = ({ itinerary, onDelete, role }) => {
                             e.target.src = "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=800&auto=format&fit=crop";
                         }
                     }}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-black/30" />
 
@@ -296,7 +296,12 @@ const ItinerariesListPage = () => {
 
     const handlePageChange = useCallback((page) => {
         setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        const mainEl = document.querySelector('main');
+        if (mainEl) {
+            mainEl.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     }, []);
 
     const handleDelete = async (id) => {
