@@ -426,8 +426,16 @@ const CreateItineriesPage = () => {
         } catch (err) {
             console.error("Save Itinerary Error:", err);
             toast.dismiss(toastId);
-            const serverMsg = err.response?.data?.message || (err.name === 'AbortError' ? "Upload timed out" : "Failed to save itinerary");
-            toast.error(serverMsg);
+            const serverMsg = err.response?.data?.message || err.response?.data?.msg || (err.name === 'AbortError' ? "Upload timed out" : "Failed to save itinerary");
+            if (
+                err.response?.status === 409 ||
+                err.response?.data?.error === 'DUPLICATE_ITINERARY_TITLE' ||
+                (typeof serverMsg === 'string' && (serverMsg.toLowerCase().includes('already exists') || serverMsg.toLowerCase().includes('duplicate')))
+            ) {
+                toast.warning(serverMsg || "An itinerary with this title already exists. Please use a different title.");
+            } else {
+                toast.error(serverMsg);
+            }
         } finally {
             setIsSubmitting(false);
         }

@@ -334,6 +334,23 @@ const useAuthStore = create(
         }
       },
 
+      updateUser: async (userId, payload) => {
+        set({ isSubmitting: true })
+        try {
+          const res = await apiClient.put(`/admin/update-admin-user/${userId}`, payload)
+          toast.success(res.data?.msg || 'User updated')
+          // refresh list
+          get().fetchUsers()
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || 'Failed to update user'
+          toast.error(msg)
+          return false
+        } finally {
+          set({ isSubmitting: false })
+        }
+      },
+
       // Profile management
       profile: { firstName: 'Admin', lastName: '', name: 'Admin User', gender: 'Male', email: '', phone: '', designation: 'SUPER ADMIN', avatar: '' },
       isLoadingProfile: false,

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
-import { User, Lock, Loader2, Users, Trash2, UserPlus, ShieldCheck, Sparkles } from "lucide-react"
+import { User, Lock, Loader2, Users, Trash2, UserPlus, ShieldCheck, Sparkles, Mail, Pencil, X, Save } from "lucide-react"
 import useAuthStore from "../../stores/authStores"
 import ConfirmationModel from "../../newComponents/ConfirmationModel"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 const AddUser = () => {
   const {
@@ -13,16 +13,27 @@ const AddUser = () => {
     fetchUsers,
     addUser,
     deleteUser,
+    updateUser,
   } = useAuthStore()
 
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    email: "",
     role: "admin",
   })
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState(null)
+
+  // Edit modal state
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editData, setEditData] = useState({
+    _id: "",
+    username: "",
+    email: "",
+    role: "admin",
+  })
 
   useEffect(() => {
     fetchUsers()
@@ -41,7 +52,7 @@ const AddUser = () => {
 
     const success = await addUser(formData)
     if (success) {
-      setFormData({ username: "", password: "", role: "admin" })
+      setFormData({ username: "", password: "", email: "", role: "admin" })
     }
   }
 
@@ -60,6 +71,39 @@ const AddUser = () => {
     if (!userToDelete) return
     await deleteUser(userToDelete._id, userToDelete.username)
     handleCloseModal()
+  }
+
+  // Edit handlers
+  const handleEditClick = (user) => {
+    setEditData({
+      _id: user._id,
+      username: user.username || "",
+      email: user.email || "",
+      role: user.role || "admin",
+    })
+    setIsEditOpen(true)
+  }
+
+  const handleEditChange = (e) => {
+    setEditData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault()
+    if (!editData.username) return
+
+    const success = await updateUser(editData._id, {
+      username: editData.username,
+      email: editData.email,
+      role: editData.role,
+    })
+    if (success) {
+      setIsEditOpen(false)
+      setEditData({ _id: "", username: "", email: "", role: "admin" })
+    }
   }
 
   return (
@@ -86,8 +130,8 @@ const AddUser = () => {
           <UserPlus size={20} className="text-indigo-600" /> Quick Add Account
         </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row items-end gap-6">
-          <div className="flex-1 w-full">
+        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row items-end gap-6 flex-wrap">
+          <div className="flex-1 w-full min-w-[200px]">
             <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -102,7 +146,22 @@ const AddUser = () => {
             </div>
           </div>
 
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full min-w-[200px]">
+            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="admin@example.com"
+                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 w-full min-w-[200px]">
             <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -117,7 +176,7 @@ const AddUser = () => {
             </div>
           </div>
 
-          <div className="flex-1 w-full">
+          <div className="flex-1 w-full min-w-[200px]">
             <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
             <div className="relative">
               <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -171,18 +230,33 @@ const AddUser = () => {
                   </div>
                   <div>
                     <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{user.username}</p>
+                    {user.email && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                        <Mail size={12} /> {user.email}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
                       <div className={`size-2 rounded-full ${user.role === 'superadmin' ? 'bg-indigo-500' : user.role === 'admin' ? 'bg-emerald-500' : 'bg-slate-400'}`}></div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">{user.role}</p>
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteClick(user)}
-                  className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
-                >
-                  <Trash2 size={20} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleEditClick(user)}
+                    className="p-4 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-2xl transition-all"
+                    title="Edit user"
+                  >
+                    <Pencil size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(user)}
+                    className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
+                    title="Delete user"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -197,9 +271,112 @@ const AddUser = () => {
         )}
       </div>
 
+      {/* DELETE CONFIRMATION MODAL */}
       <ConfirmationModel isOpen={isModalOpen} onClose={handleCloseModal} onConfirm={handleConfirmDelete} isLoading={isDeleting} title="Delete Admin Account">
         <p className="text-slate-600 dark:text-slate-400 py-4">Are you sure you want to permanently delete <strong>{userToDelete?.username}</strong>?</p>
       </ConfirmationModel>
+
+      {/* EDIT USER MODAL */}
+      <AnimatePresence>
+        {isEditOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => !isSubmitting && setIsEditOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 w-full max-w-lg border border-slate-100 dark:border-slate-800 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Pencil size={20} className="text-indigo-600" /> Edit User
+                </h3>
+                <button
+                  onClick={() => !isSubmitting && setIsEditOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleEditSubmit} className="space-y-5">
+                <div>
+                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type="text"
+                      name="username"
+                      value={editData.username}
+                      onChange={handleEditChange}
+                      placeholder="Admin username"
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type="email"
+                      name="email"
+                      value={editData.email}
+                      onChange={handleEditChange}
+                      placeholder="admin@example.com"
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
+                  <div className="relative">
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <select
+                      name="role"
+                      value={editData.role}
+                      onChange={handleEditChange}
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="admin">Admin (Add/Edit only)</option>
+                      <option value="subadmin">Subadmin (Restricted)</option>
+                      <option value="superadmin">Superadmin (Full Control)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => !isSubmitting && setIsEditOpen(false)}
+                    className="flex-1 py-4 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-base hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black text-base shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                    {isSubmitting ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

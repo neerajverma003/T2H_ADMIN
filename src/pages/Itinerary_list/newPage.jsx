@@ -129,8 +129,17 @@ const ItineraryDetailsPage = () => {
 
             toast.success("Honeymoon itinerary updated 💍");
             setIsEditing(false);
-        } catch {
-            toast.error("Failed to update itinerary");
+        } catch (err) {
+            const serverMsg = err.response?.data?.message || err.response?.data?.msg || "Failed to update itinerary";
+            if (
+                err.response?.status === 409 ||
+                err.response?.data?.error === 'DUPLICATE_ITINERARY_TITLE' ||
+                (typeof serverMsg === 'string' && (serverMsg.toLowerCase().includes('already exists') || serverMsg.toLowerCase().includes('duplicate')))
+            ) {
+                toast.warning(serverMsg || "An itinerary with this title already exists. Please use a different title.");
+            } else {
+                toast.error(serverMsg);
+            }
         } finally {
             setIsLoading(false);
         }
