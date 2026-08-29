@@ -9,7 +9,8 @@ import {
   RefreshCcw, 
   ShieldCheck, 
   Sparkles,
-  CheckCircle
+  CheckCircle,
+  FileText
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -17,6 +18,7 @@ import { motion } from "framer-motion";
 const GstSettings = () => {
   const [globalSettings, setGlobalSettings] = useState({
     gstPercentage: 5,
+    gstin: "07AAXCA9254E1Z7",
     supportEmail: "",
     supportPhone: "",
     officeAddress: "",
@@ -31,6 +33,7 @@ const GstSettings = () => {
       if (res.data.success && res.data.data) {
         setGlobalSettings({
           gstPercentage: res.data.data.gstPercentage !== undefined ? Number(res.data.data.gstPercentage) : 5,
+          gstin: res.data.data.gstin || "07AAXCA9254E1Z7",
           supportEmail: res.data.data.supportEmail || "",
           supportPhone: res.data.data.supportPhone || "",
           officeAddress: res.data.data.officeAddress || "",
@@ -189,8 +192,24 @@ const GstSettings = () => {
                 value={globalSettings.officeAddress}
                 onChange={(e) => setGlobalSettings({ ...globalSettings, officeAddress: e.target.value })}
                 className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-semibold focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
-                placeholder="e.g. New Delhi, India"
+                placeholder="e.g. Plot No.34, First Floor, Sewak Park, Dwarka Mor, Delhi 110059"
               />
+            </div>
+
+            {/* Company GSTIN Number */}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                <FileText size={16} className="text-amber-500" /> Company GSTIN Identification Number
+              </label>
+              <input
+                type="text"
+                value={globalSettings.gstin}
+                onChange={(e) => setGlobalSettings({ ...globalSettings, gstin: e.target.value.toUpperCase() })}
+                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-bold tracking-wider uppercase font-mono focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition"
+                placeholder="e.g. 07AAXCA9254E1Z7"
+                maxLength={15}
+              />
+              <p className="text-[11px] text-slate-400 font-medium">This GSTIN will be printed on customer booking receipts and downloadable PDF tax invoices.</p>
             </div>
 
             {/* SAVE BUTTON */}
