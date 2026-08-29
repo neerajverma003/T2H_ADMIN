@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 //import { useEffect } from "react"
@@ -155,6 +155,7 @@ function App() {
             <Route path="testimonials/written-list" element={<WrittenTestimonialList />} />
 
             {/* Itineraries */}
+            <Route path="itineraries" element={<Navigate to="/itineraries/list" replace />} />
             <Route path="itineraries/create" element={<CreateItineriesPage />} />
             <Route path="itineraries/list" element={<ItineraryListPage />} />
             <Route path="itineraries/edit/:id" element={<CreateItineriesPage />} />
