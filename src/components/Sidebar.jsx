@@ -24,7 +24,8 @@ import {
   PlusCircle,
   Gift,
   Percent,
-  BarChart3
+  BarChart3,
+  Globe
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -386,6 +387,7 @@ const Sidebar = ({ open, setOpen }) => {
           >
             <NavLink to="/giftcards/verify" onClick={handleNavClick} className={subLinkClass}>Verify & Manage</NavLink>
             <NavLink to="/giftcards/bulk" onClick={handleNavClick} className={subLinkClass}>Bulk Issue</NavLink>
+            <NavLink to="/giftcards/discount" onClick={handleNavClick} className={subLinkClass}>Gift Discount</NavLink>
           </NavDropdown>
 
           <NavDropdown
@@ -417,6 +419,17 @@ const Sidebar = ({ open, setOpen }) => {
             <NavLink to="/testimonials/written" onClick={handleNavClick} className={subLinkClass}>Compose Review</NavLink>
             <NavLink to="/testimonials/written-list" onClick={handleNavClick} className={subLinkClass}>General Reviews</NavLink>
           </NavDropdown>
+
+          {/* OUR GLOBAL IMPACT SECTION */}
+          {open ? (
+            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              OUR GLOBAL IMPACT
+            </p>
+          ) : (
+            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          )}
+
+          <NavItem to="/global-impact" label="Impact Overview" icon={Globe} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
 
           {/* LEADS & COMPLIANCE SECTION */}
           {open ? (

@@ -224,8 +224,15 @@ const VerifyGiftCard = () => {
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-white p-4 rounded-2xl border border-slate-200/80 dark:bg-[#0d162b] dark:border-[#1b2a47]">
-                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Original Value</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">
+                                          Face Value {card.discount_amount > 0 && <span className="text-emerald-500 font-bold">({card.discount_percentage}% OFF)</span>}
+                                        </p>
                                         <p className="text-2xl font-black text-slate-900 dark:text-white">₹{card.amount.toLocaleString('en-IN')}</p>
+                                        {card.discount_amount > 0 && (
+                                          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                                            Paid: ₹{(card.payable_amount || (card.amount - card.discount_amount)).toLocaleString('en-IN')} (Saved ₹{card.discount_amount.toLocaleString('en-IN')})
+                                          </p>
+                                        )}
                                     </div>
                                     <div className="bg-white p-4 rounded-2xl border border-blue-200 dark:bg-[#0d162b] dark:border-blue-900/50">
                                         <p className="text-[10px] text-blue-600 dark:text-blue-400 uppercase font-black tracking-widest mb-1">Remaining Balance</p>

@@ -8,23 +8,31 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Sparkles,
   Search,
-  MapPin,
   Download,
   DollarSign,
   CheckCircle2,
   Clock,
   AlertTriangle,
-  ChevronDown,
-  ChevronUp,
   Copy,
-  FileText
+  FileText,
+  Eye,
+  X,
+  CreditCard,
+  Check,
+  Trash2,
+  MapPin,
+  ShieldCheck,
+  Tag,
+  Building,
+  Plane,
+  Receipt
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 10;
+
 
 // Helper to calculate start date, end date and duration
 const getTravelDates = (travelDateStr, itinerary) => {
@@ -64,14 +72,103 @@ const getTravelDates = (travelDateStr, itinerary) => {
   };
 };
 
+// Payment status badge config
+const getPaymentBadge = (status) => {
+  switch (status) {
+    case 'paid':
+      return { 
+        label: 'Paid', 
+        bg: 'bg-emerald-500/10 dark:bg-emerald-500/15', 
+        text: 'text-emerald-600 dark:text-emerald-400', 
+        border: 'border-emerald-500/20', 
+        dot: 'bg-emerald-500' 
+      };
+    case 'partial_paid':
+      return { 
+        label: 'Token Paid', 
+        bg: 'bg-amber-500/10 dark:bg-amber-500/15', 
+        text: 'text-amber-600 dark:text-amber-400', 
+        border: 'border-amber-500/20', 
+        dot: 'bg-amber-500' 
+      };
+    case 'failed':
+      return { 
+        label: 'Failed', 
+        bg: 'bg-rose-500/10 dark:bg-rose-500/15', 
+        text: 'text-rose-600 dark:text-rose-400', 
+        border: 'border-rose-500/20', 
+        dot: 'bg-rose-500' 
+      };
+    default:
+      return { 
+        label: 'Pending', 
+        bg: 'bg-orange-500/10 dark:bg-orange-500/15', 
+        text: 'text-orange-600 dark:text-orange-400', 
+        border: 'border-orange-500/20', 
+        dot: 'bg-orange-500' 
+      };
+  }
+};
+
+// Helper for exact financial calculation based on payment_status
+const getBookingFinancials = (b) => {
+  const isPaid = b.payment_status === 'paid';
+  const isPartial = b.payment_status === 'partial_paid';
+  const isToken = b.payment_type === 'token';
+  
+  // Paid amount depends strictly on payment_status:
+  let paidAmount = 0;
+  if (isPaid) {
+    paidAmount = b.total_price;
+  } else if (isPartial) {
+    paidAmount = b.token_amount_paid || 5000;
+  } else {
+    // pending or failed
+    paidAmount = 0;
+  }
+
+  // Pending / due balance
+  let dueAmount = 0;
+  if (isPaid) {
+    dueAmount = 0;
+  } else if (isPartial) {
+    dueAmount = Math.max(0, b.total_price - paidAmount);
+  } else {
+    // pending or failed
+    dueAmount = b.total_price;
+  }
+
+  const voucher = b.voucher_amount_used || 0;
+  const wallet = b.wallet_amount_used || 0;
+  const subtotalInclusive = b.total_price + voucher + wallet;
+  const baseVal = subtotalInclusive / 1.18;
+  const gstVal = subtotalInclusive - baseVal;
+
+  return {
+    isPaid,
+    isPartial,
+    isToken,
+    paidAmount,
+    dueAmount,
+    voucher,
+    wallet,
+    baseVal,
+    gstVal
+  };
+};
+
 const BookedPackages = () => {
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [downloadingId, setDownloadingId] = useState(null);
-  const [expandedId, setExpandedId] = useState(null);
+  const [viewBooking, setViewBooking] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [deleteBookingModal, setDeleteBookingModal] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchBookings = async () => {
     setIsLoading(true);
@@ -91,11 +188,34 @@ const BookedPackages = () => {
     }
   };
 
+  const handleDeleteBooking = async () => {
+    if (!deleteBookingModal?._id) return;
+    try {
+      setIsDeleting(true);
+      const res = await apiClient.delete(`/itinerary-bookings/${deleteBookingModal._id}`);
+      if (res.data?.success) {
+        toast.success("Booking deleted successfully!");
+        setBookings(prev => prev.filter(b => b._id !== deleteBookingModal._id));
+        if (viewBooking?._id === deleteBookingModal._id) {
+          setViewBooking(null);
+        }
+        setDeleteBookingModal(null);
+      } else {
+        toast.error(res.data?.msg || "Failed to delete booking.");
+      }
+    } catch (err) {
+      console.error("handleDeleteBooking Error:", err);
+      toast.error(err.response?.data?.msg || "Error deleting booking.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   useEffect(() => {
     fetchBookings();
   }, []);
 
-  // Filter Bookings by search term
+  // Filter Bookings by search term and status tab
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => {
       const custName = `${b.user_id?.firstName || ""} ${b.user_id?.lastName || ""}`.toLowerCase();
@@ -104,14 +224,21 @@ const BookedPackages = () => {
       const invoiceNum = `INV-T2H-${b._id?.substring(0, 8).toUpperCase()}`.toLowerCase();
       const search = searchTerm.toLowerCase();
 
-      return (
+      const matchesSearch = (
         custName.includes(search) ||
         custEmail.includes(search) ||
         itineraryTitle.includes(search) ||
         invoiceNum.includes(search)
       );
+
+      if (!matchesSearch) return false;
+
+      if (statusFilter === "paid") return b.payment_status === "paid";
+      if (statusFilter === "pending") return b.payment_status !== "paid";
+
+      return true;
     });
-  }, [bookings, searchTerm]);
+  }, [bookings, searchTerm, statusFilter]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
@@ -127,12 +254,9 @@ const BookedPackages = () => {
     let legacyNotesCount = 0;
 
     bookings.forEach(b => {
-      const isToken = b.payment_type === "token";
-      const paid = isToken ? 5000 : b.total_price;
-      const due = isToken ? Math.max(0, b.total_price - 5000) : 0;
-
-      totalPaid += paid;
-      totalPending += due;
+      const { paidAmount, dueAmount } = getBookingFinancials(b);
+      totalPaid += paidAmount;
+      totalPending += dueAmount;
 
       const isStandardFormat = b.notes ? /Addons:|Requests:|DepCity:/i.test(b.notes) : true;
       if (b.notes && !isStandardFormat) {
@@ -178,10 +302,17 @@ const BookedPackages = () => {
     }
   };
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(text);
+    toast.success("Copied to clipboard!", { position: "top-right", autoClose: 1500 });
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   // Helper to render booking notes / legacy fallbacks inside details
   const renderBookingNotes = (notesText) => {
     if (!notesText) return (
-      <p className="text-sm font-semibold text-slate-450 italic">No custom requirements specified.</p>
+      <p className="text-xs font-medium text-slate-400">Standard Package (No special add-ons or customized requests).</p>
     );
 
     const isStandardFormat = /Addons:|Requests:|DepCity:/i.test(notesText);
@@ -189,7 +320,6 @@ const BookedPackages = () => {
     if (isStandardFormat) {
       const addonsMatch = notesText.match(/Addons:\s*([^.]*)/i);
       const requestsMatch = notesText.match(/Requests:\s*([^.]*)/i);
-      const depCityMatch = notesText.match(/DepCity:\s*(.*)/i);
 
       const addonsList = addonsMatch && addonsMatch[1]
         ? addonsMatch[1].split(",").map(s => s.trim()).filter(Boolean)
@@ -197,9 +327,6 @@ const BookedPackages = () => {
       const requestsList = requestsMatch && requestsMatch[1]
         ? requestsMatch[1].split(",").map(s => s.trim()).filter(Boolean)
         : [];
-      const depCity = depCityMatch && depCityMatch[1]
-        ? depCityMatch[1].trim()
-        : "";
 
       const ADDONS_LABELS = {
         'candle_dinner': 'Candle Light Dinner',
@@ -209,431 +336,872 @@ const BookedPackages = () => {
         'photoshoot': 'Pro Couple Photoshoot'
       };
 
+      if (addonsList.length === 0 && requestsList.length === 0) {
+        return (
+          <p className="text-xs font-medium text-slate-400">Standard Package (No customized add-ons or special requests).</p>
+        );
+      }
+
       return (
-        <div className="space-y-5">
-          {depCity && (
-            <div>
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1.5">Departure City</span>
-              <span className="inline-block px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800/80 text-slate-855 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700">
-                {depCity}
-              </span>
-            </div>
-          )}
+        <div className="space-y-2">
           {addonsList.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Selected Add-ons</span>
-              <div className="flex flex-wrap gap-2">
-                {addonsList.map(addon => (
-                  <span key={addon} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-indigo-100 dark:border-indigo-900/50">
-                    {ADDONS_LABELS[addon] || addon}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1.5">
+              {addonsList.map(addon => (
+                <span key={addon} className="px-2.5 py-1 bg-indigo-950/60 text-indigo-300 text-[11px] font-bold rounded-md border border-indigo-800/60">
+                  {ADDONS_LABELS[addon] || addon}
+                </span>
+              ))}
             </div>
           )}
           {requestsList.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Special Requests</span>
-              <div className="flex flex-wrap gap-2">
-                {requestsList.map(req => (
-                  <span key={req} className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-emerald-100 dark:border-emerald-900/50">
-                    {req}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1.5">
+              {requestsList.map(req => (
+                <span key={req} className="px-2.5 py-1 bg-emerald-950/60 text-emerald-300 text-[11px] font-bold rounded-md border border-emerald-800/60">
+                  {req}
+                </span>
+              ))}
             </div>
           )}
         </div>
       );
     } else {
-      // Option A: Legacy raw note alert container
       return (
-        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-5 text-amber-900 dark:text-amber-300">
-          <div className="flex items-center gap-1.5 mb-2 font-black text-xs uppercase tracking-widest text-amber-700 dark:text-amber-400">
-            <AlertTriangle size={16} />
-            <span>⚠️ Legacy / Custom Booking Comment</span>
-          </div>
-          <p className="text-sm font-semibold leading-relaxed whitespace-pre-wrap">{notesText}</p>
+        <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-slate-300">
+          <p className="text-xs font-medium leading-relaxed whitespace-pre-wrap">{notesText}</p>
         </div>
       );
     }
   };
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setViewBooking(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen">
+    <div className="p-4 md:p-8 w-full min-h-screen text-slate-100">
 
-      {/* HEADER SECTION */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-150 dark:border-slate-800 p-8 mb-8 relative overflow-hidden shadow-sm">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-        <div className="relative z-10">
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2 flex items-center gap-3 font-['Playfair_Display']">
-            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
-              <Sparkles size={24} />
-            </div>
-            Booked Packages Directory
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 max-w-2xl mb-8">
-            Manage honeymoon package bookings, parse customized preferences, and trigger real-time invoice generation.
-          </p>
+      {/* HEADER & CONTROLS SECTION */}
+      <div className="bg-[#0b1329] rounded-3xl border border-slate-800 p-6 sm:p-8 mb-8 relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
-          <div className="relative max-w-3xl">
-            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-              <Search className="text-indigo-400" size={20} />
+        <div className="relative z-10 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                  <FileText size={24} />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-['Playfair_Display']">
+                    Booked Packages Directory
+                  </h1>
+                  <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                    Real-time Booking & Invoice Logs
+                  </span>
+                </div>
+              </div>
+              <p className="text-slate-300 text-sm max-w-2xl">
+                Inspect traveller profiles, payment gateway receipts, travel departure origins, and financial ledgers.
+              </p>
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-                setExpandedId(null);
-              }}
-              placeholder="Search by customer name, invoice code, package itinerary..."
-              className="w-full pl-14 pr-6 py-4.5 bg-slate-50/50 dark:bg-slate-950/40 border-2 border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-0 focus:border-indigo-600 focus:bg-white text-base outline-none transition-all font-semibold text-slate-800 dark:text-slate-200 placeholder-slate-400"
-            />
+
+            <div className="flex items-center gap-3">
+              <span className="px-4 py-2 bg-[#060b18] border border-slate-700/80 rounded-xl text-xs font-bold text-slate-300 shadow-inner flex items-center gap-2">
+                <CheckCircle2 size={15} className="text-emerald-400" />
+                <span>{bookings.length} Total Bookings</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Search Bar & Quick Filter Chips */}
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pt-2 border-t border-slate-800/80">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-2xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400" size={18} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search by customer name, email, invoice code, itinerary title..."
+                className="w-full pl-11 pr-4 py-3.5 bg-[#060b18] border border-slate-700 focus:border-indigo-500 rounded-2xl text-sm font-semibold text-white placeholder-slate-400 outline-none transition-all shadow-inner focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 shrink-0">
+              {[
+                { id: 'all', label: 'All', count: bookings.length },
+                { id: 'paid', label: 'Paid', count: bookings.filter(b => b.payment_status === 'paid').length },
+                { id: 'pending', label: 'Pending', count: bookings.filter(b => b.payment_status !== 'paid').length }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setStatusFilter(tab.id);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border ${
+                    statusFilter === tab.id
+                      ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30'
+                      : 'bg-[#060b18] text-slate-400 hover:text-white border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                    statusFilter === tab.id ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-sm">
+        <div className="bg-[#0b1329] p-5 rounded-2xl border border-slate-800/90 shadow-lg hover:border-indigo-500/40 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Booked Packages</span>
-            <CheckCircle2 size={16} className="text-indigo-600" />
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Total Booked Packages</span>
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+              <CheckCircle2 size={16} />
+            </div>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalBookingsCount}</div>
+          <div className="text-3xl font-black text-white">{stats.totalBookingsCount}</div>
+          <p className="text-[11px] text-slate-400 font-semibold mt-1">Confirmed & Active Reservations</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-sm">
+        <div className="bg-[#0b1329] p-5 rounded-2xl border border-slate-800/90 shadow-lg hover:border-emerald-500/40 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Collection Paid</span>
-            <DollarSign size={16} className="text-emerald-600" />
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Total Collection Paid</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <DollarSign size={16} />
+            </div>
           </div>
-          <div className="text-3xl font-black text-emerald-600">₹{stats.totalRevenue.toLocaleString("en-IN")}</div>
+          <div className="text-3xl font-black text-emerald-400">₹{stats.totalRevenue.toLocaleString("en-IN")}</div>
+          <p className="text-[11px] text-slate-400 font-semibold mt-1">Captured via Razorpay Gateway</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-sm">
+        <div className="bg-[#0b1329] p-5 rounded-2xl border border-slate-800/90 shadow-lg hover:border-amber-500/40 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Pending Balances</span>
-            <Clock size={16} className="text-amber-500" />
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Total Pending Balances</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+              <Clock size={16} />
+            </div>
           </div>
-          <div className="text-3xl font-black text-amber-500">₹{stats.totalPendingRevenue.toLocaleString("en-IN")}</div>
+          <div className="text-3xl font-black text-amber-400">₹{stats.totalPendingRevenue.toLocaleString("en-IN")}</div>
+          <p className="text-[11px] text-slate-400 font-semibold mt-1">Due Before Trip Departure</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-150 dark:border-slate-800 shadow-sm">
+        <div className="bg-[#0b1329] p-5 rounded-2xl border border-slate-800/90 shadow-lg hover:border-rose-500/40 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Legacy Custom Notes</span>
-            <AlertTriangle size={16} className="text-rose-500" />
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Custom Notes / Addons</span>
+            <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+              <AlertTriangle size={16} />
+            </div>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">{stats.legacyNotesCount}</div>
+          <div className="text-3xl font-black text-white">{stats.legacyNotesCount}</div>
+          <p className="text-[11px] text-slate-400 font-semibold mt-1">Custom Notes Logged</p>
         </div>
       </div>
 
       {/* LOADER & NO RESULTS */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="animate-spin text-indigo-600 mb-4" size={36} />
-          <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Synchronizing Booking Logs...</span>
+        <div className="flex flex-col items-center justify-center py-24 bg-[#0b1329] rounded-3xl border border-slate-800">
+          <Loader2 className="animate-spin text-indigo-400 mb-4" size={40} />
+          <span className="text-base font-bold text-slate-300">Synchronizing Booking Directory...</span>
+          <p className="text-xs text-slate-500 mt-1">Fetching records from database</p>
         </div>
       ) : error ? (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-12 text-center">
-          <p className="text-rose-500 font-bold mb-2">{error}</p>
-          <button onClick={fetchBookings} className="text-sm text-indigo-600 font-black hover:underline uppercase tracking-wider">Try Again</button>
+        <div className="bg-[#0b1329] rounded-3xl border border-slate-800 p-12 text-center">
+          <p className="text-rose-400 font-bold mb-3">{error}</p>
+          <button onClick={fetchBookings} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer">
+            Reload Directory
+          </button>
         </div>
       ) : filteredBookings.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed p-12 text-center">
-          <div className="w-20 h-20 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+        <div className="bg-[#0b1329] rounded-3xl border border-slate-800 border-dashed p-14 text-center">
+          <div className="w-20 h-20 bg-[#060b18] rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 border border-slate-800">
             <Search size={32} />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Matching Bookings</h3>
-          <p className="text-slate-500 dark:text-slate-400">Double check search criteria or try matching the exact invoice ID.</p>
+          <h3 className="text-xl font-bold text-white mb-2">No Matching Bookings Found</h3>
+          <p className="text-slate-400 text-sm max-w-md mx-auto mb-5">
+            {searchTerm ? `No results found for "${searchTerm}". Try matching the exact customer name or invoice ID.` : "There are no bookings under this status category."}
+          </p>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-indigo-400 hover:text-white text-xs font-bold transition cursor-pointer"
+            >
+              Clear Search Query
+            </button>
+          )}
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {paginatedBookings.map((b, idx) => {
-            const isExpanded = expandedId === b._id;
-            const invoiceId = `INV-T2H-${b._id.toString().substring(0, 8).toUpperCase()}`;
-            const custName = `${b.user_id?.firstName || ""} ${b.user_id?.lastName || ""}`.trim();
-            const isToken = b.payment_type === "token";
-            const paidAmount = isToken ? 5000 : b.total_price;
-            const dateInfo = getTravelDates(b.travel_date, b.itinerary_id);
+        <>
+          {/* HIGH-VISIBILITY TABLE HEADER */}
+          <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 mb-3 bg-[#0b1329] border border-slate-800/90 rounded-2xl text-xs font-black text-slate-300 uppercase tracking-wider shadow-sm">
+            <div className="col-span-3">Customer & Invoice</div>
+            <div className="col-span-2">Payment Status</div>
+            <div className="col-span-3">Package & Travel Origin</div>
+            <div className="col-span-2">Travel Schedule</div>
+            <div className="col-span-1 text-right">Amount</div>
+            <div className="col-span-1 text-center">Actions</div>
+          </div>
 
-            return (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(idx * 0.05, 0.3) }}
-                key={b._id}
-                className={`bg-white dark:bg-slate-900 border transition-all duration-300 overflow-hidden ${isExpanded
-                    ? 'border-indigo-200 dark:border-indigo-900/60 shadow-xl rounded-3xl'
-                    : 'border-slate-200 dark:border-slate-800/80 shadow-sm rounded-2xl hover:border-indigo-300 dark:hover:border-indigo-850 hover:shadow-md'
-                  }`}
-              >
-                {/* Horizontal Compact Header Row */}
-                <div
-                  onClick={() => setExpandedId(isExpanded ? null : b._id)}
-                  className="px-6 py-5.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 cursor-pointer select-none group"
+          {/* TABLE DATA ROWS */}
+          <div className="flex flex-col gap-3">
+            {paginatedBookings.map((b, idx) => {
+              const invoiceId = `INV-T2H-${b._id.toString().substring(0, 8).toUpperCase()}`;
+              const custName = `${b.user_id?.firstName || ""} ${b.user_id?.lastName || ""}`.trim() || "Guest User";
+              const custEmail = b.user_id?.email || "No Email";
+              const initials = (custName.split(" ").map(n => n[0]).join("")).substring(0, 2).toUpperCase() || "GU";
+
+              // Extract departure city
+              let depCity = "";
+              if (b.notes) {
+                const match = b.notes.match(/DepCity:\s*([^.]*)/i);
+                if (match && match[1]?.trim()) {
+                  depCity = match[1].trim();
+                }
+              }
+              const travelFrom = depCity || b.user_id?.address?.city || b.user_id?.city || "";
+
+              const dateInfo = getTravelDates(b.travel_date, b.itinerary_id);
+              const badge = getPaymentBadge(b.payment_status);
+              const { isPaid, isPartial, paidAmount } = getBookingFinancials(b);
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.03, 0.2) }}
+                  key={b._id}
+                  className="bg-[#0b1329] border border-slate-800 hover:border-indigo-500/50 hover:bg-[#0f1a36] shadow-md rounded-2xl transition-all duration-200 group"
                 >
-                  <div className="flex items-center gap-5 w-full lg:w-auto">
-                    <div className={`w-13 h-13 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isToken
-                        ? 'bg-amber-500/10 text-amber-600'
-                        : 'bg-emerald-500/10 text-emerald-600'
-                      }`}>
-                      <FileText size={24} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-1.5">
-                        <h3 className="font-mono font-bold text-lg text-slate-900 dark:text-white tracking-wider flex items-center gap-2">
-                          {invoiceId}
+                  <div className="px-6 py-4.5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+
+                    {/* 1. Customer & Invoice Column */}
+                    <div className="col-span-3 flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/20">
+                        {initials}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold text-sm text-white truncate group-hover:text-indigo-300 transition-colors">
+                          {custName}
+                        </h3>
+                        <p className="text-xs font-medium text-slate-300 truncate" title={custEmail}>
+                          {custEmail}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="font-mono font-bold text-[11px] text-indigo-300 tracking-wider">
+                            {invoiceId}
+                          </span>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigator.clipboard.writeText(invoiceId);
-                              toast.success('Invoice ID copied!', { position: 'top-right', autoClose: 1500 });
+                              handleCopy(invoiceId);
                             }}
-                            className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded transition-colors"
-                            title="Copy Invoice Code"
+                            className="p-0.5 text-slate-400 hover:text-indigo-400 rounded transition-colors shrink-0 cursor-pointer"
+                            title="Copy Invoice ID"
                           >
-                            <Copy size={16} />
+                            {copiedId === invoiceId ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                           </button>
-                        </h3>
-                        <span className={`text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded ${isToken
-                            ? 'bg-amber-55 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border border-amber-200/50'
-                            : 'bg-emerald-55 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50'
-                          }`}>
-                          {isToken ? 'Token' : 'Paid'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Payment Status Badge */}
+                    <div className="col-span-2">
+                      <span className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl ${badge.bg} ${badge.text} border ${badge.border} shadow-xs`}>
+                        <span className={`w-2 h-2 rounded-full ${badge.dot} animate-pulse`}></span>
+                        {badge.label}
+                      </span>
+                    </div>
+
+                    {/* 3. Package & Origin */}
+                    <div className="col-span-3">
+                      <p className="text-sm font-bold text-slate-100 truncate">
+                        {b.itinerary_id?.title || "Custom Tour Package"}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {travelFrom && (
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 text-[11px] font-bold border border-emerald-500/20 flex items-center gap-1">
+                            <MapPin size={11} /> From: {travelFrom}
+                          </span>
+                        )}
+                        <span className="text-xs font-semibold text-slate-400">
+                          {b.adults} Adults, {b.kids} Kids
                         </span>
                       </div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-slate-105">
-                        {custName || "Guest User"} &bull; <span className="font-semibold text-slate-500 dark:text-slate-400 text-xs">{b.user_id?.email || "N/A"}</span>
+                    </div>
+
+                    {/* 4. Travel Schedule */}
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                        <Calendar size={13} className="text-indigo-400 shrink-0" />
+                        <span>{dateInfo.start}</span>
+                      </div>
+                      <p className="text-xs font-semibold text-slate-400 mt-0.5 pl-5">
+                        {dateInfo.duration}
                       </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between w-full lg:w-auto gap-10">
-                    <div className="text-left lg:text-right">
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest mb-1">Itinerary</p>
-                      <p className="text-sm font-bold text-slate-805 dark:text-slate-200 max-w-[200px] truncate">{b.itinerary_id?.title || "Custom Package"}</p>
-                    </div>
-                    <div className="text-left lg:text-right hidden sm:block">
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest mb-1">Travel Dates</p>
-                      <p className="text-sm font-bold text-slate-750 dark:text-slate-350">
-                        {dateInfo.start} - {dateInfo.end}
+                    {/* 5. Amount */}
+                    <div className="col-span-1 text-right">
+                      <p className="text-base font-black text-white">
+                        ₹{(isPaid || isPartial ? paidAmount : b.total_price).toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[10px] font-bold mt-0.5 uppercase tracking-wider">
+                        {isPaid ? (
+                          <span className="text-emerald-400">Paid in Full</span>
+                        ) : isPartial ? (
+                          <span className="text-amber-400">Token ₹5k Paid</span>
+                        ) : (
+                          <span className="text-orange-400">Pending</span>
+                        )}
                       </p>
                     </div>
-                    <div className="text-left lg:text-right">
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest mb-1">Value Paid</p>
-                      <p className="text-base font-black text-slate-955 dark:text-white">₹{paidAmount.toLocaleString("en-IN")}</p>
+
+                    {/* 6. Actions */}
+                    <div className="col-span-1 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setViewBooking(b)}
+                        className="p-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 transition-all duration-200 cursor-pointer shadow-md shadow-indigo-600/10"
+                        title="View Full Booking & Customer Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => setDeleteBookingModal(b)}
+                        className="p-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 transition-all duration-200 cursor-pointer shadow-md shadow-rose-600/10"
+                        title="Delete Booking Record"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:group-hover:bg-slate-800 transition-colors">
-                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </div>
+
                   </div>
-                </div>
-
-                {/* Expanded Detailed Booking Panel */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="border-t border-slate-150 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-955/10"
-                    >
-                      <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-                        {/* Left Side: Traveller Info & Package Config */}
-                        <div className="space-y-6">
-
-                          {/* Traveller Credentials */}
-                          <div>
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3.5">
-                              <User size={16} className="text-indigo-500" /> Traveller Profile
-                            </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Full Name</span>
-                                <span className="text-sm font-bold text-slate-850 dark:text-slate-205">{custName || "Guest User"}</span>
-                              </div>
-                              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Email Address</span>
-                                <span className="text-sm font-bold text-slate-850 dark:text-slate-205 truncate block">{b.user_id?.email || "N/A"}</span>
-                              </div>
-                              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Contact Number</span>
-                                <span className="text-sm font-bold text-slate-850 dark:text-slate-205 block">{b.user_id?.phone || "N/A"}</span>
-                              </div>
-                              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">City / Region</span>
-                                <span className="text-sm font-bold text-slate-850 dark:text-slate-205 block">{b.user_id?.city || "N/A"}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Itinerary Details */}
-                          <div>
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3.5">
-                              <Calendar size={16} className="text-indigo-500" /> Itinerary Setup
-                            </h4>
-                            <div className="bg-white dark:bg-slate-900 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-                              <div>
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Package Title</span>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white">{b.itinerary_id?.title || "Custom Honeymoon Package"}</p>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                                <div className="bg-slate-50/50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800/80">
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Start Date</span>
-                                  <span className="text-sm font-bold text-slate-850 dark:text-slate-205">{dateInfo.start}</span>
-                                </div>
-                                <div className="bg-slate-50/50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800/80">
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">End Date</span>
-                                  <span className="text-sm font-bold text-slate-850 dark:text-slate-205">{dateInfo.end}</span>
-                                </div>
-                                <div className="bg-slate-50/50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800/80">
-                                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Duration</span>
-                                  <span className="text-sm font-bold text-slate-850 dark:text-slate-205">{dateInfo.duration}</span>
-                                </div>
-                              </div>
-                              <div className="pt-1">
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest block mb-1">Guests count</span>
-                                <span className="text-sm font-bold text-slate-850 dark:text-slate-205">{b.adults} Adults, {b.kids} Kids</span>
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
-
-                        {/* Right Side: Preferences (Add-ons) & Tax Calculations */}
-                        <div className="space-y-6">
-
-                          {/* Preferences & Notes */}
-                          <div>
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3.5">
-                              <Sparkles size={16} className="text-indigo-500" /> Preferences & Add-ons
-                            </h4>
-                            <div className="bg-white dark:bg-slate-900 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                              {renderBookingNotes(b.notes)}
-                            </div>
-                          </div>
-
-                          {/* Billing & Tax Calculations Ledger */}
-                          <div>
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 mb-3.5">
-                              <DollarSign size={16} className="text-indigo-500" /> Tax Ledger Calculation
-                            </h4>
-                            <div className="bg-white dark:bg-slate-900 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-                              {(() => {
-                                const voucher = b.voucher_amount_used || 0;
-                                const wallet = b.wallet_amount_used || 0;
-                                const subtotalInclusive = b.total_price + voucher + wallet;
-                                const baseVal = subtotalInclusive / 1.18;
-                                const gstVal = subtotalInclusive - baseVal;
-                                const dueAmount = isToken ? Math.max(0, b.total_price - 5000) : 0;
-
-                                return (
-                                  <>
-                                    <div className="flex justify-between text-sm font-semibold text-slate-550 dark:text-slate-400">
-                                      <span>Base Price (GST Excl):</span>
-                                      <span>₹{Math.round(baseVal).toLocaleString("en-IN")}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm font-semibold text-slate-550 dark:text-slate-400 font-mono">
-                                      <span>CGST + SGST (18%):</span>
-                                      <span>₹{Math.round(gstVal).toLocaleString("en-IN")}</span>
-                                    </div>
-                                    {(voucher > 0 || wallet > 0) && (
-                                      <div className="flex justify-between text-sm font-semibold text-rose-500">
-                                        <span>Wallet / Voucher Deduct:</span>
-                                        <span>- ₹{(voucher + wallet).toLocaleString("en-IN")}</span>
-                                      </div>
-                                    )}
-                                    <div className="border-t border-slate-150 dark:border-slate-800 my-2 pt-2.5 flex justify-between text-base font-black text-slate-900 dark:text-white">
-                                      <span>Package Value:</span>
-                                      <span>₹{b.total_price.toLocaleString("en-IN")}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm font-semibold text-slate-550 dark:text-slate-400">
-                                      <span>Amount Paid Now:</span>
-                                      <span className="text-emerald-600 font-bold">₹{paidAmount.toLocaleString("en-IN")}</span>
-                                    </div>
-                                    {dueAmount > 0 && (
-                                      <div className="flex justify-between text-sm font-semibold text-amber-500">
-                                        <span>Outstanding Balance Due:</span>
-                                        <span className="font-bold">₹{dueAmount.toLocaleString("en-IN")}</span>
-                                      </div>
-                                    )}
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                      {/* Footer Download Action bar */}
-                      <div className="px-6 md:px-8 py-5.5 bg-white dark:bg-slate-900 border-t border-slate-150 dark:border-slate-800/80 flex flex-col sm:flex-row items-center gap-4 justify-end">
-                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mr-auto hidden sm:block">Administrative document retrieval</span>
-                        <button
-                          onClick={() => handleDownloadInvoice(b._id)}
-                          disabled={downloadingId === b._id}
-                          className="w-full sm:w-auto px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-500/10 cursor-pointer flex items-center justify-center gap-2.5"
-                        >
-                          {downloadingId === b._id ? (
-                            <>
-                              <Loader2 className="animate-spin" size={16} />
-                              Generating Receipt...
-                            </>
-                          ) : (
-                            <>
-                              <Download size={16} />
-                              Download PDF Invoice
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-              </motion.div>
-            );
-          })}
-        </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* PAGINATION INTERACTION */}
       {totalPages > 1 && !isLoading && (
-        <div className="flex items-center justify-between mt-6 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-150 dark:border-slate-850 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Showing Page {currentPage} of {totalPages}
+        <div className="flex items-center justify-between mt-6 bg-[#0b1329] p-4 rounded-2xl border border-slate-800 shadow-md">
+          <span className="text-xs font-bold text-slate-300">
+            Showing Page {currentPage} of {totalPages} ({filteredBookings.length} total results)
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setCurrentPage(prev => Math.max(prev - 1, 1));
-                setExpandedId(null);
               }}
               disabled={currentPage === 1}
-              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400 disabled:opacity-40"
+              className="p-2.5 border border-slate-700/80 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer transition"
             >
               <ChevronLeft size={16} />
             </button>
+            <span className="px-3 py-1 bg-slate-800 text-white font-bold text-xs rounded-lg border border-slate-700">
+              {currentPage} / {totalPages}
+            </span>
             <button
               onClick={() => {
                 setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                setExpandedId(null);
               }}
               disabled={currentPage === totalPages}
-              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400 disabled:opacity-40"
+              className="p-2.5 border border-slate-700/80 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer transition"
             >
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* COMPREHENSIVE DARK MODE DETAIL VIEW MODAL */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {viewBooking && (() => {
+          const b = viewBooking;
+          const invoiceId = `INV-T2H-${b._id.toString().substring(0, 8).toUpperCase()}`;
+          const custName = `${b.user_id?.firstName || ""} ${b.user_id?.lastName || ""}`.trim() || "Guest User";
+          const custEmail = b.user_id?.email || "N/A";
+          const custPhone = b.user_id?.mobile_number || b.user_id?.phone || b.customer_phone || "Not Provided";
+          
+          // Extract Departure City (Travel Origin)
+          let departureCity = "";
+          if (b.notes) {
+            const depMatch = b.notes.match(/DepCity:\s*([^.]*)/i);
+            if (depMatch && depMatch[1]?.trim()) {
+              departureCity = depMatch[1].trim();
+            }
+          }
+          const userCity = b.user_id?.address?.city || b.user_id?.city || "";
+          const travelFromCity = departureCity || userCity || "Not Specified";
+
+          // Full user address if available
+          let fullAddress = "Not Provided";
+          if (b.user_id?.address) {
+            if (typeof b.user_id.address === "string") {
+              fullAddress = b.user_id.address;
+            } else {
+              const parts = [
+                b.user_id.address.street,
+                b.user_id.address.city,
+                b.user_id.address.state,
+                b.user_id.address.pincode,
+                b.user_id.address.country
+              ].filter(Boolean);
+              if (parts.length > 0) fullAddress = parts.join(", ");
+            }
+          } else if (userCity) {
+            fullAddress = userCity;
+          }
+
+          const dateInfo = getTravelDates(b.travel_date, b.itinerary_id);
+          const badge = getPaymentBadge(b.payment_status);
+          const {
+            isPaid,
+            isPartial,
+            paidAmount,
+            dueAmount,
+            voucher,
+            wallet,
+            baseVal,
+            gstVal
+          } = getBookingFinancials(b);
+          
+          const bookedOn = new Date(b.createdAt).toLocaleDateString("en-IN", { 
+            year: "numeric", 
+            month: "short", 
+            day: "numeric", 
+            hour: "2-digit", 
+            minute: "2-digit" 
+          });
+
+          const authMode = b.user_id?.auth_provider === "google" 
+            ? "Google Account" 
+            : (b.user_id?.auth_provider ? b.user_id.auth_provider.toUpperCase() : "Email & Password");
+
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md overflow-y-auto"
+            >
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0"
+                onClick={() => setViewBooking(null)}
+              />
+
+              {/* Modal Container */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 12 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="relative w-full max-w-4xl bg-[#0b1329] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden text-slate-100 my-auto max-h-[92vh] flex flex-col"
+              >
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between bg-[#060b18]/90 shrink-0">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h2 className="font-mono font-bold text-lg text-white tracking-wider flex items-center gap-2">
+                      {invoiceId}
+                      <button
+                        onClick={() => handleCopy(invoiceId)}
+                        className="p-1 text-slate-400 hover:text-indigo-400 rounded transition-colors cursor-pointer"
+                        title="Copy Invoice ID"
+                      >
+                        {copiedId === invoiceId ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      </button>
+                    </h2>
+                    <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${badge.bg} ${badge.text} border ${badge.border}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}></span>
+                      {badge.label}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                      {b.status || "confirmed"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+                      Booked: {bookedOn}
+                    </span>
+                    <button
+                      onClick={() => setViewBooking(null)}
+                      className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:bg-rose-950/40 hover:text-rose-400 hover:border-rose-800 transition-colors cursor-pointer"
+                      title="Close"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Content Grid with Smooth Scrolling */}
+                <div className="p-6 overflow-y-auto space-y-5 text-sm custom-scrollbar">
+
+                  {/* TOP ROW: Traveller Identity & Origin vs Razorpay Gateway */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                    {/* 1. Traveller Details */}
+                    <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 flex flex-col justify-between">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 mb-3 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5"><User size={13} /> Customer Profile</span>
+                          <span className="text-[9px] font-bold text-slate-500">{authMode}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Full Name</span>
+                            <span className="font-semibold text-slate-100 truncate block text-sm">{custName}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Email Address</span>
+                            <div className="flex items-center gap-1">
+                              <span className="font-semibold text-slate-200 truncate block" title={custEmail}>{custEmail}</span>
+                              {custEmail !== "N/A" && (
+                                <button onClick={() => handleCopy(custEmail)} className="text-slate-500 hover:text-indigo-400 p-0.5 cursor-pointer">
+                                  <Copy size={11} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Phone Number</span>
+                            <span className="font-semibold text-slate-200 truncate block">{custPhone}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Travel Origin / From</span>
+                            <span className="font-bold text-emerald-400 truncate block">{travelFromCity}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {fullAddress !== "Not Provided" && fullAddress !== travelFromCity && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-800/80 text-xs">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Billing Address</span>
+                          <span className="text-slate-300 block truncate">{fullAddress}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. Razorpay & Gateway Transaction Details */}
+                    <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 flex flex-col justify-between">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 mb-3 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5"><ShieldCheck size={14} /> Razorpay Gateway Verification</span>
+                          <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            {b.payment_status === "paid" || b.payment_status === "partial_paid" ? "Authorized & Captured" : "Pending Authorization"}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5 text-xs">
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Payment Method & Plan</span>
+                            <span className="font-bold text-white text-xs block">
+                              {b.payment_type === "token" ? "Token Advance (₹5,000 upfront)" : "Full Payment (100% Online via Razorpay)"}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-[#1e293b]/60 p-2.5 rounded-lg border border-slate-700/60 font-mono text-[11px]">
+                            <div>
+                              <span className="text-[9px] text-slate-400 uppercase font-sans font-bold block">Razorpay Payment ID</span>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="text-indigo-300 truncate font-semibold">
+                                  {b.razorpay_payment_id || "N/A (Pending)"}
+                                </span>
+                                {b.razorpay_payment_id && (
+                                  <button onClick={() => handleCopy(b.razorpay_payment_id)} className="text-slate-500 hover:text-indigo-400 p-0.5 cursor-pointer">
+                                    <Copy size={11} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="text-[9px] text-slate-400 uppercase font-sans font-bold block">Razorpay Order ID</span>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="text-slate-300 truncate font-semibold">
+                                  {b.razorpay_order_id || "N/A"}
+                                </span>
+                                {b.razorpay_order_id && (
+                                  <button onClick={() => handleCopy(b.razorpay_order_id)} className="text-slate-500 hover:text-indigo-400 p-0.5 cursor-pointer">
+                                    <Copy size={11} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* MIDDLE ROW: Itinerary & Travel Schedule vs Preferences & Requests */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                    {/* 3. Itinerary & Schedule */}
+                    <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 space-y-3">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5"><Calendar size={13} /> Itinerary & Travel Schedule</span>
+                        <span className="text-[10px] font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
+                          {b.adults} Adults, {b.kids} Kids
+                        </span>
+                      </div>
+
+                      <p className="font-bold text-white text-sm">
+                        {b.itinerary_id?.title || "Custom Honeymoon Package"}
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="bg-[#1e293b]/70 p-2 rounded-lg border border-slate-700/60">
+                          <span className="text-[9px] text-slate-400 uppercase font-bold block">Start Date</span>
+                          <span className="font-semibold text-slate-200 text-[11px] truncate block">{dateInfo.start}</span>
+                        </div>
+                        <div className="bg-[#1e293b]/70 p-2 rounded-lg border border-slate-700/60">
+                          <span className="text-[9px] text-slate-400 uppercase font-bold block">Duration</span>
+                          <span className="font-semibold text-slate-200 text-[11px] truncate block">{dateInfo.duration}</span>
+                        </div>
+                        <div className="bg-[#1e293b]/70 p-2 rounded-lg border border-slate-700/60">
+                          <span className="text-[9px] text-slate-400 uppercase font-bold block">Travel Origin</span>
+                          <span className="font-bold text-emerald-400 text-[11px] truncate block">{travelFromCity}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. Preferences, Add-ons & Requests */}
+                    <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 space-y-3">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                        <Tag size={13} /> Selected Add-ons & Custom Preferences
+                      </div>
+                      {renderBookingNotes(b.notes)}
+                    </div>
+
+                  </div>
+
+                  {/* BOTTOM ROW: Corporate GST (if claimed) & Financial Ledger */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                    {/* 5. Corporate GST Information (if claimed) */}
+                    {b.claim_gst ? (
+                      <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-indigo-900/40 space-y-2.5">
+                        <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                          <Building size={13} /> Corporate GST Tax Claim
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Company Name</span>
+                            <span className="font-bold text-slate-200 block">{b.company_name || "N/A"}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">GSTIN Number</span>
+                            <span className="font-mono font-bold text-indigo-300 block">{b.gst_number || "N/A"}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Registered Address</span>
+                            <span className="text-slate-300 block">{b.company_address || "N/A"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 flex flex-col justify-center text-xs text-slate-400">
+                        <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
+                          <Receipt size={13} /> Invoice & GST Claim
+                        </div>
+                        <p>Individual booking (No Corporate GST claimed).</p>
+                        <p className="text-slate-500 text-[11px] mt-1">Official Tax Invoice generated for customer tax compliance.</p>
+                      </div>
+                    )}
+
+                    {/* 6. Complete Financial Ledger */}
+                    <div className="bg-[#0f172a]/90 p-4 rounded-xl border border-slate-800/90 space-y-2.5">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-indigo-400 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5"><CreditCard size={13} /> Financial Ledger & Pricing Breakdown</span>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex justify-between text-slate-400">
+                          <span>Base Package (Excl. GST):</span>
+                          <span className="font-mono font-medium text-slate-200">₹{Math.round(baseVal).toLocaleString("en-IN")}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>GST Tax Amount (18%):</span>
+                          <span className="font-mono font-medium text-slate-200">₹{Math.round(gstVal).toLocaleString("en-IN")}</span>
+                        </div>
+                        
+                        {voucher > 0 && (
+                          <div className="flex justify-between text-rose-400 font-medium">
+                            <span>Gift Card Voucher ({b.used_gift_card_code || "VOUCHER"}):</span>
+                            <span className="font-mono">- ₹{voucher.toLocaleString("en-IN")}</span>
+                          </div>
+                        )}
+
+                        {wallet > 0 && (
+                          <div className="flex justify-between text-rose-400 font-medium">
+                            <span>User Wallet / Referral Discount:</span>
+                            <span className="font-mono">- ₹{wallet.toLocaleString("en-IN")}</span>
+                          </div>
+                        )}
+
+                        <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-bold text-white">
+                          <span>Total Net Package Price:</span>
+                          <span>₹{b.total_price.toLocaleString("en-IN")}</span>
+                        </div>
+                        
+                        <div className="flex justify-between text-xs font-semibold pt-1">
+                          <span className="text-slate-400">Total Amount Paid (via Razorpay):</span>
+                          <span className={`font-mono font-bold text-sm ${paidAmount > 0 ? 'text-emerald-400' : 'text-slate-500'}`}>
+                            ₹{paidAmount.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        {dueAmount > 0 && (
+                          <div className="flex justify-between text-xs font-bold text-amber-400 pt-1 border-t border-slate-800/80">
+                            <span>{isPartial ? 'Remaining Balance Due from Guest:' : 'Pending Payment:'}</span>
+                            <span className="font-mono text-sm">₹{dueAmount.toLocaleString("en-IN")}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* Footer Action Bar */}
+                <div className="px-6 py-4 border-t border-slate-800/80 bg-[#060b18]/90 flex items-center justify-between gap-3 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setViewBooking(null)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition cursor-pointer"
+                  >
+                    Close
+                  </button>
+
+                  <div className="flex items-center gap-2.5">
+                    {isPaid || isPartial ? (
+                      <button
+                        onClick={() => handleDownloadInvoice(b._id)}
+                        disabled={downloadingId === b._id}
+                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shadow-indigo-600/20 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {downloadingId === b._id ? (
+                          <>
+                            <Loader2 className="animate-spin" size={14} />
+                            Generating Receipt...
+                          </>
+                        ) : (
+                          <>
+                            <Download size={14} />
+                            Download Official Tax Invoice
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <div className="px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-semibold text-xs rounded-xl flex items-center gap-1.5">
+                        <AlertTriangle size={13} className="shrink-0" />
+                        <span>Payment {b.payment_status === 'failed' ? 'Failed' : 'Pending'}</span>
+                      </div>
+                    )}
+                    
+                    <button
+                      onClick={() => setDeleteBookingModal(b)}
+                      className="px-4 py-2.5 bg-rose-600/15 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-rose-600 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      title="Delete this booking"
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete Booking</span>
+                    </button>
+                  </div>
+                </div>
+
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* DELETE CONFIRMATION MODAL */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {deleteBookingModal && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-md bg-[#0b1329] border border-slate-800 rounded-2xl p-6 shadow-2xl relative text-slate-200"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
+                  <Trash2 size={22} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Delete Booking Record?</h3>
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">
+                    INV-T2H-{deleteBookingModal._id.substring(0, 8).toUpperCase()}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed mb-6 bg-[#0f172a]/90 p-3 rounded-xl border border-slate-800/80">
+                Are you sure you want to permanently delete this booking for{" "}
+                <strong className="text-white">
+                  {deleteBookingModal.user_id?.firstName || "Guest"} ({deleteBookingModal.itinerary_id?.title || "Package"})
+                </strong>
+                ? This action cannot be undone.
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteBookingModal(null)}
+                  disabled={isDeleting}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteBooking}
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-rose-600 hover:bg-rose-700 transition shadow-lg shadow-rose-600/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      Yes, Delete Booking
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

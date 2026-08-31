@@ -64,12 +64,14 @@ import ChatbotSettings from "./pages/settings/ChatbotSettings"
 import AuditLogs from "./pages/audit/AuditLogs"
 import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
 import BulkGiftCard from "./pages/giftcards/BulkGiftCard"
+import GiftDiscount from "./pages/giftcards/GiftDiscount"
 import AboutSettings from "./pages/settings/AboutSettings"
 import BookedPackages from "./pages/bookings/BookedPackages"
 
 import CreateMember from "./pages/team/CreateMember"
 import TeamList from "./pages/team/TeamList"
 import SocialManagement from "./pages/social-management/page.jsx"
+import GlobalImpact from "./pages/global_impact/GlobalImpact"
 import EmailTemplates from "./pages/campaign_management/template.jsx"
 import CampaignManagement from "./pages/campaign_management/page.jsx"
 
@@ -184,6 +186,7 @@ function App() {
             {/* Gift Cards */}
             <Route path="giftcards/verify" element={<VerifyGiftCard />} />
             <Route path="giftcards/bulk" element={<BulkGiftCard />} />
+            <Route path="giftcards/discount" element={<GiftDiscount />} />
 
             {/* Bookings */}
             <Route path="bookings" element={<BookedPackages />} />
@@ -194,6 +197,9 @@ function App() {
             {/* Marketing — Email Templates & Campaigns */}
             <Route path="email-templates" element={<EmailTemplates />} />
             <Route path="email-campaigns" element={<CampaignManagement />} />
+
+            {/* Our Global Impact */}
+            <Route path="global-impact" element={<GlobalImpact />} />
 
             {/* Registered Customers */}
             <Route path="customers" element={<CustomersList />} />
