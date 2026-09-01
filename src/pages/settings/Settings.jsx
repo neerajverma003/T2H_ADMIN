@@ -76,14 +76,17 @@ const Settings = () => {
   }, [activeTab]);
 
   // Profile Form State
+  const role = useAuthStore((state) => state.role);
+  const roleLabel = role === 'superadmin' ? 'SUPER ADMIN' : role === 'subadmin' ? 'SUB ADMIN' : 'ADMIN';
+
   const [profileForm, setProfileForm] = useState({
     username: "",
-    firstName: "Admin",
+    firstName: "",
     lastName: "",
     gender: "Male",
     phone: "",
     email: "",
-    designation: "SUPER ADMIN",
+    designation: "",
     avatar: "",
   });
 
@@ -105,16 +108,16 @@ const Settings = () => {
     if (profile) {
       setProfileForm({
         username: profile.username || "",
-        firstName: profile.firstName || "Admin",
+        firstName: profile.firstName || profile.username || "",
         lastName: profile.lastName || "",
         gender: profile.gender || "Male",
         phone: profile.phone || "",
         email: profile.email || "",
-        designation: profile.designation || "SUPER ADMIN",
+        designation: profile.designation || roleLabel,
         avatar: profile.avatar || "",
       });
     }
-  }, [profile]);
+  }, [profile, roleLabel]);
 
   useEffect(() => {
     if (searchParams.get("edit") === "true") {
@@ -573,7 +576,7 @@ const Settings = () => {
                       value={profileForm.designation}
                       onChange={handleProfileChange}
                       disabled={!isEditing}
-                      placeholder="SUPER ADMIN"
+                      placeholder={roleLabel || "Designation"}
                       className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
                     />
                   </div>

@@ -310,8 +310,13 @@ const ItinerariesListPage = () => {
             await apiClient.delete(`/admin/itinerary/${id}`);
             setItineraries((prev) => prev.filter((it) => it._id !== id));
             toast.success("Itinerary removed");
-        } catch {
-            toast.error("Failed to delete.");
+        } catch (err) {
+            const errorMsg =
+                err.response?.data?.msg ||
+                (err.response?.status === 403
+                    ? "Permission Denied: Only Super Admin is authorized to delete itineraries."
+                    : "Failed to delete itinerary.");
+            toast.error(errorMsg);
         }
     };
 

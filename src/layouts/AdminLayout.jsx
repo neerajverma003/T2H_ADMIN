@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router-dom"
 
 import Sidebar from "../components/Sidebar"
 import Header from "../components/Header"
-import Footer from "../components/Footer"
 
 const AdminLayout = () => {
   const [open, setOpen] = useState(() => {
@@ -50,8 +49,6 @@ const AdminLayout = () => {
             <Outlet />
           </div>
         </main>
-
-        <Footer />
       </div>
     </div>
   )

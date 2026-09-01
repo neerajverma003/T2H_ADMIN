@@ -5,8 +5,16 @@ import ConfirmationModel from "../../newComponents/ConfirmationModel"
 import { motion, AnimatePresence } from "framer-motion"
 
 const UserList = () => {
-  const { users, fetchUsers, deleteUser, updateUser, isLoadingUsers, isDeleting, isSubmitting } =
-    useAuthStore()
+  const {
+    users,
+    fetchUsers,
+    deleteUser,
+    updateUser,
+    isLoadingUsers,
+    isDeleting,
+    isSubmitting,
+    role: currentRole,
+  } = useAuthStore()
 
   const [open, setOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -37,8 +45,25 @@ const UserList = () => {
     setSelectedUser(null)
   }
 
+  // Permission helpers for user actions:
+  // - Superadmin can edit all, can delete admin & subadmin (cannot delete superadmin)
+  // - Admin can ONLY edit & delete subadmin accounts (cannot edit/delete superadmin or other admins)
+  // - Subadmin cannot edit or delete anyone
+  const canEditUser = (targetUser) => {
+    if (currentRole === 'superadmin') return true
+    if (currentRole === 'admin') return targetUser.role === 'subadmin'
+    return false
+  }
+
+  const canDeleteUser = (targetUser) => {
+    if (currentRole === 'superadmin') return targetUser.role !== 'superadmin'
+    if (currentRole === 'admin') return targetUser.role === 'subadmin'
+    return false
+  }
+
   // Edit handlers
   const handleEditClick = (user) => {
+    if (!canEditUser(user)) return
     setEditData({
       _id: user._id,
       username: user.username || "",
@@ -170,20 +195,29 @@ const UserList = () => {
 
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEditClick(user)}
-                          className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all shadow-sm"
-                          title="Edit user"
-                        >
-                          <Pencil size={20} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(user)}
-                          className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm"
-                          title="Delete user"
-                        >
-                          <Trash2 size={20} />
-                        </button>
+                        {canEditUser(user) && (
+                          <button
+                            onClick={() => handleEditClick(user)}
+                            className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-xl transition-all shadow-sm"
+                            title="Edit user"
+                          >
+                            <Pencil size={20} />
+                          </button>
+                        )}
+                        {canDeleteUser(user) && (
+                          <button
+                            onClick={() => handleDeleteClick(user)}
+                            className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all shadow-sm"
+                            title="Delete user"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        )}
+                        {!canEditUser(user) && !canDeleteUser(user) && (
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 italic pr-2">
+                            Restricted
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -285,9 +319,15 @@ const UserList = () => {
                       onChange={handleEditChange}
                       className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
                     >
-                      <option value="admin">Admin (Add/Edit only)</option>
-                      <option value="subadmin">Subadmin (Restricted)</option>
-                      <option value="superadmin">Superadmin (Full Control)</option>
+                      {currentRole === 'superadmin' ? (
+                        <>
+                          <option value="admin">Admin (Add/Edit only)</option>
+                          <option value="subadmin">Subadmin (Restricted)</option>
+                          <option value="superadmin">Superadmin (Full Control)</option>
+                        </>
+                      ) : (
+                        <option value="subadmin">Subadmin (Restricted Access)</option>
+                      )}
                     </select>
                   </div>
                 </div>

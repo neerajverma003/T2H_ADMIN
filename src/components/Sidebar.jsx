@@ -25,7 +25,8 @@ import {
   Gift,
   Percent,
   BarChart3,
-  Globe
+  Globe,
+  Info
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -141,6 +142,15 @@ const Sidebar = ({ open, setOpen }) => {
   const location = useLocation()
   const logout = useAuthStore((state) => state.logout)
   const role = useAuthStore((state) => state.role)
+  const allowedSections = useAuthStore((state) => state.allowedSections)
+
+  const hasPermission = (sectionKey) => {
+    if (role === 'superadmin') return true
+    if (Array.isArray(allowedSections)) {
+      return allowedSections.includes(sectionKey)
+    }
+    return true
+  }
 
   const [openMenus, setOpenMenus] = useState({})
 
@@ -252,29 +262,37 @@ const Sidebar = ({ open, setOpen }) => {
         {/* NAVIGATION LINKS */}
         <nav className="flex-1 overflow-y-auto px-3 pb-6 custom-scrollbar space-y-1">
           {/* DASHBOARD SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              DASHBOARD
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
-          )}
+          {hasPermission('dashboard') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  DASHBOARD
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-          <NavItem to="/" label="Dashboard" icon={LayoutDashboard} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/" label="Dashboard" icon={LayoutDashboard} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
 
           {/* PUBLIC USER SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              PUBLIC USER
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          {hasPermission('public_user') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  PUBLIC USER
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              <NavItem to="/customers" label="Registered Users" icon={UserCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
           )}
 
-          <NavItem to="/customers" label="Registered Users" icon={UserCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-
           {/* USERS SECTION */}
-          {role === 'superadmin' && (
+          {(role === 'superadmin' || hasPermission('users')) && (
             <>
               {open ? (
                 <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -284,211 +302,291 @@ const Sidebar = ({ open, setOpen }) => {
                 <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
               )}
 
-              <NavItem to="/users/add" label="Add User" icon={UserPlus} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-              <NavItem to="/users/list" label="Users List" icon={Users} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-              <NavItem to="/users/referrals" label="Referral Audit" icon={ShieldCheck} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavDropdown
+                title="Users"
+                icon={Users}
+                isOpen={openMenus.users}
+                onClick={() => toggleMenu('users')}
+                isActive={location.pathname.includes('/users')}
+                isCollapsed={isCollapsed}
+                onExpand={() => setOpen(true)}
+              >
+                {(role === 'superadmin' || role === 'admin') && (
+                  <NavLink to="/users/add" onClick={handleNavClick} className={subLinkClass}>Add User</NavLink>
+                )}
+                {role === 'superadmin' && (
+                  <NavLink to="/users/section-controls" onClick={handleNavClick} className={subLinkClass}>Section Controls</NavLink>
+                )}
+                <NavLink to="/users/list" onClick={handleNavClick} className={subLinkClass}>Users List</NavLink>
+                <NavLink to="/users/referrals" onClick={handleNavClick} className={subLinkClass}>Referral Audit</NavLink>
+              </NavDropdown>
             </>
           )}
 
           {/* DESTINATIONS SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              DESTINATIONS
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
-          )}
+          {hasPermission('destinations') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  DESTINATIONS
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-          <NavItem to="/destinations/create" label="Create Destination" icon={MapPin} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/destinations/city" label="Create City" icon={Building2} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/destinations/create" label="Create Destination" icon={MapPin} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/destinations/city" label="Create City" icon={Building2} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
 
           {/* ITINERARIES SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              ITINERARIES
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
-          )}
+          {hasPermission('itineraries') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  ITINERARIES
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-          <NavItem to="/itineraries/create" label="Create Itinerary" icon={PlusCircle} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/itineraries/list" label="Itinerary List" icon={FileText} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/itineraries/create" label="Create Itinerary" icon={PlusCircle} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/itineraries/list" label="Itinerary List" icon={FileText} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
 
           {/* HOTELS & RESORTS SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              HOTELS & RESORTS
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          {(hasPermission('resorts') || hasPermission('hotels') || hasPermission('bookings')) && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  HOTELS & RESORTS
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              {hasPermission('resorts') && (
+                <NavDropdown
+                  title="Resorts"
+                  icon={Building2}
+                  isOpen={openMenus.resorts}
+                  onClick={() => toggleMenu('resorts')}
+                  isActive={location.pathname.includes('/resorts')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/resorts/create" onClick={handleNavClick} className={subLinkClass}>Create Resort</NavLink>
+                  <NavLink to="/resorts/list" onClick={handleNavClick} className={subLinkClass}>Resort Directory</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('hotels') && (
+                <NavDropdown
+                  title="Hotels"
+                  icon={Building2}
+                  isOpen={openMenus.hotels}
+                  onClick={() => toggleMenu('hotels')}
+                  isActive={location.pathname.includes('/hotels')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/hotels/create" onClick={handleNavClick} className={subLinkClass}>Create Hotel</NavLink>
+                  <NavLink to="/hotels/list" onClick={handleNavClick} className={subLinkClass}>Hotel List</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('bookings') && (
+                <NavItem to="/bookings" label="Booked Packages" icon={CheckSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              )}
+            </>
           )}
-
-          <NavDropdown
-            title="Resorts"
-            icon={Building2}
-            isOpen={openMenus.resorts}
-            onClick={() => toggleMenu('resorts')}
-            isActive={location.pathname.includes('/resorts')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/resorts/create" onClick={handleNavClick} className={subLinkClass}>Create Resort</NavLink>
-            <NavLink to="/resorts/list" onClick={handleNavClick} className={subLinkClass}>Resort Directory</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Hotels"
-            icon={Building2}
-            isOpen={openMenus.hotels}
-            onClick={() => toggleMenu('hotels')}
-            isActive={location.pathname.includes('/hotels')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/hotels/create" onClick={handleNavClick} className={subLinkClass}>Create Hotel</NavLink>
-            <NavLink to="/hotels/list" onClick={handleNavClick} className={subLinkClass}>Hotel List</NavLink>
-          </NavDropdown>
-
-          <NavItem to="/bookings" label="Booked Packages" icon={CheckSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
 
           {/* BANNER MANAGEMENT & CONTENT */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              BANNER MANAGEMENT & MEDIA
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          {(hasPermission('banner_management') || hasPermission('customer_gallery') || hasPermission('social_management') || hasPermission('gift_cards') || hasPermission('blog_articles') || hasPermission('testimonials')) && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  BANNER MANAGEMENT & MEDIA
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              {hasPermission('banner_management') && (
+                <NavDropdown
+                  title="Hero & Banners"
+                  icon={Video}
+                  isOpen={openMenus.hero}
+                  onClick={() => toggleMenu('hero')}
+                  isActive={location.pathname.includes("hero")}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/hero-content" onClick={handleNavClick} className={subLinkClass}>Hero Content</NavLink>
+                  <NavLink to="/hero-media" onClick={handleNavClick} className={subLinkClass}>Hero Media</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('customer_gallery') && (
+                <NavItem to="/gallery/images" label="Customer Gallery" icon={ImageIcon} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              )}
+
+              {hasPermission('social_management') && (
+                <NavItem to="/social-management" label="Social Management" icon={MessageSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              )}
+
+              {hasPermission('gift_cards') && (
+                <NavDropdown
+                  title="Gift Cards"
+                  icon={Sparkles}
+                  isOpen={openMenus.giftcards}
+                  onClick={() => toggleMenu('giftcards')}
+                  isActive={location.pathname.includes('/giftcards')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/giftcards/verify" onClick={handleNavClick} className={subLinkClass}>Verify & Manage</NavLink>
+                  <NavLink to="/giftcards/bulk" onClick={handleNavClick} className={subLinkClass}>Bulk Issue</NavLink>
+                  <NavLink to="/giftcards/discount" onClick={handleNavClick} className={subLinkClass}>Gift Discount</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('blog_articles') && (
+                <NavDropdown
+                  title="Blog & Articles"
+                  icon={FileText}
+                  isOpen={openMenus.blogs || openMenus.articles}
+                  onClick={() => toggleMenu('blogs')}
+                  isActive={location.pathname.includes('/blogs') || location.pathname.includes('/articles')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/blogs/create" onClick={handleNavClick} className={subLinkClass}>Write Blog</NavLink>
+                  <NavLink to="/blogs/list" onClick={handleNavClick} className={subLinkClass}>Blog List</NavLink>
+                  <NavLink to="/articles/create" onClick={handleNavClick} className={subLinkClass}>Write Article</NavLink>
+                  <NavLink to="/articles/list" onClick={handleNavClick} className={subLinkClass}>Article List</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('testimonials') && (
+                <NavDropdown
+                  title="Testimonials & Reviews"
+                  icon={Sparkles}
+                  isOpen={openMenus.testimonials}
+                  onClick={() => toggleMenu('testimonials')}
+                  isActive={location.pathname.includes('/testimonials')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/testimonials/video" onClick={handleNavClick} className={subLinkClass}>Upload Video Story</NavLink>
+                  <NavLink to="/testimonials/video-list" onClick={handleNavClick} className={subLinkClass}>Video Storyboard</NavLink>
+                  <NavLink to="/testimonials/written" onClick={handleNavClick} className={subLinkClass}>Compose Review</NavLink>
+                  <NavLink to="/testimonials/written-list" onClick={handleNavClick} className={subLinkClass}>General Reviews</NavLink>
+                </NavDropdown>
+              )}
+            </>
           )}
-
-          <NavDropdown
-            title="Hero & Banners"
-            icon={Video}
-            isOpen={openMenus.hero}
-            onClick={() => toggleMenu('hero')}
-            isActive={location.pathname.includes("hero")}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/hero-content" onClick={handleNavClick} className={subLinkClass}>Hero Content</NavLink>
-            <NavLink to="/hero-media" onClick={handleNavClick} className={subLinkClass}>Hero Media</NavLink>
-          </NavDropdown>
-
-          <NavItem to="/gallery/images" label="Customer Gallery" icon={ImageIcon} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/social-management" label="Social Management" icon={MessageSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-
-          <NavDropdown
-            title="Gift Cards"
-            icon={Sparkles}
-            isOpen={openMenus.giftcards}
-            onClick={() => toggleMenu('giftcards')}
-            isActive={location.pathname.includes('/giftcards')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/giftcards/verify" onClick={handleNavClick} className={subLinkClass}>Verify & Manage</NavLink>
-            <NavLink to="/giftcards/bulk" onClick={handleNavClick} className={subLinkClass}>Bulk Issue</NavLink>
-            <NavLink to="/giftcards/discount" onClick={handleNavClick} className={subLinkClass}>Gift Discount</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Blog & Articles"
-            icon={FileText}
-            isOpen={openMenus.blogs || openMenus.articles}
-            onClick={() => toggleMenu('blogs')}
-            isActive={location.pathname.includes('/blogs') || location.pathname.includes('/articles')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/blogs/create" onClick={handleNavClick} className={subLinkClass}>Write Blog</NavLink>
-            <NavLink to="/blogs/list" onClick={handleNavClick} className={subLinkClass}>Blog List</NavLink>
-            <NavLink to="/articles/create" onClick={handleNavClick} className={subLinkClass}>Write Article</NavLink>
-            <NavLink to="/articles/list" onClick={handleNavClick} className={subLinkClass}>Article List</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Testimonials & Reviews"
-            icon={Sparkles}
-            isOpen={openMenus.testimonials}
-            onClick={() => toggleMenu('testimonials')}
-            isActive={location.pathname.includes('/testimonials')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/testimonials/video" onClick={handleNavClick} className={subLinkClass}>Upload Video Story</NavLink>
-            <NavLink to="/testimonials/video-list" onClick={handleNavClick} className={subLinkClass}>Video Storyboard</NavLink>
-            <NavLink to="/testimonials/written" onClick={handleNavClick} className={subLinkClass}>Compose Review</NavLink>
-            <NavLink to="/testimonials/written-list" onClick={handleNavClick} className={subLinkClass}>General Reviews</NavLink>
-          </NavDropdown>
 
           {/* OUR GLOBAL IMPACT SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              OUR GLOBAL IMPACT
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
-          )}
+          {hasPermission('global_impact') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  OUR GLOBAL IMPACT
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-          <NavItem to="/global-impact" label="Impact Overview" icon={Globe} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/global-impact" label="Impact Overview" icon={Globe} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
 
           {/* LEADS & COMPLIANCE SECTION */}
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              LEADS & COMPLIANCE
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+          {(hasPermission('leads') || hasPermission('compliance') || hasPermission('our_team')) && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  LEADS & COMPLIANCE
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              {hasPermission('leads') && (
+                <NavDropdown
+                  title="Customer Leads"
+                  icon={Tag}
+                  isOpen={openMenus.leads}
+                  onClick={() => toggleMenu('leads')}
+                  isActive={location.pathname.includes('/leads')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/leads/consultation" onClick={handleNavClick} className={subLinkClass}>Consultations</NavLink>
+                  <NavLink to="/leads/honeymoon-requests" onClick={handleNavClick} className={subLinkClass}>Trip Requests</NavLink>
+                  <NavLink to="/leads/itinerary-leads" onClick={handleNavClick} className={subLinkClass}>Itinerary Leads</NavLink>
+                  <NavLink to="/leads/plan-journey" onClick={handleNavClick} className={subLinkClass}>Journey Plans</NavLink>
+                  <NavLink to="/leads/contacts" onClick={handleNavClick} className={subLinkClass}>Contact Leads</NavLink>
+                  <NavLink to="/leads/suggestions" onClick={handleNavClick} className={subLinkClass}>Suggestions</NavLink>
+                  <NavLink to="/leads/subscribe" onClick={handleNavClick} className={subLinkClass}>Newsletter</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('compliance') && (
+                <NavDropdown
+                  title="Compliance"
+                  icon={FileText}
+                  isOpen={openMenus.terms}
+                  onClick={() => toggleMenu('terms')}
+                  isActive={location.pathname.includes('/terms') || location.pathname.includes('/global-terms') || location.pathname.includes('/user-agreement') || location.pathname.includes('/policy')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/global-terms" onClick={handleNavClick} className={subLinkClass}>Global Terms</NavLink>
+                  <NavLink to="/user-agreement" onClick={handleNavClick} className={subLinkClass}>User Agreement</NavLink>
+                  <NavLink to="/terms-and-conditions" onClick={handleNavClick} className={subLinkClass}>Destination T&C</NavLink>
+                  <NavLink to="/payment-mode-terms" onClick={handleNavClick} className={subLinkClass}>Payment Terms</NavLink>
+                  <NavLink to="/cancellation-policy" onClick={handleNavClick} className={subLinkClass}>Cancellation Policy</NavLink>
+                </NavDropdown>
+              )}
+
+              {hasPermission('our_team') && (
+                <NavDropdown
+                  title="Our Team"
+                  icon={UserPlus}
+                  isOpen={openMenus.team}
+                  onClick={() => toggleMenu('team')}
+                  isActive={location.pathname.includes('/team')}
+                  isCollapsed={isCollapsed}
+                  onExpand={() => setOpen(true)}
+                >
+                  <NavLink to="/team/create" onClick={handleNavClick} className={subLinkClass}>Add Member</NavLink>
+                  <NavLink to="/team/list" onClick={handleNavClick} className={subLinkClass}>Manage Team</NavLink>
+                </NavDropdown>
+              )}
+            </>
           )}
 
-          <NavDropdown
-            title="Customer Leads"
-            icon={Tag}
-            isOpen={openMenus.leads}
-            onClick={() => toggleMenu('leads')}
-            isActive={location.pathname.includes('/leads')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/leads/consultation" onClick={handleNavClick} className={subLinkClass}>Consultations</NavLink>
-            <NavLink to="/leads/honeymoon-requests" onClick={handleNavClick} className={subLinkClass}>Trip Requests</NavLink>
-            <NavLink to="/leads/itinerary-leads" onClick={handleNavClick} className={subLinkClass}>Itinerary Leads</NavLink>
-            <NavLink to="/leads/plan-journey" onClick={handleNavClick} className={subLinkClass}>Journey Plans</NavLink>
-            <NavLink to="/leads/contacts" onClick={handleNavClick} className={subLinkClass}>Contact Leads</NavLink>
-            <NavLink to="/leads/suggestions" onClick={handleNavClick} className={subLinkClass}>Suggestions</NavLink>
-            <NavLink to="/leads/subscribe" onClick={handleNavClick} className={subLinkClass}>Newsletter</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Compliance"
-            icon={FileText}
-            isOpen={openMenus.terms}
-            onClick={() => toggleMenu('terms')}
-            isActive={location.pathname.includes('/terms') || location.pathname.includes('/global-terms') || location.pathname.includes('/user-agreement') || location.pathname.includes('/policy')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/global-terms" onClick={handleNavClick} className={subLinkClass}>Global Terms</NavLink>
-            <NavLink to="/user-agreement" onClick={handleNavClick} className={subLinkClass}>User Agreement</NavLink>
-            <NavLink to="/terms-and-conditions" onClick={handleNavClick} className={subLinkClass}>Destination T&C</NavLink>
-            <NavLink to="/payment-mode-terms" onClick={handleNavClick} className={subLinkClass}>Payment Terms</NavLink>
-            <NavLink to="/cancellation-policy" onClick={handleNavClick} className={subLinkClass}>Cancellation Policy</NavLink>
-          </NavDropdown>
-
-          <NavDropdown
-            title="Our Team"
-            icon={UserPlus}
-            isOpen={openMenus.team}
-            onClick={() => toggleMenu('team')}
-            isActive={location.pathname.includes('/team')}
-            isCollapsed={isCollapsed}
-            onExpand={() => setOpen(true)}
-          >
-            <NavLink to="/team/create" onClick={handleNavClick} className={subLinkClass}>Add Member</NavLink>
-            <NavLink to="/team/list" onClick={handleNavClick} className={subLinkClass}>Manage Team</NavLink>
-          </NavDropdown>
+          {/* MARKETING SECTION */}
+          {hasPermission('marketing') && (
+            <NavDropdown
+              title="Marketing"
+              icon={Mail}
+              isOpen={openMenus.marketing}
+              onClick={() => toggleMenu('marketing')}
+              isActive={location.pathname.includes('/email-templates') || location.pathname.includes('/email-campaigns')}
+              isCollapsed={isCollapsed}
+              onExpand={() => setOpen(true)}
+            >
+              <NavLink to="/email-templates" onClick={handleNavClick} className={subLinkClass}>Email Templates</NavLink>
+              <NavLink to="/email-campaigns" onClick={handleNavClick} className={subLinkClass}>Campaign Management</NavLink>
+            </NavDropdown>
+          )}
 
           {/* SETTINGS & AUDIT */}
-          {role === 'superadmin' && (
+          {(role === 'superadmin' || hasPermission('system_audit')) && (
             <>
               {open ? (
                 <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
@@ -503,20 +601,25 @@ const Sidebar = ({ open, setOpen }) => {
             </>
           )}
 
-          {open ? (
-            <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-              SETTINGS
-            </p>
-          ) : (
-            <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
-          )}
+          {hasPermission('settings') && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  SETTINGS
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
 
-          <NavItem to="/settings/notifications" label="Notification Emails" icon={Mail} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/settings/referral" label="Referral Rewards" icon={Gift} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/settings/gst" label="GST & Business Settings" icon={Percent} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/settings/stats" label="Home Stats Settings" icon={BarChart3} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/settings/chatbot" label="Travel Assistant" icon={MessageSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
-          <NavItem to="/settings" label="Settings" icon={Settings} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings/notifications" label="Notification Emails" icon={Mail} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings/referral" label="Referral Rewards" icon={Gift} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings/gst" label="GST & Business Settings" icon={Percent} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings/stats" label="Home Stats Settings" icon={BarChart3} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/about-settings" label="About Us Settings" icon={Info} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings/chatbot" label="Travel Assistant" icon={MessageSquare} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+              <NavItem to="/settings" label="Settings" icon={Settings} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
         </nav>
 
         {/* LOGOUT BOX CONTAINER - MATCHING ADMIRE HOLIDAYS */}

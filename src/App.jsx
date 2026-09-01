@@ -15,6 +15,7 @@ import HeroMedia from './pages/hero/HeroMedia';
 import AddUser from "./pages/users/AddUser"
 import UserList from "./pages/users/UsersList"
 import ReferralAudit from "./pages/users/ReferralAudit"
+import SectionControls from "./pages/users/SectionControls"
 import CreateDestination from "./pages/destinations/CreateDestination"
 import CreateCity from "./pages/destinations/CreateCity"
 import EditDestination from "./pages/destinations/EditPage"
@@ -115,6 +116,8 @@ function App() {
 
             {/* Users */}
             <Route path="users/add" element={<AddUser />} />
+            <Route path="users/access-control" element={<AddUser />} />
+            <Route path="users/section-controls" element={<SectionControls />} />
             <Route path="users/list" element={<UserList />} />
             <Route path="users/referrals" element={<ReferralAudit />} />
 

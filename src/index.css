@@ -34,3 +34,15 @@
 .soft-ui-card {
   @apply bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 backdrop-blur-md rounded-[2.5rem] transition-all duration-300;
 }
+
+/* Disable native browser password reveal & clear icons (Edge/IE/Chrome) to prevent double eye buttons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  position: absolute;
+  right: 0;
+}

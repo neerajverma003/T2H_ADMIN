@@ -79,7 +79,19 @@ const getTypeBadgeColor = (type) => {
 const Header = ({ open, setOpen }) => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
-  const { logout, role, profile, fetchAdminProfile } = useAuthStore()
+  const { logout, role, profile, username, fetchAdminProfile } = useAuthStore()
+
+  const roleDisplay =
+    role === "superadmin"
+      ? "SUPER ADMIN"
+      : role === "subadmin"
+      ? "SUB ADMIN"
+      : "ADMIN"
+
+  const displayName =
+    profile?.name && profile.name !== "Admin User" && profile.name !== ""
+      ? profile.name
+      : username || profile?.firstName || "Admin"
 
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
@@ -189,7 +201,7 @@ const Header = ({ open, setOpen }) => {
 
         <div className="hidden md:flex items-center gap-3">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            {profile?.designation || (role === 'superadmin' ? 'Super Admin' : 'Admin')}
+            {roleDisplay}
           </p>
           <ChevronRight size={12} className="text-slate-300" />
           <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
@@ -377,11 +389,11 @@ const Header = ({ open, setOpen }) => {
             </div>
             <div className="hidden sm:block text-left">
               <div className="flex items-center gap-1">
-                <p className="text-xs font-bold text-slate-900 dark:text-white">{profile?.name || "Admin User"}</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">{displayName}</p>
                 <ChevronDown size={14} className="text-slate-400" />
               </div>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                {profile?.designation || (role === 'superadmin' ? 'Super Admin' : 'Admin')}
+                {roleDisplay}
               </p>
             </div>
           </button>

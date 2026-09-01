@@ -14,13 +14,14 @@ const AddUser = () => {
     addUser,
     deleteUser,
     updateUser,
+    role: currentRole,
   } = useAuthStore()
 
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     email: "",
-    role: "admin",
+    role: currentRole === "admin" ? "subadmin" : "admin",
   })
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -73,8 +74,25 @@ const AddUser = () => {
     handleCloseModal()
   }
 
+  // Permission helpers for user actions:
+  // - Superadmin can edit all, can delete admin & subadmin (cannot delete superadmin)
+  // - Admin can ONLY edit & delete subadmin accounts (cannot edit/delete superadmin or other admins)
+  // - Subadmin cannot edit or delete anyone
+  const canEditUser = (targetUser) => {
+    if (currentRole === 'superadmin') return true
+    if (currentRole === 'admin') return targetUser.role === 'subadmin'
+    return false
+  }
+
+  const canDeleteUser = (targetUser) => {
+    if (currentRole === 'superadmin') return targetUser.role !== 'superadmin'
+    if (currentRole === 'admin') return targetUser.role === 'subadmin'
+    return false
+  }
+
   // Edit handlers
   const handleEditClick = (user) => {
+    if (!canEditUser(user)) return
     setEditData({
       _id: user._id,
       username: user.username || "",
@@ -125,84 +143,92 @@ const AddUser = () => {
       </div>
 
       {/* HORIZONTAL ADD FORM */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-8 flex items-center gap-2">
-          <UserPlus size={20} className="text-indigo-600" /> Quick Add Account
-        </h2>
+      {(currentRole === 'superadmin' || currentRole === 'admin') && (
+        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider mb-8 flex items-center gap-2">
+            <UserPlus size={20} className="text-indigo-600" /> Quick Add Account
+          </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row items-end gap-6 flex-wrap">
-          <div className="flex-1 w-full min-w-[200px]">
-            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Admin username"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
-              />
+          <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row items-end gap-6 flex-wrap">
+            <div className="flex-1 w-full min-w-[200px]">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Admin username"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 w-full min-w-[200px]">
-            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="admin@example.com"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
-              />
+            <div className="flex-1 w-full min-w-[200px]">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="admin@example.com"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 w-full min-w-[200px]">
-            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
-              />
+            <div className="flex-1 w-full min-w-[200px]">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 w-full min-w-[200px]">
-            <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
-            <div className="relative">
-              <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
-              >
-                <option value="admin">Admin (Add/Edit only)</option>
-                <option value="subadmin">Subadmin (Restricted)</option>
-                <option value="superadmin">Superadmin (Full Control)</option>
-              </select>
+            <div className="flex-1 w-full min-w-[200px]">
+              <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
+              <div className="relative">
+                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
+                >
+                  {currentRole === 'superadmin' ? (
+                    <>
+                      <option value="admin">Admin (Add/Edit only)</option>
+                      <option value="subadmin">Subadmin (Restricted)</option>
+                      <option value="superadmin">Superadmin (Full Control)</option>
+                    </>
+                  ) : (
+                    <option value="subadmin">Subadmin (Restricted Access)</option>
+                  )}
+                </select>
+              </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="h-[60px] px-10 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 whitespace-nowrap lg:mb-0.5"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" size={24} /> : <UserPlus size={24} />}
-            {isSubmitting ? "Saving..." : "Create Account"}
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-[60px] px-10 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 whitespace-nowrap lg:mb-0.5"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" size={24} /> : <UserPlus size={24} />}
+              {isSubmitting ? "Saving..." : "Create Account"}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* FULL WIDTH LIST */}
       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none min-h-[400px]">
@@ -242,20 +268,24 @@ const AddUser = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditClick(user)}
-                    className="p-4 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-2xl transition-all"
-                    title="Edit user"
-                  >
-                    <Pencil size={20} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(user)}
-                    className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
-                    title="Delete user"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+                  {canEditUser(user) && (
+                    <button
+                      onClick={() => handleEditClick(user)}
+                      className="p-4 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-2xl transition-all"
+                      title="Edit user"
+                    >
+                      <Pencil size={20} />
+                    </button>
+                  )}
+                  {canDeleteUser(user) && (
+                    <button
+                      onClick={() => handleDeleteClick(user)}
+                      className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-2xl transition-all"
+                      title="Delete user"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -347,9 +377,15 @@ const AddUser = () => {
                       onChange={handleEditChange}
                       className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
                     >
-                      <option value="admin">Admin (Add/Edit only)</option>
-                      <option value="subadmin">Subadmin (Restricted)</option>
-                      <option value="superadmin">Superadmin (Full Control)</option>
+                      {currentRole === 'superadmin' ? (
+                        <>
+                          <option value="admin">Admin (Add/Edit only)</option>
+                          <option value="subadmin">Subadmin (Restricted)</option>
+                          <option value="superadmin">Superadmin (Full Control)</option>
+                        </>
+                      ) : (
+                        <option value="subadmin">Subadmin (Restricted Access)</option>
+                      )}
                     </select>
                   </div>
                 </div>

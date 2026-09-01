@@ -148,11 +148,12 @@ export const apiClient = axios.create({
   // the browser/axios will set the correct multipart/form-data header with boundary.
 })
 
-const useAuthStore = create(
+export const useAuthStore = create(
   persist(
     (set, get) => ({
       isLoggedIn: false,
       role: null,
+      allowedSections: [],
       username: null,
       token: null,
       loading: false,
@@ -185,17 +186,19 @@ const useAuthStore = create(
             return { mfaRequired: true, adminId: res.data.adminId, email: res.data.email }
           }
 
-          const { role, username, token, msg, name, email, designation } = res.data
+          const { role, username, token, msg, name, email, designation, allowedSections } = res.data
+          const roleLabel = role === 'superadmin' ? 'SUPER ADMIN' : role === 'subadmin' ? 'SUB ADMIN' : 'ADMIN';
           localStorage.setItem("token", token);
           set({
             isLoggedIn: true,
             role,
+            allowedSections: allowedSections || [],
             username,
             token,
             profile: {
-              name: name || 'Admin User',
+              name: name || username || 'Admin',
               email: email || '',
-              designation: designation || (role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+              designation: designation || roleLabel,
             },
             loading: false,
             authChecked: true,
@@ -219,17 +222,19 @@ const useAuthStore = create(
         set({ loading: true, error: null })
         try {
           const res = await apiClient.post("/admin/verify-login-otp", { adminId, otp, rememberDevice })
-          const { role, username, token, msg, name, email, designation } = res.data
+          const { role, username, token, msg, name, email, designation, allowedSections } = res.data
+          const roleLabel = role === 'superadmin' ? 'SUPER ADMIN' : role === 'subadmin' ? 'SUB ADMIN' : 'ADMIN';
           localStorage.setItem("token", token);
           set({
             isLoggedIn: true,
             role,
+            allowedSections: allowedSections || [],
             username,
             token,
             profile: {
-              name: name || 'Admin User',
+              name: name || username || 'Admin',
               email: email || '',
-              designation: designation || (role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+              designation: designation || roleLabel,
             },
             loading: false,
             authChecked: true,
@@ -237,7 +242,11 @@ const useAuthStore = create(
           toast.success(msg || "MFA Verification successful! Welcome back.")
           return true
         } catch (err) {
-          const msg = err.response?.data?.msg || err.response?.data?.message || "Invalid OTP code"
+          const msg =
+            err.response?.data?.msg ||
+            err.response?.data?.message ||
+            "OTP Verification failed"
+
           set({ loading: false, error: msg })
           toast.error(msg)
           return false
@@ -259,15 +268,22 @@ const useAuthStore = create(
       // ==========================
       // LOGOUT
       // ==========================
-      logout: () => {
+      logout: async () => {
+        try {
+          await apiClient.post("/admin/logout")
+        } catch {
+          // ignore
+        }
+
         localStorage.removeItem("token")
 
         set({
           isLoggedIn: false,
           role: null,
+          allowedSections: [],
           username: null,
           token: null,
-          profile: { name: 'Admin User', email: '', designation: 'SUPER ADMIN' },
+          profile: { name: '', email: '', designation: '' },
           authChecked: true,
         })
 
@@ -283,15 +299,19 @@ const useAuthStore = create(
 
         try {
           const res = await apiClient.get("/admin/me")
+          const userRole = res.data.role;
+          const roleLabel = userRole === 'superadmin' ? 'SUPER ADMIN' : userRole === 'subadmin' ? 'SUB ADMIN' : 'ADMIN';
+          const userName = res.data.name || res.data.username || res.data.userId || 'Admin';
 
           set({
             isLoggedIn: true,
-            role: res.data.role,
-            username: res.data.userId,
+            role: userRole,
+            allowedSections: res.data.allowedSections || [],
+            username: res.data.username || res.data.userId,
             profile: {
-              name: res.data.name || 'Admin User',
+              name: userName,
               email: res.data.email || '',
-              designation: res.data.designation || (res.data.role === 'superadmin' ? 'SUPER ADMIN' : 'ADMINISTRATOR')
+              designation: res.data.designation || roleLabel,
             },
             authChecked: true,
           })
@@ -351,8 +371,42 @@ const useAuthStore = create(
         }
       },
 
+      updateUserPermissions: async (userId, allowedSections) => {
+        set({ isSubmitting: true })
+        try {
+          const res = await apiClient.put(`/admin/update-permissions/${userId}`, { allowedSections })
+          toast.success(res.data?.msg || 'Permissions updated successfully')
+          // Optimistically update local users list in store
+          set((state) => {
+            const updatedUsers = state.users.map((u) => u._id === userId ? { ...u, allowedSections } : u);
+            // If superadmin is updating their own account or current session, update state allowedSections
+            const isCurrent = state.users.find(u => u._id === userId)?.username === state.username;
+            return {
+              users: updatedUsers,
+              allowedSections: isCurrent ? allowedSections : state.allowedSections,
+              isSubmitting: false,
+            };
+          })
+          return true
+        } catch (err) {
+          const msg = err.response?.data?.msg || err.response?.data?.message || 'Failed to update permissions'
+          toast.error(msg)
+          set({ isSubmitting: false })
+          return false
+        }
+      },
+
+      hasPermission: (sectionKey) => {
+        const state = get()
+        if (state.role === 'superadmin') return true
+        if (Array.isArray(state.allowedSections)) {
+          return state.allowedSections.includes(sectionKey)
+        }
+        return true
+      },
+
       // Profile management
-      profile: { firstName: 'Admin', lastName: '', name: 'Admin User', gender: 'Male', email: '', phone: '', designation: 'SUPER ADMIN', avatar: '' },
+      profile: { firstName: '', lastName: '', name: '', gender: 'Male', email: '', phone: '', designation: '', avatar: '' },
       isLoadingProfile: false,
 
       fetchAdminProfile: async () => {
@@ -459,6 +513,7 @@ const useAuthStore = create(
       partialize: (s) => ({
         token: s.token,
         role: s.role,
+        allowedSections: s.allowedSections,
         username: s.username,
         isLoggedIn: s.isLoggedIn,
       }),

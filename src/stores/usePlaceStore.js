@@ -63,9 +63,16 @@ export const usePlaceStore = create((set, get) => ({
       const res = await apiClient.delete(`/admin/destination/delete/${id}`)
       toast.success("Destination deleted successfully!")
       await get().fetchDestinationList(res.data.type)
+      return { success: true }
     } catch (error) {
       console.error("Delete destination error:", error)
-      toast.error("Failed to delete destination.")
+      const errorMsg =
+        error.response?.data?.msg ||
+        (error.response?.status === 403
+          ? "Permission Denied: Only Super Admin is authorized to delete destinations."
+          : "Failed to delete destination.")
+      toast.error(errorMsg)
+      return { success: false }
     } finally {
       set({ isListLoading: false })
     }
@@ -111,10 +118,17 @@ export const usePlaceStore = create((set, get) => ({
       toast.success("City deleted successfully!")
       // Optimistically remove from local list without needing a destinationId to refetch
       set((state) => ({ cityList: state.cityList.filter((c) => c._id !== id), isListLoading: false }))
+      return { success: true }
     } catch (error) {
       console.error('[deleteCity] Failed:', error?.response?.data || error?.message)
-      toast.error("Failed to delete city.")
+      const errorMsg =
+        error.response?.data?.msg ||
+        (error.response?.status === 403
+          ? "Permission Denied: Only Super Admin is authorized to delete cities."
+          : "Failed to delete city.")
+      toast.error(errorMsg)
       set({ isListLoading: false })
+      return { success: false }
     }
   },
 

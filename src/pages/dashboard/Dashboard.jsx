@@ -20,8 +20,8 @@ import {
   CreditCard
 } from "lucide-react"
 import { motion } from "framer-motion"
-import { apiClient } from "../../stores/authStores"
-import { Link } from "react-router-dom"
+import { apiClient, useAuthStore } from "../../stores/authStores"
+import { Link, useNavigate } from "react-router-dom"
 import {
   ResponsiveContainer,
   AreaChart,
@@ -35,7 +35,35 @@ import {
   Cell
 } from "recharts"
 
+const SECTION_ROUTES = {
+  dashboard: '/',
+  public_user: '/customers',
+  users: '/users/list',
+  destinations: '/destinations/create',
+  itineraries: '/itineraries/list',
+  resorts: '/resorts/list',
+  hotels: '/hotels/list',
+  bookings: '/bookings',
+  banner_management: '/hero-content',
+  customer_gallery: '/gallery/images',
+  social_management: '/social-management',
+  gift_cards: '/giftcards/verify',
+  blog_articles: '/blogs/list',
+  testimonials: '/testimonials/video-list',
+  global_impact: '/global-impact',
+  leads: '/leads/consultation',
+  compliance: '/global-terms',
+  our_team: '/team/list',
+  marketing: '/email-templates',
+  system_audit: '/reports',
+  settings: '/settings',
+}
+
 const Dashboard = () => {
+  const navigate = useNavigate()
+  const role = useAuthStore((state) => state.role)
+  const allowedSections = useAuthStore((state) => state.allowedSections)
+
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -56,8 +84,16 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
+    if (role !== 'superadmin' && Array.isArray(allowedSections) && allowedSections.length > 0 && !allowedSections.includes('dashboard')) {
+      // Find first allowed route to redirect the user
+      const targetSection = allowedSections.find((sec) => SECTION_ROUTES[sec])
+      if (targetSection && SECTION_ROUTES[targetSection] && SECTION_ROUTES[targetSection] !== '/') {
+        navigate(SECTION_ROUTES[targetSection], { replace: true })
+        return
+      }
+    }
     fetchMetrics()
-  }, [])
+  }, [role, allowedSections, navigate])
 
   const container = {
     hidden: { opacity: 0 },
