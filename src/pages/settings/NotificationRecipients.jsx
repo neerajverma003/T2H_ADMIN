@@ -18,7 +18,9 @@ import {
   CheckCircle2,
   ShieldCheck,
   Search,
-  Check
+  Check,
+  Compass,
+  Briefcase,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +35,16 @@ const MODULES = [
     icon: Globe,
     iconBg: "bg-purple-600/20 text-purple-400 border-purple-500/30",
     isUniversal: true,
+  },
+  {
+    id: "activity",
+    categoryKey: ["activity", "activity_booking"],
+    addCategoryDefault: "activity",
+    badgeLabel: "ACTIVITY_BOOKING",
+    title: "Activity Bookings",
+    description: "Activity experience reservations, ticket bookings & customer passes.",
+    icon: Compass,
+    iconBg: "bg-teal-600/20 text-teal-400 border-teal-500/30",
   },
   {
     id: "leads",
@@ -88,6 +100,16 @@ const MODULES = [
     description: "Travel assistant chatbot lead submissions & enquiries.",
     icon: Bot,
     iconBg: "bg-indigo-600/20 text-indigo-400 border-indigo-500/30",
+  },
+  {
+    id: "careers",
+    categoryKey: ["job_application", "career"],
+    addCategoryDefault: "job_application",
+    badgeLabel: "JOB_APPLICATIONS",
+    title: "Job Applications",
+    description: "Job vacancies, candidate CVs & career applicant notifications.",
+    icon: Briefcase,
+    iconBg: "bg-blue-600/20 text-blue-400 border-blue-500/30",
   },
 ];
 
@@ -148,9 +170,9 @@ const NotificationControl = () => {
     try {
       const cat = mod.isUniversal
         ? "universal"
-        : Array.isArray(mod.categoryKey)
+        : mod.addCategoryDefault || (Array.isArray(mod.categoryKey)
         ? mod.categoryKey[0]
-        : mod.categoryKey;
+        : mod.categoryKey);
 
       const payload = {
         name: name.trim() || email.split("@")[0],
@@ -347,7 +369,7 @@ const NotificationControl = () => {
                           disabled={isAdding}
                           className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50 shrink-0"
                         >
-                          {isAdding ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} + Add
+                          {isAdding ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} Add
                         </button>
                       </form>
                     </div>

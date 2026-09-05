@@ -26,7 +26,9 @@ import {
   Percent,
   BarChart3,
   Globe,
-  Info
+  Info,
+  Compass,
+  Briefcase
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import useAuthStore from "../stores/authStores"
@@ -163,6 +165,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/users')) toggleMenu('users', true)
     if (path.includes('/destinations')) toggleMenu('destinations', true)
     if (path.includes('/itineraries')) toggleMenu('itineraries', true)
+    if (path.includes('/activities')) toggleMenu('activities', true)
     if (path.includes('/resorts')) toggleMenu('resorts', true)
     if (path.includes('/hotels')) toggleMenu('hotels', true)
     if (path.includes('/testimonials')) toggleMenu('testimonials', true)
@@ -172,6 +175,7 @@ const Sidebar = ({ open, setOpen }) => {
     if (path.includes('/leads')) toggleMenu('leads', true)
     if (path.includes('/hero')) toggleMenu('hero', true)
     if (path.includes('/team')) toggleMenu('team', true)
+    if (path.includes('/jobs')) toggleMenu('jobs', true)
     if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
   }, [location, setOpen])
 
@@ -352,6 +356,32 @@ const Sidebar = ({ open, setOpen }) => {
 
               <NavItem to="/itineraries/create" label="Create Itinerary" icon={PlusCircle} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
               <NavItem to="/itineraries/list" label="Itinerary List" icon={FileText} isCollapsed={isCollapsed} handleNavClick={handleNavClick} />
+            </>
+          )}
+
+          {/* ACTIVITIES SECTION */}
+          {(hasPermission('itineraries') || hasPermission('destinations')) && (
+            <>
+              {open ? (
+                <p className="px-4 pt-4 pb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  ACTIVITIES
+                </p>
+              ) : (
+                <div className="my-2 border-t border-slate-100 dark:border-slate-800/60" />
+              )}
+
+              <NavDropdown
+                title="Activities"
+                icon={Compass}
+                isOpen={openMenus.activities}
+                onClick={() => toggleMenu('activities')}
+                isActive={location.pathname.includes('/activities')}
+                isCollapsed={isCollapsed}
+                onExpand={() => setOpen(true)}
+              >
+                <NavLink to="/activities" onClick={handleNavClick} className={subLinkClass}>All Activities</NavLink>
+                <NavLink to="/activities/create" onClick={handleNavClick} className={subLinkClass}>Add Activity</NavLink>
+              </NavDropdown>
             </>
           )}
 
@@ -566,6 +596,21 @@ const Sidebar = ({ open, setOpen }) => {
                   <NavLink to="/team/list" onClick={handleNavClick} className={subLinkClass}>Manage Team</NavLink>
                 </NavDropdown>
               )}
+
+              {/* JOB MANAGEMENT SECTION */}
+              <NavDropdown
+                title="Job Management"
+                icon={Briefcase}
+                isOpen={openMenus.jobs}
+                onClick={() => toggleMenu('jobs')}
+                isActive={location.pathname.includes('/jobs')}
+                isCollapsed={isCollapsed}
+                onExpand={() => setOpen(true)}
+              >
+                <NavLink to="/jobs/create" onClick={handleNavClick} className={subLinkClass}>Create Job</NavLink>
+                <NavLink to="/jobs/list" onClick={handleNavClick} className={subLinkClass}>All Job List</NavLink>
+                <NavLink to="/jobs/applications" onClick={handleNavClick} className={subLinkClass}>Applications</NavLink>
+              </NavDropdown>
             </>
           )}
 

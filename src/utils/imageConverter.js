@@ -1,7 +1,7 @@
 export const isImageFile = (file) => file?.type?.startsWith('image/');
 
 export const convertImageFileToWebP = async (file, options = {}) => {
-    const { quality = 0.80, maxDimension = 2048 } = options;
+    const { quality = 0.90, maxDimension = 2560 } = options;
     if (!file || !isImageFile(file)) return file;
     if (file.type === 'image/webp') return file;
 
@@ -19,14 +19,26 @@ export const convertImageFileToWebP = async (file, options = {}) => {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(imageBitmap, 0, 0, width, height);
 
-        const dataUrl = canvas.toDataURL('image/webp', quality);
-        const webpBlob = await (await fetch(dataUrl)).blob();
         const cleanBaseName = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 40);
         const fileName = `${cleanBaseName || 'image'}.webp`;
 
-        return new File([webpBlob], fileName, { type: 'image/webp' });
+        // Prefer native canvas.toBlob for performance and lower memory usage
+        const webpBlob = await new Promise((resolve) => {
+            canvas.toBlob((blob) => resolve(blob), 'image/webp', quality);
+        });
+
+        if (webpBlob) {
+            return new File([webpBlob], fileName, { type: 'image/webp' });
+        }
+
+        // Fallback: toDataURL
+        const dataUrl = canvas.toDataURL('image/webp', quality);
+        const fallbackBlob = await (await fetch(dataUrl)).blob();
+        return new File([fallbackBlob], fileName, { type: 'image/webp' });
     } catch (err) {
         console.warn('Image conversion to WebP failed, uploading original file instead.', err);
         return file;

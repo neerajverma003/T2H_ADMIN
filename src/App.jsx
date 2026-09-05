@@ -32,6 +32,9 @@ import ItineraryLeads from "./pages/leads/itinerary_leads/ItineraryLeads"
 import CreateItineriesPage from "./pages/itineraries/CreateItinerary"
 import ItineraryListPage from "./pages/Itinerary_list/ItineraryList"
 import ItineraryReviewApprovals from "./pages/itineraries/ItineraryReviewApprovals"
+// Activities
+import ActivitiesList from "./pages/activities/ActivitiesList"
+import CreateActivity from "./pages/activities/CreateActivity"
 
 // Blogs
 import CreateBlog from "./pages/blog/CreateBlog"
@@ -79,6 +82,12 @@ import CampaignManagement from "./pages/campaign_management/page.jsx"
 import CustomersList from "./pages/customers/CustomersList"
 import CustomerDetails from "./pages/customers/CustomerDetails"
 
+// Job Management
+import CreateJob from "./pages/jobs/CreateJob"
+import JobList from "./pages/jobs/JobList"
+import JobApplications from "./pages/jobs/JobApplications"
+import JobCandidates from "./pages/jobs/JobCandidates"
+
 
 
 // Store
@@ -110,6 +119,13 @@ function App() {
             <Route path="team/create" element={<CreateMember />} />
             <Route path="team/list" element={<TeamList />} />
             <Route path="team/edit/:id" element={<CreateMember />} />
+
+            {/* Job Management */}
+            <Route path="jobs/create" element={<CreateJob />} />
+            <Route path="jobs/edit/:id" element={<CreateJob />} />
+            <Route path="jobs/list" element={<JobList />} />
+            <Route path="jobs/applications" element={<JobApplications />} />
+            <Route path="jobs/:jobId/candidates" element={<JobCandidates />} />
 
             {/* Dashboard */}
             <Route index element={<Dashboard />} />
@@ -166,6 +182,11 @@ function App() {
             <Route path="itineraries/edit/:id" element={<CreateItineriesPage />} />
             <Route path="itineraries/view/:id" element={<CreateItineriesPage />} />
             <Route path="itineraries/reviews" element={<ItineraryReviewApprovals />} />
+
+            {/* Destination Activities */}
+            <Route path="activities" element={<ActivitiesList />} />
+            <Route path="activities/create" element={<CreateActivity />} />
+            <Route path="activities/edit/:id" element={<CreateActivity />} />
 
             {/* Global Terms */}
             <Route path="global-terms" element={<GlobalTerms />} />

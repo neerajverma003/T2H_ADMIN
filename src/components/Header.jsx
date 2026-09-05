@@ -18,6 +18,7 @@ import {
   Trash2,
   Clock,
   ExternalLink,
+  Compass,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
@@ -44,6 +45,9 @@ const getNotifIcon = (type) => {
   switch (type) {
     case 'booking':
       return <ShoppingBag className="text-emerald-500 shrink-0" size={18} />
+    case 'activity':
+    case 'activity_booking':
+      return <Compass className="text-teal-500 shrink-0" size={18} />
     case 'itinerary_lead':
     case 'trip_plan':
       return <MapPin className="text-blue-500 shrink-0" size={18} />
@@ -63,6 +67,9 @@ const getTypeBadgeColor = (type) => {
   switch (type) {
     case 'booking':
       return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200/50'
+    case 'activity':
+    case 'activity_booking':
+      return 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 border-teal-200/50'
     case 'itinerary_lead':
     case 'trip_plan':
       return 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border-blue-200/50'
