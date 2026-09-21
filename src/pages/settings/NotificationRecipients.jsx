@@ -254,32 +254,56 @@ const NotificationControl = () => {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left text-slate-900 dark:text-white font-sans"
     >
-      {/* HEADER SECTION */}
-      <div>
-        <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
-          <Bell size={14} className="text-blue-600 dark:text-blue-400" /> ADMIN SETTINGS
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Notification <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Control</span>
-        </h1>
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
-          Configure which email addresses receive notifications for each module.
-        </p>
+      {/* ── HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Bell size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                COMMUNICATION DISPATCH
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Notification <span className="text-blue-500">Control</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Configure which email addresses receive notifications for each module.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={fetchRecipients}
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer active:scale-95"
+          >
+            <Loader2 className={`size-3.5 ${isLoading ? "animate-spin text-blue-500" : ""}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* TOP 3 STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-center shadow-lg">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 text-center">
           <h3 className="text-3xl font-black text-slate-900 dark:text-white">{recipients.length}</h3>
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Total Recipients</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-center shadow-lg">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 text-center">
           <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400">{activeCount}</h3>
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Active</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-center shadow-lg">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 text-center">
           <h3 className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{MODULES.length}</h3>
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Modules</p>
         </div>
@@ -298,7 +322,7 @@ const NotificationControl = () => {
           return (
             <div
               key={mod.id}
-              className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-all shadow-xl"
+              className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl overflow-hidden transition-all"
             >
               {/* CARD HEADER / TOGGLE BAR */}
               <div
@@ -316,14 +340,14 @@ const NotificationControl = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-extrabold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    <span className="text-purple-600 dark:text-purple-400 font-bold">{modRecipients.length} recipient{modRecipients.length !== 1 ? 's' : ''}</span>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-[#050A17] rounded-xl text-xs font-extrabold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">{modRecipients.length} recipient{modRecipients.length !== 1 ? 's' : ''}</span>
                     {activeModRecipients > 0 && (
                       <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">({activeModRecipients} active)</span>
                     )}
                   </div>
 
-                  <button className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-200 dark:border-slate-700">
+                  <button className="p-2 rounded-xl bg-slate-100 dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors border border-slate-200 dark:border-slate-800 cursor-pointer">
                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                 </div>
@@ -337,10 +361,10 @@ const NotificationControl = () => {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/60 p-6 space-y-6"
+                    className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/40 dark:bg-[#050A17]/50 p-6 space-y-6"
                   >
                     {/* INLINE ADD RECIPIENT BOX */}
-                    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 space-y-3 shadow-sm">
+                    <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 space-y-3 shadow-inner">
                       <h4 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                         ADD RECIPIENT
                       </h4>
@@ -354,7 +378,7 @@ const NotificationControl = () => {
                           value={formValues.name}
                           onChange={(e) => handleInputChange(mod.id, "name", e.target.value)}
                           placeholder="Name (optional)"
-                          className="w-full sm:flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500 transition-all shadow-xs"
+                          className="w-full sm:flex-1 px-4 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 transition-all shadow-inner"
                         />
                         <input
                           type="email"
@@ -362,12 +386,12 @@ const NotificationControl = () => {
                           value={formValues.email}
                           onChange={(e) => handleInputChange(mod.id, "email", e.target.value)}
                           placeholder="Email address *"
-                          className="w-full sm:flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500 transition-all shadow-xs"
+                          className="w-full sm:flex-1 px-4 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 transition-all shadow-inner"
                         />
                         <button
                           type="submit"
                           disabled={isAdding}
-                          className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                          className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-50 shrink-0"
                         >
                           {isAdding ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} Add
                         </button>

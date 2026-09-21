@@ -21,60 +21,69 @@ import { motion } from "framer-motion";
 const HoneymoonBlogCard = ({ blog, onEdit, onDelete, onToggleVisibility }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -8 }}
-      className="group bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all duration-500"
+      whileHover={{ y: -6 }}
+      className="group bg-white dark:bg-[#091126]/95 rounded-3xl overflow-hidden border border-slate-200/90 dark:border-indigo-500/25 shadow-md dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 hover:border-blue-500/50 hover:shadow-2xl transition-all duration-300"
     >
       {/* IMAGE CONTAINER */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-video overflow-hidden bg-slate-100 dark:bg-[#050A17]">
         <img
           src={blog.cover_image}
           alt={blog.title}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
-          <button onClick={() => onEdit(blog._id)} className="bg-white text-slate-950 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl active:scale-95 flex items-center gap-2">
-            <Pencil size={14} /> INSPECT MANUSCRIPT
+        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
+          <button onClick={() => onEdit(blog._id)} className="bg-white text-slate-900 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-2xl active:scale-95 flex items-center gap-2 cursor-pointer">
+            <Pencil size={13} /> INSPECT MANUSCRIPT
           </button>
         </div>
 
         {/* STATUS BADGE */}
-        <div className="absolute top-4 left-4">
-          <span className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl backdrop-blur-md border border-white/10 ${blog.visibility === "public" ? "bg-emerald-600/90 text-white" : "bg-slate-900/90 text-white"
-            }`}>
+        <div className="absolute top-3 left-3">
+          <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/10 ${
+            blog.visibility === "public" ? "bg-emerald-600/90 text-white" : "bg-slate-900/90 text-white"
+          }`}>
             {blog.visibility}
           </span>
         </div>
       </div>
 
       {/* CONTENT BODY */}
-      <div className="p-8 text-left space-y-4">
+      <div className="p-6 text-left space-y-4">
         <div className="flex items-center justify-between">
-          <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-[0.2em]">
+          <span className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest">
             {blog.category || 'GENERAL'}
           </span>
-          <div className="flex items-center gap-2 text-slate-400 text-[9px] font-black uppercase tracking-[0.2em]">
-            <Calendar size={14} className="text-indigo-600" /> {new Date(blog.createdAt).toLocaleDateString()}
+          <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold">
+            <Calendar size={13} className="text-blue-500" /> {new Date(blog.createdAt).toLocaleDateString()}
           </div>
         </div>
 
-        <h3 className="text-xl font-black text-slate-900 dark:text-white line-clamp-2 leading-tight tracking-tight min-h-[3rem]">
+        <h3 className="text-lg font-black text-slate-900 dark:text-white line-clamp-2 leading-tight tracking-tight min-h-[2.75rem]">
           {blog.title}
         </h3>
 
-        <div className="flex justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3">
-            <button onClick={() => onDelete(blog._id)} className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
-              <Trash2 size={18} />
+        <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800/80">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => onDelete(blog._id)} 
+              className="p-2.5 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white rounded-xl transition-all border border-red-200 dark:border-red-800/60 cursor-pointer shadow-sm"
+              title="Delete Story"
+            >
+              <Trash2 size={15} />
             </button>
-            <button onClick={() => onToggleVisibility(blog._id, blog.visibility)} className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 transition-all rounded-xl">
-              {blog.visibility === 'public' ? <Eye size={18} /> : <EyeOff size={18} />}
+            <button 
+              onClick={() => onToggleVisibility(blog._id, blog.visibility)} 
+              className="p-2.5 bg-slate-50 hover:bg-slate-100 dark:bg-[#050A17] dark:hover:bg-[#15233e] text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-all rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer"
+              title="Toggle Visibility"
+            >
+              {blog.visibility === 'public' ? <Eye size={15} /> : <EyeOff size={15} />}
             </button>
           </div>
 
-          <button onClick={() => onEdit(blog._id)} className="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-            VIEW DETAILS <ArrowRight size={16} strokeWidth={3} />
+          <button onClick={() => onEdit(blog._id)} className="text-blue-600 dark:text-blue-400 hover:text-blue-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-0.5 transition-transform cursor-pointer">
+            VIEW DETAILS <ArrowRight size={14} strokeWidth={3} />
           </button>
         </div>
       </div>
@@ -97,56 +106,65 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
   const handleVisibilityToggle = () => { };
 
   return (
-    <div className="space-y-10 pb-24 px-6 text-left">
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
+    >
       {/* PAGE HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600 rotate-12"><Target size={240} /></div>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Sparkles size={22} />
+          </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-4">
-              <Sparkles className="text-indigo-600" size={32} />
-              {postType === 'article' ? "✦ SPOTLIGHT & TRENDING NARRATIVES ✦" : "STORYBOARD"}
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              {postType === 'article' ? <>Spotlight & <span className="text-blue-500">Trending</span> Articles</> : <>Story<span className="text-blue-500">board</span></>}
             </h1>
-            <p className="text-slate-500 font-medium mt-1">
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
               {postType === 'article'
                 ? "Manage active narratives displayed in the Editorial Spotlight & Trending This Month sections"
                 : "Manage your elite narrative assets and strategic drafts"}
             </p>
           </div>
-          <button
-            onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")}
-            className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all flex items-center gap-3 active:scale-95"
-          >
-            <PlusCircle size={24} /> {postType === 'article' ? "WRITE NEW ARTICLE (SPOTLIGHT/TRENDING)" : "FORGE NEW POST"}
-          </button>
         </div>
+        <button
+          onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")}
+          className="relative z-10 px-6 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer shrink-0"
+        >
+          <PlusCircle size={16} /> {postType === 'article' ? "WRITE NEW ARTICLE" : "FORGE NEW POST"}
+        </button>
       </div>
 
       {/* GRID */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-48 gap-8">
-          <Loader2 className="h-16 w-16 animate-spin text-indigo-600" strokeWidth={1.5} />
-          <p className="text-xs font-black text-slate-400 uppercase tracking-[0.4em]">Compiling Narrative Archive...</p>
+        <div className="flex flex-col items-center justify-center py-40 gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-500" strokeWidth={2} />
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Compiling Narrative Archive...</p>
         </div>
       ) : blogs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[3rem] text-center px-10 shadow-xl shadow-slate-200/30">
-          <div className="size-24 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center text-slate-200 mb-8 shadow-inner">
-            <MessageSquare size={48} strokeWidth={1} />
+        <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-[#091126]/95 border border-dashed border-slate-200 dark:border-indigo-500/20 rounded-3xl text-center px-8 shadow-xl">
+          <div className="size-16 bg-slate-100 dark:bg-[#050A17] rounded-2xl flex items-center justify-center text-slate-400 mb-6 border border-slate-200 dark:border-slate-800">
+            <MessageSquare size={32} strokeWidth={1.5} />
           </div>
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 uppercase tracking-tight">
+          <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">
             {postType === 'article' ? "Spotlight & Trending Archive is Vacant" : "Storyboard is Vacant"}
           </h3>
-          <p className="text-slate-500 font-medium text-lg max-w-lg mb-10 leading-relaxed italic">
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm max-w-md mb-8 leading-relaxed">
             {postType === 'article'
               ? "You haven't written any spotlight or trending articles yet. Start curating your first feature story today."
               : "You haven't forged any stories yet. Start sharing your strategic adventures today."}
           </p>
-          <button onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")} className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-500/40 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-3">
-            <Zap size={20} /> {postType === 'article' ? "WRITE FIRST SPOTLIGHT/TRENDING ARTICLE" : "WRITE FIRST NARRATIVE"}
+          <button 
+            onClick={() => navigate(postType === 'article' ? "/articles/create" : "/blogs/create")} 
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <Zap size={16} /> {postType === 'article' ? "WRITE FIRST SPOTLIGHT/TRENDING ARTICLE" : "WRITE FIRST NARRATIVE"}
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {blogs.map((blog) => (
             <HoneymoonBlogCard
               key={blog._id}
@@ -158,7 +176,7 @@ const HoneymoonBlogList = ({ postType = 'blog' }) => {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

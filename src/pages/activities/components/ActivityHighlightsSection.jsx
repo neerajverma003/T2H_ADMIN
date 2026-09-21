@@ -32,22 +32,31 @@ export const ActivityHighlightsSection = ({
 
   return (
     <div className={cardStyle}>
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <Sparkles className="text-amber-500" size={22} />
-          Key Highlights & Features
-        </h2>
-        <span className="text-xs font-bold text-slate-400">
+      <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="size-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 shrink-0">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Key Highlights & Features
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+              Bullet points showcasing thrilling adventures, unique perks, and inclusions
+            </p>
+          </div>
+        </div>
+        <span className="px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-wider">
           {highlights.length} Highlights Added
         </span>
       </div>
 
-      <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         Highlight the most thrilling and romantic aspects of this experience (bullet points).
       </p>
 
       {/* Input to add highlight */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex gap-3">
         <input
           type="text"
           value={newHighlight}
@@ -64,7 +73,7 @@ export const ActivityHighlightsSection = ({
         <button
           type="button"
           onClick={handleAddHighlight}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-blue-500/20 cursor-pointer transition-all"
+          className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-95 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-amber-500/25 cursor-pointer transition-all active:scale-95 shrink-0"
         >
           <Plus size={16} /> Add
         </button>
@@ -76,21 +85,21 @@ export const ActivityHighlightsSection = ({
           {highlights.map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 group hover:border-slate-300 transition-colors"
+              className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 group hover:border-amber-500/40 transition-colors shadow-inner"
             >
-              <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center justify-center shrink-0">
+              <span className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black flex items-center justify-center shrink-0">
                 {index + 1}
               </span>
               <input
                 type="text"
                 value={item}
                 onChange={(e) => handleUpdateHighlight(index, e.target.value)}
-                className="flex-1 bg-transparent text-sm text-slate-800 dark:text-slate-100 font-medium focus:outline-none"
+                className="flex-1 bg-transparent text-sm text-slate-900 dark:text-white font-medium focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => handleRemoveHighlight(index)}
-                className="text-slate-400 hover:text-red-500 transition-colors p-1.5 cursor-pointer"
+                className="text-slate-500 hover:text-red-400 transition-colors p-1.5 cursor-pointer"
                 title="Remove highlight"
               >
                 <Trash2 size={16} />
@@ -99,7 +108,7 @@ export const ActivityHighlightsSection = ({
           ))}
         </div>
       ) : (
-        <div className="py-6 text-center text-xs font-semibold text-slate-400 italic bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+        <div className="py-6 text-center text-xs font-semibold text-slate-500 italic bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/90">
           No highlights added yet. Add a few to showcase this activity!
         </div>
       )}

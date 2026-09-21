@@ -464,33 +464,44 @@ const CreateItineriesPage = () => {
     }, [formData.duration]);
 
     const styleProps = {
-        inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500",
-        labelStyle: "flex items-center gap-2 text-xs font-black text-slate-700 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
-        cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
-        buttonStyle: "bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30",
-        removeButtonStyle: "bg-red-500/10 text-red-600 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all",
+        inputStyle: "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/90 dark:bg-[#050A17] p-4 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#050A17] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal shadow-inner hover:border-indigo-500/40",
+        labelStyle: "flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2.5 ml-0.5",
+        cardStyle: "bg-white dark:bg-[#091126]/95 rounded-3xl p-7 md:p-9 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-7 transition-all",
+        buttonStyle: "px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-600/30 transition-all cursor-pointer active:scale-[0.98] uppercase tracking-wider",
+        removeButtonStyle: "bg-red-500/10 hover:bg-red-600 hover:text-white text-red-500 dark:text-red-400 px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer",
     };
 
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-6 pb-20">
-            {/* HEADER */}
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8 pb-16">
+            {/* TOP HEADER CARD */}
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+                <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                            <Navigation className="text-indigo-600" size={28} /> {isViewMode ? "VIEW ITINERARY" : id ? "EDIT ITINERARY" : "NEW ITINERARY"}
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                                <Navigation size={22} />
+                            </div>
+                            <span>
+                                {isViewMode ? "VIEW ITINERARY" : id ? "EDIT ITINERARY" : <>NEW <span className="text-blue-500">ITINERARY</span></>}
+                            </span>
                         </h1>
-                        <p className="text-slate-600 font-medium mt-1">Crafting unforgettable experiences for couples</p>
+                        <p className="text-slate-500 dark:text-slate-400 font-semibold mt-1 text-xs sm:text-sm">
+                            Crafting unforgettable experiences for couples
+                        </p>
                     </div>
                     <div className="flex items-center gap-3">
                         <fieldset disabled={isViewMode} className="border-none p-0 m-0">
-                            <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem] flex shadow-inner">
+                            <div className="bg-slate-100 dark:bg-[#050A17] p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-800/90 shadow-inner">
                                 {["domestic", "international"].map((t) => (
                                     <button
                                         key={t}
                                         type="button"
                                         onClick={() => setFormData({ ...formData, destination_type: t })}
-                                        className={`px-8 py-3 rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] transition-all ${formData.destination_type === t ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/40' : 'text-slate-500 hover:text-slate-900'}`}
+                                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                                            formData.destination_type === t
+                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                                                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                        }`}
                                     >
                                         {t}
                                     </button>
@@ -501,29 +512,27 @@ const CreateItineriesPage = () => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-8">
-                    <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
-                        <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                        <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
-                        <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
-                    </fieldset>
-
+            <form onSubmit={handleSubmit} className="flex flex-col gap-10 md:gap-12">
+                <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 flex flex-col gap-10 md:gap-12">
+                    <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                    <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
+                    <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
                     <DayInfoSection isViewMode={isViewMode} formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
-
-                    <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 space-y-8">
-                        <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                        {/* <CuratedAddonsSection formData={formData} setFormData={setFormData} isViewMode={isViewMode} styles={styleProps} /> */}
-                        <HotelDetailsSection formData={formData} setFormData={setFormData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
-                        <PricingSection formData={formData} setFormData={setFormData} handleInputChange={handleInputChange} styles={styleProps} />
-                    </fieldset>
-                </div>
+                    <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
+                    {/* <CuratedAddonsSection formData={formData} setFormData={setFormData} isViewMode={isViewMode} styles={styleProps} /> */}
+                    <HotelDetailsSection formData={formData} setFormData={setFormData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} handleInputChange={handleInputChange} styles={styleProps} />
+                    <PricingSection formData={formData} setFormData={setFormData} handleInputChange={handleInputChange} styles={styleProps} />
+                </fieldset>
 
                 {!isViewMode && (
-                    <div className="flex justify-end pt-12">
-                        <button type="submit" disabled={isSubmitting} className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-2xl shadow-indigo-500/50 hover:bg-indigo-700 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden uppercase tracking-widest">
-                            {isSubmitting ? <Loader2 className="animate-spin" size={28} /> : <Heart size={28} />}
-                            {isSubmitting ? 'Syncing...' : id ? 'Push Changes' : 'Commit Itinerary'}
+                    <div className="flex justify-end pt-4">
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full sm:w-auto px-10 py-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider cursor-pointer"
+                        >
+                            {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Heart size={20} />}
+                            {isSubmitting ? "Syncing..." : id ? "Push Changes" : "Commit Itinerary"}
                         </button>
                     </div>
                 )}

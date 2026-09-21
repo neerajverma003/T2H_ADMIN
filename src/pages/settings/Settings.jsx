@@ -16,6 +16,7 @@ const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const fileInputRef = useRef(null);
 
   // Password Visibility States
@@ -116,6 +117,7 @@ const Settings = () => {
         designation: profile.designation || roleLabel,
         avatar: profile.avatar || "",
       });
+      setAvatarError(false);
     }
   }, [profile, roleLabel]);
 
@@ -322,9 +324,14 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-48 gap-8">
-        <RefreshCcw className="size-16 animate-spin text-indigo-600" strokeWidth={1} />
-        <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Loading Profile Details...</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-2xl border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+          <User className="absolute inset-0 m-auto text-blue-500/60" size={20} />
+        </div>
+        <p className="mt-4 text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 animate-pulse">
+          Loading Profile Details...
+        </p>
       </div>
     );
   }
@@ -332,17 +339,36 @@ const Settings = () => {
   const fullName = `${profileForm.firstName} ${profileForm.lastName}`.trim() || "Admin User";
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left">
-      {/* PAGE HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
-            <span className="text-amber-500">EXPLORER</span> DASHBOARD
-          </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Manage your account and security details safely</p>
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left">
+      {/* ── HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <User size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-full">
+                ADMIN PROFILE & SECURITY
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <span className="text-blue-500">Explorer</span> Dashboard
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Manage your personal administrator credentials, email OTP security & trusted devices safely.
+            </p>
+          </div>
         </div>
-        <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 rounded-2xl text-xs font-black uppercase tracking-wider border border-emerald-100 dark:border-emerald-900/40">
-          <CheckCircle size={16} /> Verified Administrator
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-extrabold uppercase tracking-wider">
+            <CheckCircle size={15} /> Verified Administrator
+          </div>
         </div>
       </div>
 
@@ -351,7 +377,7 @@ const Settings = () => {
         {/* LEFT COLUMN: AVATAR CARD & TAB NAVIGATION */}
         <div className="lg:col-span-4 space-y-6">
           {/* PROFILE SUMMARY CARD */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none text-center relative overflow-hidden">
+          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl text-center relative overflow-hidden">
             {/* AVATAR CONTAINER */}
             <div className="relative size-32 mx-auto mb-6">
               <input
@@ -361,22 +387,25 @@ const Settings = () => {
                 accept="image/*"
                 className="hidden"
               />
-              {profileForm.avatar ? (
+              {profileForm.avatar && !avatarError ? (
                 <img
                   src={profileForm.avatar}
                   alt={fullName}
-                  className="size-32 rounded-full object-cover ring-4 ring-amber-100 dark:ring-amber-900/30 shadow-lg mx-auto"
+                  onError={() => setAvatarError(true)}
+                  className="size-32 rounded-full object-cover ring-4 ring-blue-500/30 shadow-xl mx-auto"
                 />
               ) : (
-                <div className="size-32 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 ring-4 ring-amber-100 dark:ring-amber-900/30 shadow-lg mx-auto">
-                  <User size={56} strokeWidth={1.5} />
+                <div className="size-32 rounded-full bg-slate-100 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-500 ring-4 ring-blue-500/30 shadow-xl mx-auto">
+                  <span className="text-3xl font-black text-blue-500 uppercase tracking-wider">
+                    {profileForm.firstName?.[0] || profileForm.username?.[0] || "A"}
+                  </span>
                 </div>
               )}
               <button
                 type="button"
                 disabled={uploadingAvatar}
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg transition-transform hover:scale-110 cursor-pointer disabled:opacity-50"
+                className="absolute bottom-0 right-0 p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-full shadow-lg shadow-blue-500/30 transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
                 title="Upload Profile Photo"
               >
                 {uploadingAvatar ? <RefreshCcw size={16} className="animate-spin" /> : <Camera size={16} />}
@@ -386,7 +415,7 @@ const Settings = () => {
                   type="button"
                   disabled={uploadingAvatar}
                   onClick={handleRemoveAvatar}
-                  className="absolute bottom-0 left-0 p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-lg transition-transform hover:scale-110 cursor-pointer disabled:opacity-50"
+                  className="absolute bottom-0 left-0 p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-lg shadow-rose-500/30 transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
                   title="Remove Profile Photo"
                 >
                   <Trash2 size={16} />
@@ -394,25 +423,30 @@ const Settings = () => {
               )}
             </div>
 
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{fullName}</h2>
-            <p className="text-[11px] font-black text-amber-500 uppercase tracking-widest mt-1">VERIFIED MEMBER</p>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{fullName}</h2>
+            <div className="mt-2">
+              <span className="text-[11px] font-extrabold text-blue-500 dark:text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                VERIFIED MEMBER
+              </span>
+            </div>
 
-            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800/80 text-left">
-              <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                <Mail size={16} className="text-amber-500 shrink-0" />
+            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800/80 text-left">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-[#050A17] rounded-xl border border-slate-200/80 dark:border-slate-800/90 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <Mail size={16} className="text-blue-500 shrink-0" />
                 <span className="truncate">{profileForm.email || "No email assigned"}</span>
               </div>
             </div>
           </div>
 
           {/* NAVIGATION TABS */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-2">
+          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-3 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-2">
             <button
+              type="button"
               onClick={() => setActiveTab("personal")}
-              className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === "personal"
-                  ? "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
             >
               <span className="flex items-center gap-3">
@@ -422,11 +456,12 @@ const Settings = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab("security")}
-              className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === "security"
-                  ? "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
             >
               <span className="flex items-center gap-3">
@@ -440,19 +475,23 @@ const Settings = () => {
         {/* RIGHT COLUMN: TAB VIEW CONTENT */}
         <div className="lg:col-span-8">
           {activeTab === "personal" ? (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-8">
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
               {/* TAB HEADER */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Personal Information</h3>
-                  <p className="text-xs font-medium text-slate-400 mt-1">Manage and update your account details safely.</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Personal Information</h3>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Manage and update your account details safely.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsEditing(!isEditing)}
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all cursor-pointer shrink-0"
+                  className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                    isEditing
+                      ? "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white"
+                      : "border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white"
+                  }`}
                 >
-                  <Edit3 size={16} /> {isEditing ? "Cancel Editing" : "Edit Profile"}
+                  <Edit3 size={15} /> {isEditing ? "Cancel Editing" : "Edit Profile"}
                 </button>
               </div>
 
@@ -462,11 +501,11 @@ const Settings = () => {
                   {/* USERNAME (LOGIN ID) */}
                   <div className="sm:col-span-2">
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">USERNAME (LOGIN ID)</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">USERNAME (LOGIN ID)</label>
                       <button
                         type="button"
                         onClick={() => setActiveTab("security")}
-                        className="text-[10px] font-black text-amber-500 hover:underline uppercase tracking-wider cursor-pointer"
+                        className="text-[11px] font-extrabold text-blue-500 hover:text-blue-400 hover:underline uppercase tracking-wider cursor-pointer"
                       >
                         Change via OTP
                       </button>
@@ -477,7 +516,7 @@ const Settings = () => {
                         value={profileForm.username || "super_admin"}
                         disabled
                         readOnly
-                        className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-extrabold text-sm outline-none disabled:opacity-80 transition-all cursor-not-allowed select-none"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-100 dark:bg-[#050A17]/80 p-3.5 text-slate-700 dark:text-slate-300 font-bold text-sm outline-none cursor-not-allowed select-none shadow-inner"
                       />
                       <User size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
@@ -485,7 +524,7 @@ const Settings = () => {
 
                   {/* FIRST NAME */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">FIRST NAME</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">FIRST NAME</label>
                     <input
                       type="text"
                       name="firstName"
@@ -493,14 +532,14 @@ const Settings = () => {
                       onChange={handleProfileChange}
                       disabled={!isEditing}
                       placeholder="Enter First Name"
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all shadow-inner"
                       required
                     />
                   </div>
 
                   {/* LAST NAME */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">LAST NAME</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">LAST NAME</label>
                     <input
                       type="text"
                       name="lastName"
@@ -508,19 +547,19 @@ const Settings = () => {
                       onChange={handleProfileChange}
                       disabled={!isEditing}
                       placeholder="Enter Last Name"
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all shadow-inner"
                     />
                   </div>
 
                   {/* GENDER */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">GENDER</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">GENDER</label>
                     <select
                       name="gender"
                       value={profileForm.gender}
                       onChange={handleProfileChange}
                       disabled={!isEditing}
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all cursor-pointer"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all cursor-pointer shadow-inner"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -531,11 +570,11 @@ const Settings = () => {
                   {/* PASSWORD FIELD (MASKED AS ••••••••) */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">PASSWORD</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">PASSWORD</label>
                       <button
                         type="button"
                         onClick={() => setActiveTab("security")}
-                        className="text-[10px] font-black text-amber-500 hover:underline uppercase tracking-wider"
+                        className="text-[11px] font-extrabold text-blue-500 hover:text-blue-400 hover:underline uppercase tracking-wider cursor-pointer"
                       >
                         Change via OTP
                       </button>
@@ -546,7 +585,7 @@ const Settings = () => {
                         value="••••••••••••"
                         disabled
                         readOnly
-                        className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-extrabold text-sm outline-none disabled:opacity-80 transition-all tracking-widest cursor-not-allowed select-none"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-100 dark:bg-[#050A17]/80 p-3.5 text-slate-700 dark:text-slate-300 font-bold text-sm outline-none cursor-not-allowed select-none tracking-widest shadow-inner"
                       />
                       <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
@@ -554,7 +593,7 @@ const Settings = () => {
 
                   {/* EMAIL ADDRESS */}
                   <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">EMAIL ADDRESS</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">EMAIL ADDRESS</label>
                     <input
                       type="email"
                       name="email"
@@ -562,14 +601,14 @@ const Settings = () => {
                       onChange={handleProfileChange}
                       disabled={!isEditing}
                       placeholder="Enter email address"
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all shadow-inner"
                       required
                     />
                   </div>
 
                   {/* DESIGNATION */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">DESIGNATION</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">DESIGNATION</label>
                     <input
                       type="text"
                       name="designation"
@@ -577,39 +616,42 @@ const Settings = () => {
                       onChange={handleProfileChange}
                       disabled={!isEditing}
                       placeholder={roleLabel || "Designation"}
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all shadow-inner"
                     />
                   </div>
 
                   {/* AVATAR URL */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">PROFILE IMAGE URL</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">PROFILE IMAGE URL</label>
                     <input
                       type="url"
                       name="avatar"
                       value={profileForm.avatar}
-                      onChange={handleProfileChange}
+                      onChange={(e) => {
+                        handleProfileChange(e);
+                        setAvatarError(false);
+                      }}
                       disabled={!isEditing}
                       placeholder="https://..."
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 disabled:opacity-80 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 disabled:opacity-70 transition-all shadow-inner"
                     />
                   </div>
                 </div>
 
                 {isEditing && (
-                  <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-800/80">
                     <button
                       type="submit"
                       disabled={savingProfile}
-                      className="flex items-center gap-3 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
                     >
                       {savingProfile ? (
                         <>
-                          <RefreshCcw className="animate-spin" size={16} /> SAVING CHANGES...
+                          <RefreshCcw className="animate-spin" size={15} /> SAVING CHANGES...
                         </>
                       ) : (
                         <>
-                          <Save size={16} /> SAVE PERSONAL INFO
+                          <Save size={15} /> SAVE PERSONAL INFO
                         </>
                       )}
                     </button>
@@ -621,24 +663,24 @@ const Settings = () => {
             /* SECURITY & OTP TAB */
             <div className="space-y-8">
               {/* SECTION 1: CHANGE USERNAME VIA OTP */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-6">
-                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <User size={20} className="text-amber-500" /> Change Username (Login ID)
+              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+                <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                    <User size={18} className="text-blue-500" /> Change Username (Login ID)
                   </h3>
-                  <p className="text-xs font-medium text-slate-400 mt-1">To update your account username, request a 6-digit verification OTP code sent to your email address.</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">To update your account username, request a 6-digit verification OTP code sent to your email address.</p>
                 </div>
 
-                <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-slate-200 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Request OTP Code</h4>
-                    <p className="text-[11px] text-slate-400 font-bold mt-0.5">Will be sent to: <span className="text-amber-500">{profileForm.email || "No email assigned"}</span></p>
+                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Request OTP Code</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Will be sent to: <span className="text-blue-500 font-bold">{profileForm.email || "No email assigned"}</span></p>
                   </div>
                   <button
                     type="button"
                     onClick={handleSendOtp}
                     disabled={sendingOtp || otpTimer > 0}
-                    className="flex items-center gap-2 px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/25 transition-all cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     {sendingOtp ? (
                       <>
@@ -655,7 +697,7 @@ const Settings = () => {
                 <form onSubmit={handleVerifyOtpUsername} className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">6-DIGIT OTP CODE *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">6-DIGIT OTP CODE *</label>
                       <input
                         type="text"
                         name="otp"
@@ -663,19 +705,19 @@ const Settings = () => {
                         onChange={handleUsernameFormChange}
                         placeholder="Enter 6-digit OTP code"
                         maxLength={6}
-                        className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-black text-base tracking-widest outline-none focus:border-amber-500 transition-all placeholder:font-normal placeholder:text-sm"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-mono font-bold text-base tracking-widest outline-none focus:border-blue-500 transition-all placeholder:font-sans placeholder:font-normal placeholder:text-sm placeholder:tracking-normal shadow-inner"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">NEW USERNAME *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">NEW USERNAME *</label>
                       <input
                         type="text"
                         name="newUsername"
                         value={usernameForm.newUsername}
                         onChange={handleUsernameFormChange}
                         placeholder="Enter new username"
-                        className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 transition-all"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 transition-all shadow-inner"
                         required
                       />
                     </div>
@@ -685,15 +727,15 @@ const Settings = () => {
                     <button
                       type="submit"
                       disabled={verifyingUsernameOtp}
-                      className="flex items-center gap-3 px-7 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
                     >
                       {verifyingUsernameOtp ? (
                         <>
-                          <RefreshCcw className="animate-spin" size={16} /> VERIFYING OTP...
+                          <RefreshCcw className="animate-spin" size={15} /> VERIFYING OTP...
                         </>
                       ) : (
                         <>
-                          <User size={16} /> VERIFY OTP & UPDATE USERNAME
+                          <User size={15} /> VERIFY OTP & UPDATE USERNAME
                         </>
                       )}
                     </button>
@@ -702,24 +744,24 @@ const Settings = () => {
               </div>
 
               {/* SECTION 2: CHANGE PASSWORD VIA OTP */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-6">
-                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                    <Lock size={20} className="text-emerald-500" /> Change Account Password
+              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+                <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                    <Lock size={18} className="text-emerald-500" /> Change Account Password
                   </h3>
-                  <p className="text-xs font-medium text-slate-400 mt-1">To change your account password safely, verify using a 6-digit email OTP code.</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">To change your account password safely, verify using a 6-digit email OTP code.</p>
                 </div>
 
-                <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-slate-200 dark:border-slate-800/90 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Request OTP Code</h4>
-                    <p className="text-[11px] text-slate-400 font-bold mt-0.5">Will be sent to: <span className="text-amber-500">{profileForm.email || "No email assigned"}</span></p>
+                    <h4 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Request OTP Code</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Will be sent to: <span className="text-blue-500 font-bold">{profileForm.email || "No email assigned"}</span></p>
                   </div>
                   <button
                     type="button"
                     onClick={handleSendOtp}
                     disabled={sendingOtp || otpTimer > 0}
-                    className="flex items-center gap-2 px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/25 transition-all cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     {sendingOtp ? (
                       <>
@@ -735,7 +777,7 @@ const Settings = () => {
 
                 <form onSubmit={handleVerifyOtpPassword} className="space-y-5">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">6-DIGIT OTP VERIFICATION CODE *</label>
+                    <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">6-DIGIT OTP VERIFICATION CODE *</label>
                     <input
                       type="text"
                       name="otp"
@@ -743,14 +785,14 @@ const Settings = () => {
                       onChange={handlePasswordChange}
                       placeholder="Enter 6-digit OTP code"
                       maxLength={6}
-                      className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 text-slate-900 dark:text-slate-100 font-black text-base tracking-widest outline-none focus:border-amber-500 transition-all placeholder:font-normal placeholder:text-sm"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 text-slate-900 dark:text-white font-mono font-bold text-base tracking-widest outline-none focus:border-blue-500 transition-all placeholder:font-sans placeholder:font-normal placeholder:text-sm placeholder:tracking-normal shadow-inner"
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">NEW PASSWORD *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">NEW PASSWORD *</label>
                       <div className="relative">
                         <input
                           type={showNewPassword ? "text" : "password"}
@@ -758,7 +800,7 @@ const Settings = () => {
                           value={passwordForm.newPassword}
                           onChange={handlePasswordChange}
                           placeholder="Enter new password"
-                          className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 pr-12 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 transition-all"
+                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 pr-12 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 transition-all shadow-inner"
                           required
                         />
                         <button
@@ -774,7 +816,7 @@ const Settings = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">CONFIRM NEW PASSWORD *</label>
+                      <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">CONFIRM NEW PASSWORD *</label>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? "text" : "password"}
@@ -782,7 +824,7 @@ const Settings = () => {
                           value={passwordForm.confirmPassword}
                           onChange={handlePasswordChange}
                           placeholder="Re-enter new password"
-                          className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 pr-12 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-amber-500 transition-all"
+                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 pr-12 text-slate-900 dark:text-white font-semibold text-sm outline-none focus:border-blue-500 transition-all shadow-inner"
                           required
                         />
                         <button
@@ -802,15 +844,15 @@ const Settings = () => {
                     <button
                       type="submit"
                       disabled={verifyingOtp}
-                      className="flex items-center gap-3 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
                     >
                       {verifyingOtp ? (
                         <>
-                          <RefreshCcw className="animate-spin" size={16} /> VERIFYING OTP & UPDATING...
+                          <RefreshCcw className="animate-spin" size={15} /> VERIFYING OTP & UPDATING...
                         </>
                       ) : (
                         <>
-                          <Lock size={16} /> VERIFY OTP & UPDATE PASSWORD
+                          <Lock size={15} /> VERIFY OTP & UPDATE PASSWORD
                         </>
                       )}
                     </button>
@@ -819,26 +861,26 @@ const Settings = () => {
               </div>
 
               {/* SECTION 3: TRUSTED DEVICES & 14-DAY IP SESSIONS */}
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none space-y-6">
-                <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+                <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                      <ShieldCheck size={20} className="text-indigo-500" /> Trusted Devices & 14-Day IP Sessions
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                      <ShieldCheck size={18} className="text-indigo-500" /> Trusted Devices & 14-Day IP Sessions
                     </h3>
-                    <p className="text-xs font-medium text-slate-400 mt-1">IP addresses verified via MFA do not require email OTP for 14 days.</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">IP addresses verified via MFA do not require email OTP for 14 days.</p>
                   </div>
                   <button
                     type="button"
                     onClick={fetchTrustedDevices}
-                    className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 rounded-xl transition cursor-pointer"
+                    className="p-2.5 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl transition cursor-pointer"
                     title="Refresh List"
                   >
-                    <RefreshCcw size={16} className={loadingDevices ? "animate-spin" : ""} />
+                    <RefreshCcw size={15} className={loadingDevices ? "animate-spin text-blue-500" : ""} />
                   </button>
                 </div>
 
                 {trustedDevices.length === 0 ? (
-                  <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                  <div className="text-center py-10 bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                     <ShieldCheck size={36} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No Active 14-Day Trusted Device IPs</p>
                     <p className="text-[11px] text-slate-400 mt-1">When you log in from a new IP, complete OTP verification to trust it for 14 days.</p>
@@ -848,17 +890,17 @@ const Settings = () => {
                     {trustedDevices.map((device) => {
                       const daysLeft = Math.max(0, Math.ceil((new Date(device.expiresAt) - new Date()) / (1000 * 60 * 60 * 24)));
                       return (
-                        <div key={device._id || device.ip} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
+                        <div key={device._id || device.ip} className="p-4 bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-slate-200 dark:border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-black text-slate-900 dark:text-white px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20">
+                              <span className="font-mono text-xs font-bold text-slate-900 dark:text-white px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg border border-blue-500/20">
                                 IP: {device.ip}
                               </span>
-                              <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md">
+                              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md">
                                 Trusted ({daysLeft} days remaining)
                               </span>
                             </div>
-                            <p className="text-[11px] text-slate-400 font-medium">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                               Last login: {new Date(device.lastLoginAt).toLocaleString()}
                             </p>
                           </div>

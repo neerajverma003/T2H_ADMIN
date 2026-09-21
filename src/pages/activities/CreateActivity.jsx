@@ -246,72 +246,82 @@ const CreateActivity = () => {
 
   const styles = {
     cardStyle:
-      "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-xs",
+      "bg-white dark:bg-[#091126]/95 rounded-3xl p-6 md:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6 transition-all",
     labelStyle:
-      "block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2",
+      "flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 ml-0.5",
     inputStyle:
-      "w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm transition-all",
+      "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/90 dark:bg-[#050A17] p-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#050A17] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal shadow-inner hover:border-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed",
   };
 
   if (isLoading && isEdit) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Loader2 className="animate-spin text-blue-600" size={36} />
-        <p className="text-sm font-bold text-slate-500">Loading activity details...</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="size-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.25)]">
+          <Loader2 className="animate-spin text-indigo-400" size={36} strokeWidth={2} />
+        </div>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Loading activity details...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-16">
-      {/* Top Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/activities")}
-            className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
-            title="Go back"
-          >
-            <ArrowLeft size={18} />
-          </button>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans">
+      {/* Top Header Card & Actions */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-              <Compass className="text-blue-600" size={24} />
-              {isEdit ? "Edit Destination Activity" : "Create New Destination Activity"}
+            <button
+              type="button"
+              onClick={() => navigate("/activities")}
+              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 uppercase tracking-wider transition-colors mb-1.5 group cursor-pointer"
+            >
+              <ArrowLeft size={13} className="group-hover:-translate-x-1 transition-transform" />
+              Back to Activities
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                <Compass size={22} />
+              </div>
+              <span>
+                {isEdit ? (
+                  <>Edit Destination <span className="text-blue-500">Activity</span></>
+                ) : (
+                  <>New Destination <span className="text-blue-500">Activity</span></>
+                )}
+              </span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Configure dynamic things to do, ticketing, highlights, map, and schedules
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-1 text-xs sm:text-sm">
+              Configure dynamic things to do, ticketing, highlights, map, and schedules.
             </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate("/activities")}
-            className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isSaving}
-            className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-blue-600/25 transition-all cursor-pointer disabled:opacity-50"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="animate-spin" size={16} />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save size={16} />
-                <span>{isEdit ? "Update Activity" : "Publish Activity"}</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate("/activities")}
+              className="px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="px-8 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xs shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider transition-all flex items-center gap-2.5 cursor-pointer disabled:opacity-70 disabled:cursor-wait"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  <span>{isEdit ? "Update Activity" : "Publish Activity"}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -371,11 +381,18 @@ const CreateActivity = () => {
         />
 
         {/* Bottom Save Bar */}
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => navigate("/activities")}
+            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-800 bg-[#050A17] hover:bg-slate-800/60 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+          >
+            Cancel & Return
+          </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-blue-600/30 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto px-9 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-xs shadow-xl shadow-indigo-600/30 uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98] disabled:opacity-50"
           >
             {isSaving ? (
               <>

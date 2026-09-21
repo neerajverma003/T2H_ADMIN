@@ -105,38 +105,49 @@ const ContactUs = () => {
   const unreadCount = contacts.filter(c => c.status === 'pending' || !c.status).length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
-            <Sparkles size={14} className="text-blue-600 dark:text-blue-400 animate-pulse" /> COMMUNICATION VAULT
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Contact <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Inquiries</span>
-          </h1>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-            Centralizing incoming support requests and direct client communications.
-          </p>
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Mail size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                COMMUNICATION VAULT
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Contact <span className="text-blue-500">Inquiries</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Centralizing incoming support requests and direct client communications.
+            </p>
+          </div>
         </div>
 
         {/* SEARCH & FILTER CONTROLS */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div className="relative group w-full sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
             <input
               type="text"
               placeholder="Search messages..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+              className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-xl text-xs font-semibold w-full outline-none transition-all placeholder:text-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-white shadow-inner"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-300 outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer shadow-sm"
+            className="w-full sm:w-auto px-4 py-2 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 transition-all cursor-pointer shadow-inner"
           >
             <option value="all">All Messages</option>
             <option value="unread">Unread</option>
@@ -146,49 +157,49 @@ const ContactUs = () => {
       </div>
 
       {/* 4 TOP METRIC CARDS */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <Mail size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <Mail size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">INBOX VOLUME</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">INBOX VOLUME</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{contacts.length}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{contacts.length}</h3>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-amber-50 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-              <Clock size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+              <Clock size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">RECENT MESSAGES</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">RECENT MESSAGES</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{unreadCount}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{unreadCount}</h3>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <Filter size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+              <Filter size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">SEARCH RESULTS</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">SEARCH RESULTS</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{filteredContacts.length}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{filteredContacts.length}</h3>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <CheckCircle2 size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">INBOX STATUS</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">INBOX STATUS</span>
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -199,11 +210,23 @@ const ContactUs = () => {
       </div>
 
       {/* TABLE CONTENT */}
-      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl">
+      <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <Mail size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Inquiry Registry</h3>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-blue-500 border border-slate-200 dark:border-slate-700/60 text-xs font-bold">
+            {filteredContacts.length} RECORDS
+          </span>
+        </div>
+
         <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800/80">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <tr className="bg-slate-50 dark:bg-[#050A17] border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                 <th className="p-4 pl-6">CLIENT NAME</th>
                 <th className="p-4">CONTACT INFO</th>
                 <th className="p-4">STATUS</th>
@@ -212,26 +235,42 @@ const ContactUs = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-              {filteredContacts.map((contact) => (
-                <tr key={contact._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="p-4 pl-6 font-bold text-slate-900 dark:text-white">{contact.name}</td>
-                  <td className="p-4 text-xs font-mono text-slate-600 dark:text-slate-400">{contact.email}</td>
-                  <td className="p-4 text-[10px] font-bold text-slate-700 dark:text-slate-300">{contact.status || 'pending'}</td>
-                  <td className="p-4 text-xs text-slate-500 dark:text-slate-400">
-                    {contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : 'N/A'}
-                  </td>
-                  <td className="p-4 text-right pr-6">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => setSelectedContact(contact)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/60">
-                        <Eye size={15} />
-                      </button>
-                      <button onClick={() => handleDelete(contact._id)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-rose-600 hover:text-white text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/60">
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
+              {filteredContacts.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                    No inquiries match your criteria.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredContacts.map((contact) => (
+                  <tr key={contact._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="p-4 pl-6 font-bold text-slate-900 dark:text-white">{contact.name}</td>
+                    <td className="p-4 text-xs font-mono text-slate-600 dark:text-slate-400">{contact.email}</td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${
+                        contact.status === 'resolved'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                      }`}>
+                        {contact.status || 'pending'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                      {contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td className="p-4 text-right pr-6">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => setSelectedContact(contact)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/60 cursor-pointer">
+                          <Eye size={15} />
+                        </button>
+                        <button onClick={() => handleDelete(contact._id)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-rose-600 hover:text-white text-slate-600 dark:text-slate-400 transition-colors border border-slate-200 dark:border-slate-700/60 cursor-pointer">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -240,21 +279,29 @@ const ContactUs = () => {
       {/* INQUIRY DETAILS MODAL */}
       <AnimatePresence>
         {selectedContact && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 space-y-4 text-slate-900 dark:text-white shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full max-w-xl bg-white dark:bg-[#091126] border border-slate-200 dark:border-indigo-500/30 rounded-3xl p-6 md:p-8 space-y-4 text-slate-900 dark:text-white shadow-2xl">
               <div className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{selectedContact.name}</h3>
-                <button onClick={() => setSelectedContact(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"><X size={20} /></button>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <Mail size={16} />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{selectedContact.name}</h3>
+                </div>
+                <button onClick={() => setSelectedContact(null)} className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"><X size={18} /></button>
               </div>
               <div className="text-sm text-slate-700 dark:text-slate-300 space-y-3">
                 <p><strong className="text-slate-900 dark:text-white">Email:</strong> {selectedContact.email}</p>
-                <p className="bg-slate-50 dark:bg-slate-950/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800"><strong className="text-slate-900 dark:text-white block mb-1">Message:</strong> {selectedContact.message}</p>
+                <div className="bg-slate-50 dark:bg-[#050A17] p-4 rounded-2xl border border-slate-200 dark:border-slate-800/90">
+                  <strong className="text-slate-900 dark:text-white block mb-1 text-xs uppercase tracking-wider text-slate-400">Message Content</strong>
+                  <p className="text-sm leading-relaxed">{selectedContact.message}</p>
+                </div>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 

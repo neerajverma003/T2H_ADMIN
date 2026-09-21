@@ -93,21 +93,30 @@ export const ActivityCoreDetailsSection = ({
 
   return (
     <div className={cardStyle}>
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <Compass className="text-blue-600 dark:text-blue-400" size={22} />
-          Core Activity Details
-        </h2>
-        <div className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-[11px] font-black uppercase tracking-widest">
+      <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+            <Compass size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Core Activity Details
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+              Primary title, romantic overview, destination target, and display settings
+            </p>
+          </div>
+        </div>
+        <div className="px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl text-[10px] font-black uppercase tracking-wider">
           Destination & Type
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Title */}
         <div>
           <label htmlFor="title" className={labelStyle}>
-            Activity Title <span className="text-red-500">*</span>
+            Activity Title <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
@@ -116,10 +125,10 @@ export const ActivityCoreDetailsSection = ({
             value={formData.title}
             onChange={handleInputChange}
             placeholder="e.g. Sentosa Fun Discovery Pass, Scuba Diving in Havelock"
-            className={`${inputStyle} ${errors.title ? "ring-2 ring-red-500" : ""}`}
+            className={`${inputStyle} ${errors.title ? "ring-1 ring-red-500 border-red-500/50" : ""}`}
           />
           {errors.title && (
-            <p className="mt-1.5 text-xs font-bold text-red-500 uppercase tracking-wider">
+            <p className="mt-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
               {errors.title}
             </p>
           )}
@@ -133,21 +142,21 @@ export const ActivityCoreDetailsSection = ({
           <textarea
             id="short_description"
             name="short_description"
-            rows={2}
+            rows={3}
             value={formData.short_description || ""}
             onChange={handleInputChange}
             placeholder="Brief overview shown on cards and search results (e.g. Guided glacier hike across magnificent ice pinnacles...)"
-            className={inputStyle}
+            className={`${inputStyle} resize-y min-h-[95px] leading-relaxed`}
           />
-          <p className="mt-1 text-[11px] text-slate-400 font-medium">
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
             This overview is displayed on activity listing cards and details page.
           </p>
         </div>
 
         {/* Destination Filter: Domestic vs International (Like Itinerary) */}
-        <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60">
+        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 shadow-inner">
           <label className={labelStyle}>
-            Destination Territory <span className="text-red-500">*</span>
+            Destination Territory <span className="text-red-400">*</span>
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 font-medium">
             Choose whether this activity is located in a Domestic or International destination:
@@ -157,15 +166,15 @@ export const ActivityCoreDetailsSection = ({
             <button
               type="button"
               onClick={() => handleDestinationTypeChange("domestic")}
-              className={`flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer border ${
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer border ${
                 formData.destination_type === "domestic"
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400"
+                  ? "bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/30 ring-1 ring-blue-400/50"
+                  : "bg-white dark:bg-[#091126] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               <CheckCircle2
-                size={16}
-                className={formData.destination_type === "domestic" ? "opacity-100" : "opacity-0"}
+                size={15}
+                className={formData.destination_type === "domestic" ? "opacity-100 text-white" : "opacity-0"}
               />
               <span>Domestic (India)</span>
             </button>
@@ -173,15 +182,15 @@ export const ActivityCoreDetailsSection = ({
             <button
               type="button"
               onClick={() => handleDestinationTypeChange("international")}
-              className={`flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl font-bold text-sm transition-all cursor-pointer border ${
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer border ${
                 formData.destination_type === "international"
-                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20"
-                  : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400"
+                  ? "bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/30 ring-1 ring-blue-400/50"
+                  : "bg-white dark:bg-[#091126] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               <CheckCircle2
-                size={16}
-                className={formData.destination_type === "international" ? "opacity-100" : "opacity-0"}
+                size={15}
+                className={formData.destination_type === "international" ? "opacity-100 text-white" : "opacity-0"}
               />
               <span>International</span>
             </button>
@@ -191,9 +200,7 @@ export const ActivityCoreDetailsSection = ({
         {/* Dynamic Destination Dropdown - Strictly opens in Bottom */}
         <div className="relative">
           <label htmlFor="selected_destination_btn" className={labelStyle}>
-            <span className="flex items-center gap-1.5">
-              <MapPin size={16} className="text-blue-600 dark:text-blue-400" /> Target Destination <span className="text-red-500">*</span>
-            </span>
+            <MapPin size={15} className="text-blue-400" /> Target Destination <span className="text-red-400">*</span>
           </label>
 
           <div ref={destDropdownRef} className="relative w-full">
@@ -204,9 +211,9 @@ export const ActivityCoreDetailsSection = ({
               disabled={isListLoading}
               onClick={() => setIsDestOpen((prev) => !prev)}
               className={`${inputStyle} flex items-center justify-between cursor-pointer select-none text-left transition-all ${
-                errors.selected_destination ? "ring-2 ring-red-500" : ""
+                errors.selected_destination ? "ring-1 ring-red-500 border-red-500/50" : ""
               } ${
-                isDestOpen ? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-800" : ""
+                isDestOpen ? "border-indigo-500 ring-1 ring-indigo-500/30 bg-slate-50 dark:bg-[#070D1F]" : ""
               } ${isListLoading ? "opacity-60 cursor-not-allowed" : ""}`}
               aria-haspopup="listbox"
               aria-expanded={isDestOpen}
@@ -216,15 +223,15 @@ export const ActivityCoreDetailsSection = ({
                   size={16}
                   className={`shrink-0 ${
                     formData.selected_destination
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-slate-400"
+                      ? "text-blue-400"
+                      : "text-slate-500"
                   }`}
                 />
                 <span
                   className={`truncate ${
                     formData.selected_destination
-                      ? "font-semibold text-slate-900 dark:text-white"
-                      : "text-slate-400 dark:text-slate-500"
+                      ? "font-bold text-slate-900 dark:text-white"
+                      : "text-slate-500 font-normal"
                   }`}
                 >
                   {isListLoading
@@ -244,7 +251,7 @@ export const ActivityCoreDetailsSection = ({
                   <ChevronDown
                     size={16}
                     className={`text-slate-400 transition-transform duration-200 ${
-                      isDestOpen ? "rotate-180 text-blue-600 dark:text-blue-400" : ""
+                      isDestOpen ? "rotate-180 text-blue-400" : ""
                     }`}
                   />
                 )}
@@ -266,13 +273,13 @@ export const ActivityCoreDetailsSection = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -4, scale: 0.98 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute left-0 top-full mt-2 w-full z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden"
+                  className="absolute left-0 top-full mt-2 w-full z-50 bg-white dark:bg-[#091126] border border-slate-200 dark:border-indigo-500/30 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
                   role="listbox"
                 >
                   {/* Search filter within dropdown */}
-                  <div className="p-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50">
+                  <div className="p-3 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/80 dark:bg-[#050A17]/80">
                     <div className="relative">
-                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         ref={searchInputRef}
                         type="text"
@@ -281,13 +288,13 @@ export const ActivityCoreDetailsSection = ({
                         placeholder={`Search ${
                           formData.destination_type === "international" ? "international" : "domestic"
                         } destination...`}
-                        className="w-full pl-8 pr-7 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full pl-9 pr-8 py-2.5 rounded-xl bg-white dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
                       />
                       {destSearch && (
                         <button
                           type="button"
                           onClick={() => setDestSearch("")}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
                         >
                           <X size={12} />
                         </button>
@@ -296,7 +303,7 @@ export const ActivityCoreDetailsSection = ({
                   </div>
 
                   {/* Options List */}
-                  <div className="max-h-64 overflow-y-auto p-1.5 divide-y divide-slate-50 dark:divide-slate-800/40">
+                  <div className="max-h-64 overflow-y-auto p-2 space-y-1">
                     {/* Placeholder / Deselect Option */}
                     <button
                       type="button"
@@ -306,20 +313,20 @@ export const ActivityCoreDetailsSection = ({
                       }}
                       className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
                         !formData.selected_destination
-                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold"
-                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                          ? "bg-indigo-600 text-white font-bold"
+                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#050A17] hover:text-slate-900 dark:hover:text-white"
                       }`}
                       role="option"
                       aria-selected={!formData.selected_destination}
                     >
                       <span>-- Select Destination --</span>
                       {!formData.selected_destination && (
-                        <Check size={14} className="text-blue-600 dark:text-blue-400" />
+                        <Check size={14} className="text-white" />
                       )}
                     </button>
 
                     {filteredDestinations.length === 0 ? (
-                      <div className="py-6 px-4 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
+                      <div className="py-6 px-4 text-center text-xs text-slate-500 font-medium">
                         No destinations found matching "{destSearch}"
                       </div>
                     ) : (
@@ -337,25 +344,25 @@ export const ActivityCoreDetailsSection = ({
                             }}
                             className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
                               isSelected
-                                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold"
-                                : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                                ? "bg-indigo-600 text-white font-bold"
+                                : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#050A17] hover:text-slate-900 dark:hover:text-white"
                             }`}
                             role="option"
                             aria-selected={isSelected}
                           >
-                            <div className="flex items-center gap-2 truncate">
+                            <div className="flex items-center gap-2.5 truncate">
                               <MapPin
                                 size={14}
                                 className={
                                   isSelected
-                                    ? "text-blue-600 dark:text-blue-400"
-                                    : "text-slate-400"
+                                    ? "text-white"
+                                    : "text-indigo-400"
                                 }
                               />
                               <span className="truncate">{dest.destination_name}</span>
                             </div>
                             {isSelected && (
-                              <Check size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                              <Check size={14} className="text-white shrink-0" />
                             )}
                           </button>
                         );
@@ -368,7 +375,7 @@ export const ActivityCoreDetailsSection = ({
           </div>
 
           {errors.selected_destination && (
-            <p className="mt-1.5 text-xs font-bold text-red-500 uppercase tracking-wider">
+            <p className="mt-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
               {errors.selected_destination}
             </p>
           )}
@@ -377,11 +384,9 @@ export const ActivityCoreDetailsSection = ({
         {/* Visibility (Public vs Private - Itinerary Style) */}
         <div className="max-w-md">
           <label className={labelStyle}>
-            <span className="flex items-center gap-1.5">
-              <Eye size={16} className="text-blue-600" /> Visibility
-            </span>
+            <Eye size={15} className="text-blue-400" /> Visibility
           </label>
-          <div className="grid grid-cols-2 gap-3 mt-1">
+          <div className="grid grid-cols-2 gap-3 mt-1.5">
             <button
               type="button"
               onClick={() =>
@@ -389,8 +394,8 @@ export const ActivityCoreDetailsSection = ({
               }
               className={`py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer border flex items-center justify-center gap-2 ${
                 formData.activity_type === "public"
-                  ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20"
-                  : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                  ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                  : "bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               <Eye size={15} />
@@ -404,15 +409,15 @@ export const ActivityCoreDetailsSection = ({
               }
               className={`py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer border flex items-center justify-center gap-2 ${
                 formData.activity_type === "private"
-                  ? "bg-slate-900 dark:bg-slate-700 text-white border-slate-900 dark:border-slate-700 shadow-md"
-                  : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                  ? "bg-slate-800 text-white border-slate-700 shadow-md ring-1 ring-white/10"
+                  : "bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               <EyeOff size={15} />
               <span>Private (Hidden)</span>
             </button>
           </div>
-          <p className="mt-1.5 text-[11px] text-slate-400 font-medium">
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
             {formData.activity_type === "public"
               ? "✓ Visible to public customers on the website"
               : "🔒 Hidden / Draft — will not appear on the website until set to Public"}
@@ -423,9 +428,7 @@ export const ActivityCoreDetailsSection = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
           <div>
             <label htmlFor="rating" className={labelStyle}>
-              <span className="flex items-center gap-1.5">
-                <Star size={16} className="text-amber-500 fill-amber-500" /> Display Rating
-              </span>
+              <Star size={14} className="text-amber-400 fill-amber-400" /> Display Rating
             </label>
             <input
               type="number"
@@ -442,9 +445,7 @@ export const ActivityCoreDetailsSection = ({
 
           <div>
             <label htmlFor="review_count" className={labelStyle}>
-              <span className="flex items-center gap-1.5">
-                <Users size={16} className="text-blue-600" /> Review Count
-              </span>
+              <Users size={14} className="text-blue-400" /> Review Count
             </label>
             <input
               type="number"
@@ -458,7 +459,7 @@ export const ActivityCoreDetailsSection = ({
           </div>
 
           <div className="flex flex-col justify-end">
-            <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 cursor-pointer">
+            <label className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 hover:border-indigo-500/40 transition-colors shadow-inner cursor-pointer">
               <input
                 type="checkbox"
                 name="is_featured"
@@ -468,10 +469,10 @@ export const ActivityCoreDetailsSection = ({
                     target: { name: "is_featured", value: e.target.checked },
                   })
                 }
-                className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500"
+                className="w-5 h-5 rounded-md accent-amber-500 cursor-pointer"
               />
-              <span className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles size={14} className="text-amber-500" /> Feature on Highlights
+              <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles size={14} className="text-amber-400" /> Feature on Highlights
               </span>
             </label>
           </div>

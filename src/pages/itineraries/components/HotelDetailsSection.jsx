@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Hotel, Heart, Building, MapPin, Plus, Trash2, Star, Sparkles, Building2, Lock } from "lucide-react";
+import { Hotel, Heart, Building, MapPin, Plus, Trash2, Star, Sparkles, Building2, Lock, ChevronDown } from "lucide-react";
 import { apiClient } from "../../../stores/authStores";
 import { usePlaceStore } from "../../../stores/usePlaceStore";
 
@@ -237,42 +237,39 @@ const HotelDetailsSection = ({
 
     return (
         <div className={cardStyle}>
-            {/* SECTION HEADER */}
-            <div className="flex items-center justify-between mb-8 border-b border-slate-100 dark:border-slate-800 pb-4">
+            {/* LUXURY CARD HEADER */}
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
+                <div className="size-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                    <Building2 size={22} />
+                </div>
                 <div>
-                    <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <Building className="text-indigo-600" size={20} />
-                        STAY & HOTELS
-                    </h2>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Accommodation & Hotel Selection</h3>
                     {selectedDestObj ? (
-                        <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold mt-1">
-                            Destination: {selectedDestObj.destination_name} ({cityOptions.length} Hotel Cities available)
+                        <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-0.5">
+                            Destination: <span className="text-slate-900 dark:text-white font-bold">{selectedDestObj.destination_name}</span> ({cityOptions.length} Hotel Cities available)
                         </p>
                     ) : (
-                        <p className="text-xs text-slate-400 font-medium mt-1">
-                            Select a target destination to load destination cities & hotels
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                            Select a target destination in Core Details to load cities & hotels
                         </p>
                     )}
                 </div>
-                <div className="px-3.5 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <Sparkles size={12} /> Accommodation Setup
-                </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-7">
                 {/* AS PER BEST QUOTE CHECKBOX */}
-                <label className={`flex items-center gap-4 p-6 rounded-3xl border-2 transition-all cursor-pointer ${isAsPerBestQuote ? 'bg-indigo-50/60 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800' : 'border-slate-100 bg-slate-50 dark:bg-slate-800/40 dark:border-slate-800'}`}>
+                <label className={`flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${isAsPerBestQuote ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-500/50 shadow-lg shadow-indigo-500/10' : 'bg-slate-50 dark:bg-[#050A17] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}>
                     <input
                         type="checkbox"
                         id="hotel_as_per_category"
                         checked={isAsPerBestQuote}
                         onChange={handleBestQuoteToggle}
-                        className="accent-indigo-600 size-5 rounded cursor-pointer"
+                        className="accent-indigo-500 size-5 rounded cursor-pointer"
                     />
                     <div className="flex-1">
-                        <p className={`text-sm font-black uppercase tracking-widest ${isAsPerBestQuote ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>AS PER BEST QUOTE</p>
-                        <p className="text-[11px] text-slate-400 font-medium mt-0.5 tracking-wide flex items-center gap-1">
-                            <Hotel size={12} /> Enable to set hotels as per best quote. Uncheck to configure stay locations and hotel properties.
+                        <p className={`text-sm font-bold uppercase tracking-wider ${isAsPerBestQuote ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>AS PER BEST QUOTE</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1.5">
+                            <Hotel size={13} className="text-indigo-500 dark:text-indigo-400" /> Enable to set hotels as per best quote. Uncheck to configure stay locations and hotel properties.
                         </p>
                     </div>
                 </label>
@@ -281,21 +278,21 @@ const HotelDetailsSection = ({
                 {!isAsPerBestQuote && (
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
-                                <MapPin size={14} className="text-indigo-500" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                <MapPin size={14} className="text-indigo-500 dark:text-indigo-400" />
                                 Itinerary Stay Locations & Properties ({stayHotels.length})
                             </h3>
                         </div>
 
                         {stayHotels.length === 0 ? (
-                            <div className="p-8 text-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                                <Building2 className="mx-auto text-slate-300 dark:text-slate-700 mb-3" size={36} />
-                                <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No Stay Locations added yet</p>
-                                <p className="text-xs text-slate-400 mt-1">Add city stops to assign specific hotels for each luxury tier</p>
+                            <div className="p-8 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17]">
+                                <Building2 className="mx-auto text-slate-400 dark:text-slate-600 mb-3" size={36} />
+                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Stay Locations added yet</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Add city stops to assign specific hotels for each luxury tier</p>
                                 <button
                                     type="button"
                                     onClick={addCityStop}
-                                    className="mt-4 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all inline-flex items-center gap-2 shadow-md shadow-indigo-500/20"
+                                    className="mt-4 px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-all inline-flex items-center gap-2 shadow-lg shadow-indigo-500/20 cursor-pointer active:scale-[0.98]"
                                 >
                                     <Plus size={14} /> Add Stay Location
                                 </button>
@@ -307,31 +304,32 @@ const HotelDetailsSection = ({
                                 return (
                                     <div
                                         key={stopIdx}
-                                        className="p-6 md:p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-6 shadow-sm relative group"
+                                        className="p-6 md:p-7 rounded-3xl bg-slate-50/90 dark:bg-[#050A17] border border-slate-200/90 dark:border-slate-800/90 space-y-6 shadow-inner relative group"
                                     >
                                         {/* STOP HEADER */}
-                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-700/60 pb-4">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                             <div className="flex items-center gap-3 flex-1">
-                                                <div className="size-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-md shadow-indigo-500/20">
+                                                <div className="size-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black text-xs shadow-md shadow-indigo-500/20">
                                                     {stopIdx + 1}
                                                 </div>
                                                 <div className="flex-1 max-w-md">
-                                                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                                                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                                                         STAY LOCATION
                                                     </label>
                                                     <div className="relative">
                                                         <select
                                                             value={stop.location || ""}
                                                             onChange={(e) => handleStayHotelChange(stopIdx, "location", e.target.value)}
-                                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
+                                                            className="w-full px-4 py-2.5 pr-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#091126] text-sm font-bold text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none cursor-pointer appearance-none"
                                                         >
-                                                            <option value="">Choose a Destination City...</option>
+                                                            <option value="" className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">Choose a Destination City...</option>
                                                             {cityOptions.map((c, i) => (
-                                                                <option key={i} value={c}>
+                                                                <option key={i} value={c} className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">
                                                                     {c}
                                                                 </option>
                                                             ))}
                                                         </select>
+                                                        <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -339,7 +337,7 @@ const HotelDetailsSection = ({
                                             <button
                                                 type="button"
                                                 onClick={() => removeCityStop(stopIdx)}
-                                                className="p-2.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all self-end md:self-center"
+                                                className="p-2.5 rounded-xl bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-500 hover:text-white transition-all self-end md:self-center cursor-pointer border border-red-500/20"
                                                 title="Remove Stop"
                                             >
                                                 <Trash2 size={16} />
@@ -357,48 +355,51 @@ const HotelDetailsSection = ({
                                                 return (
                                                     <div
                                                         key={tierObj.key}
-                                                        className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3 flex flex-col justify-between"
+                                                        className="p-4 rounded-2xl bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800/90 space-y-3 flex flex-col justify-between"
                                                     >
                                                         <div>
                                                             <div className="flex items-center justify-between mb-2">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                                                                     {tierObj.label}
                                                                 </span>
                                                             </div>
 
                                                             {/* PROPERTY DROPDOWN OR PICK CITY INPUT */}
                                                             {!hasHotels ? (
-                                                                <div className="flex items-center justify-between w-full px-3.5 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-slate-400 text-xs font-bold select-none cursor-not-allowed">
+                                                                <div className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] text-slate-400 dark:text-slate-500 text-xs font-semibold select-none">
                                                                     <span>Pick City</span>
-                                                                    <Lock size={13} className="text-slate-400" />
+                                                                    <Lock size={13} className="text-slate-400 dark:text-slate-500" />
                                                                 </div>
                                                             ) : (
-                                                                <select
-                                                                    value={currentHotelId || ""}
-                                                                    onChange={(e) => handleStayHotelChange(stopIdx, tierObj.key, e.target.value)}
-                                                                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
-                                                                >
-                                                                    <option value="">Select Property</option>
-                                                                    {tierHotels.map((h) => (
-                                                                        <option key={h._id} value={h._id}>
-                                                                            {h.name} ({h.star_rating || 4}★)
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
+                                                                <div className="relative">
+                                                                    <select
+                                                                        value={currentHotelId || ""}
+                                                                        onChange={(e) => handleStayHotelChange(stopIdx, tierObj.key, e.target.value)}
+                                                                        className="w-full px-3 py-2 pr-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] text-xs font-semibold text-slate-900 dark:text-white focus:border-indigo-500 outline-none cursor-pointer appearance-none"
+                                                                    >
+                                                                        <option value="" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Select Property</option>
+                                                                        {tierHotels.map((h) => (
+                                                                            <option key={h._id} value={h._id} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">
+                                                                                {h.name} ({h.star_rating || 4}★)
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+                                                                </div>
                                                             )}
                                                         </div>
 
                                                         {/* SELECTED PROPERTY PREVIEW CARD */}
                                                         {selectedHotel ? (
-                                                            <div className="mt-2 p-2.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 flex items-center gap-2.5">
+                                                            <div className="mt-2 p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-500/30 flex items-center gap-2.5">
                                                                 {selectedHotel.thumbnail ? (
                                                                     <img
                                                                         src={selectedHotel.thumbnail}
                                                                         alt={selectedHotel.name}
-                                                                        className="size-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                                                                        className="size-10 rounded-lg object-cover border border-slate-200 dark:border-slate-800 shrink-0"
                                                                     />
                                                                 ) : (
-                                                                    <div className="size-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                                                    <div className="size-10 rounded-lg bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0">
                                                                         <Building2 size={16} />
                                                                     </div>
                                                                 )}
@@ -406,15 +407,15 @@ const HotelDetailsSection = ({
                                                                     <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate">
                                                                         {selectedHotel.name}
                                                                     </p>
-                                                                    <p className="text-[9px] text-slate-400 flex items-center gap-1 font-semibold">
+                                                                    <p className="text-[9px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-semibold">
                                                                         <Star size={10} className="text-amber-400 fill-amber-400" />
                                                                         {selectedHotel.star_rating || 4} Stars • {selectedHotel.city_name || stop.location}
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                         ) : (
-                                                            <div className="p-2.5 text-center rounded-xl bg-slate-50/50 dark:bg-slate-800/20 border border-dashed border-slate-200 dark:border-slate-800">
-                                                                <span className="text-[10px] font-medium text-slate-400">
+                                                            <div className="p-2.5 text-center rounded-xl bg-slate-50 dark:bg-[#050A17] border border-dashed border-slate-200 dark:border-slate-800">
+                                                                <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                                                                     {!isCityChosen
                                                                         ? "Choose city first"
                                                                         : !hasHotels
@@ -436,19 +437,19 @@ const HotelDetailsSection = ({
                         <button
                             type="button"
                             onClick={addCityStop}
-                            className="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-500 rounded-3xl text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20"
+                            className="w-full py-3.5 border border-dashed border-indigo-500/40 hover:border-indigo-500 rounded-2xl text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 hover:bg-indigo-500/5 cursor-pointer active:scale-[0.99]"
                         >
-                            <Plus size={16} /> ADD ANOTHER CITY STOP
+                            <Plus size={16} /> Add Another City Stop
                         </button>
                     </div>
                 )}
 
                 {/* HELPER BANNER */}
-                <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 flex items-start gap-4 border border-slate-100 dark:border-slate-800">
-                    <div className="bg-white dark:bg-slate-700 p-2.5 rounded-xl shadow-sm shrink-0">
-                        <Heart size={16} className="text-pink-500" />
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-[#050A17] flex items-start gap-3.5 border border-slate-200 dark:border-slate-800">
+                    <div className="bg-indigo-500/10 border border-indigo-500/20 p-2 rounded-xl shrink-0">
+                        <Heart size={16} className="text-pink-500 dark:text-pink-400" />
                     </div>
-                    <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
                         By unchecking "AS PER BEST QUOTE", you can assign specific hotels for each stay location so couples see hand-picked romantic accommodations matching their selected package category.
                     </p>
                 </div>

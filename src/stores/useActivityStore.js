@@ -40,12 +40,14 @@ export const useActivityStore = create((set, get) => ({
   },
 
   // FETCH ALL ACTIVITIES (Admin with filters)
-  fetchActivities: async (page = 1) => {
+  fetchActivities: async (page = 1, customLimit = null, customSort = null) => {
     set({ isLoading: true });
     try {
       const { search, destination_type, selected_destination, activity_type, status } = get().filters;
-      const params = new URLSearchParams({ page: String(page), limit: "20" });
+      const currentLimit = customLimit || get().pagination?.limit || 10;
+      const params = new URLSearchParams({ page: String(page), limit: String(currentLimit) });
 
+      if (customSort) params.append("sortOrder", customSort);
       if (search) params.append("search", search);
       if (destination_type) params.append("destination_type", destination_type);
       if (selected_destination) params.append("selected_destination", selected_destination);
@@ -56,7 +58,7 @@ export const useActivityStore = create((set, get) => ({
       if (res.data?.success) {
         set({
           activities: res.data.data || [],
-          pagination: res.data.pagination || { total: 0, page: 1, limit: 20, totalPages: 1 },
+          pagination: res.data.pagination || { total: 0, page: 1, limit: currentLimit, totalPages: 1 },
           isLoading: false,
         });
       }

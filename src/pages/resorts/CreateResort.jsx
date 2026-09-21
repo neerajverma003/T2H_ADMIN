@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { apiClient } from "../../stores/authStores";
 import { ENV } from "../../constants/api";
 import { convertImageFileToWebP } from "../../utils/imageConverter";
 import { toast } from "react-toastify";
 import {
-    Building,
+    Building2,
     MapPin,
     Globe,
     Phone,
@@ -18,16 +18,32 @@ import {
     X,
     Loader2,
     Eye,
+    Pencil,
     Tag,
-    Star,
     CheckCircle2,
-    Info
+    Info,
+    ArrowLeft,
+    UploadCloud,
+    Compass,
+    Navigation,
+    Percent,
+    SlidersHorizontal,
+    Maximize2,
+    ChevronDown,
+    Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const HoneymoonResortForm = ({ editId }) => {
+const cardStyle = "bg-white dark:bg-[#091126]/95 rounded-3xl p-6 md:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6 transition-all";
+const inputStyle = "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/90 dark:bg-[#050A17] p-3.5 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#050A17] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal shadow-inner hover:border-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed";
+const selectStyle = "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/90 dark:bg-[#050A17] p-3.5 pr-10 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#050A17] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none transition-all appearance-none cursor-pointer shadow-inner hover:border-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed";
+const labelStyle = "flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2 ml-0.5";
+
+const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
     const location = useLocation();
-    const isViewMode = location.pathname.includes('/view/');
+    const { id: paramId } = useParams();
+    const id = editId || paramId;
+    const isViewMode = propIsViewMode || location.pathname.includes('/view/');
     const [selectedImage, setSelectedImage] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
@@ -39,6 +55,7 @@ const HoneymoonResortForm = ({ editId }) => {
         city: "",
         state: "",
         country: "",
+        address: "",
         duration_days: "",
         average_rating: "",
         review_count: "",
@@ -58,13 +75,92 @@ const HoneymoonResortForm = ({ editId }) => {
     });
 
     const [loading, setLoading] = useState(false);
-    const [pageLoading, setPageLoading] = useState(!!editId);
+    const [pageLoading, setPageLoading] = useState(Boolean(editId || paramId));
     const navigate = useNavigate();
-    const id = editId;
 
     const [existingImages, setExistingImages] = useState([]);
     const [removedImageIndexes, setRemovedImageIndexes] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
+
+    const [destinations, setDestinations] = useState({ domestic: [], international: [] });
+    const [destinationsLoading, setDestinationsLoading] = useState(false);
+    const [geographicZone, setGeographicZone] = useState("domestic");
+    const [destDropdownOpen, setDestDropdownOpen] = useState(false);
+    const [destSearchQuery, setDestSearchQuery] = useState("");
+    const destDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (destDropdownRef.current && !destDropdownRef.current.contains(event.target)) {
+                setDestDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelectDestination = async (dest) => {
+        const destName = dest.destination_name;
+        const isDomestic = geographicZone === "domestic";
+        const defaultCountry = isDomestic ? "India" : destName;
+        const defaultState = destName;
+        let defaultCity = destName;
+
+        if (dest._id) {
+            try {
+                const res = await apiClient.get(`/admin/state/${dest._id}`);
+                const citiesData = res.data?.citiesData || [];
+                if (citiesData.length > 0 && citiesData[0]?.city_name) {
+                    defaultCity = citiesData[0].city_name;
+                }
+            } catch (e) {
+                console.error("Error fetching cities for destination:", e);
+            }
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            destination: destName,
+            country: defaultCountry,
+            state: defaultState,
+            city: defaultCity,
+        }));
+
+        setDestDropdownOpen(false);
+        setDestSearchQuery("");
+        toast.info(`Auto-filled details for ${destName}`);
+    };
+
+    const currentZoneDestinations = (geographicZone === "domestic" ? destinations.domestic : destinations.international) || [];
+    const filteredZoneDestinations = currentZoneDestinations.filter((d) =>
+        d.destination_name?.toLowerCase().includes(destSearchQuery.toLowerCase().trim())
+    );
+
+    useEffect(() => {
+        const fetchDestinations = async () => {
+            try {
+                setDestinationsLoading(true);
+                const [domRes, intRes] = await Promise.all([
+                    apiClient.get("/admin/destination/domestic"),
+                    apiClient.get("/admin/destination/international")
+                ]);
+                setDestinations({
+                    domestic: domRes.data?.places || [],
+                    international: intRes.data?.places || []
+                });
+            } catch (err) {
+                console.error("Error fetching destinations for resort:", err);
+            } finally {
+                setDestinationsLoading(false);
+            }
+        };
+        fetchDestinations();
+    }, []);
+
+    const allDestinationNames = [
+        ...(destinations.domestic || []).map((d) => d.destination_name),
+        ...(destinations.international || []).map((d) => d.destination_name),
+    ];
 
     useEffect(() => {
         if (id) fetchResortData();
@@ -73,16 +169,28 @@ const HoneymoonResortForm = ({ editId }) => {
     const fetchResortData = async () => {
         try {
             const res = await apiClient.get(`/admin/resort/get/${id}`);
-            const resort = res.data.data || res.data;
+            const resort = res.data?.data || res.data?.resort || res.data?.itinerary || res.data;
 
             setFormData({
                 ...resort,
                 price_per_night: resort.price_per_night ?? "",
                 duration_days: resort.duration_days ?? "",
                 discount: resort.discount ?? "",
+                address: resort.address ?? "",
+                destination: resort.destination ?? "",
+                city: resort.city ?? "",
+                state: resort.state ?? "",
+                country: resort.country ?? "",
                 images: null,
                 is_active: resort.is_active !== false,
+                is_featured: !!resort.is_featured,
             });
+
+            if (resort.country && resort.country.toLowerCase() !== "india") {
+                setGeographicZone("international");
+            } else {
+                setGeographicZone("domestic");
+            }
 
             if (resort.images && Array.isArray(resort.images)) {
                 setExistingImages(resort.images);
@@ -100,12 +208,11 @@ const HoneymoonResortForm = ({ editId }) => {
         const { name, value, type, checked, files } = e.target;
         if (type === "file") {
             setFormData((prev) => ({ ...prev, images: files }));
-            const urls = Array.from(files).map(file => URL.createObjectURL(file));
+            const urls = Array.from(files).map((file) => URL.createObjectURL(file));
             setPreviewUrls(urls);
         } else if (type === "checkbox") {
             setFormData((prev) => ({ ...prev, [name]: checked }));
         } else if (type === "number") {
-            // Strip leading zeros unless it's empty string
             const cleanedVal = value === "" ? "" : String(Number(value));
             setFormData((prev) => ({ ...prev, [name]: cleanedVal === "NaN" ? "" : cleanedVal }));
         } else {
@@ -115,7 +222,7 @@ const HoneymoonResortForm = ({ editId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.title || !formData.title.trim()) {
             toast.error("Please enter a Resort Title");
             return;
@@ -135,7 +242,7 @@ const HoneymoonResortForm = ({ editId }) => {
                     const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
                         fileName: uploadImage.name,
                         fileType: uploadImage.type,
-                        folder: resortFolder
+                        folder: resortFolder,
                     });
                     const { uploadUrl, key } = presignedRes.data;
                     await fetch(uploadUrl, { method: "PUT", body: uploadImage, headers: { "Content-Type": uploadImage.type } });
@@ -143,7 +250,6 @@ const HoneymoonResortForm = ({ editId }) => {
                 }
             }
 
-            // Clean payload to prevent sending DB metadata or empty image overrides
             const { _id, createdAt, updatedAt, __v, images: unusedImages, ...cleanData } = formData;
 
             const payload = {
@@ -153,7 +259,7 @@ const HoneymoonResortForm = ({ editId }) => {
                 duration_days: cleanData.duration_days !== "" ? Number(cleanData.duration_days) : 1,
                 discount: cleanData.discount !== "" ? Number(cleanData.discount) : 0,
                 images: imageUrls.length > 0 ? imageUrls : undefined,
-                removedImageIndexes: removedImageIndexes.length > 0 ? removedImageIndexes : undefined
+                removedImageIndexes: removedImageIndexes.length > 0 ? removedImageIndexes : undefined,
             };
 
             if (id) {
@@ -175,232 +281,731 @@ const HoneymoonResortForm = ({ editId }) => {
         }
     };
 
-    const styleProps = {
-        inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500 disabled:opacity-100 disabled:text-slate-950 dark:disabled:text-white disabled:cursor-default",
-        labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
-        cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
-    };
-
     if (pageLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-40 gap-8">
-                <Loader2 className="animate-spin text-indigo-700" size={64} strokeWidth={1.5} />
-                <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Synchronizing Resort Data...</p>
+            <div className="flex flex-col items-center justify-center py-40 gap-6">
+                <div className="size-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.25)]">
+                    <Loader2 className="animate-spin text-indigo-400" size={36} strokeWidth={2} />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Loading Resort Details...</p>
             </div>
         );
     }
 
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-6 pb-20 relative">
-            {/* HEADER */}
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans">
+            {/* TOP HEADER CARD */}
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-                            <Building className="text-indigo-600" size={28} /> {isViewMode ? "VIEW RESORT" : id ? "EDIT RESORT" : "NEW RESORT"}
+                        <button
+                            type="button"
+                            onClick={() => navigate("/resorts/list")}
+                            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 uppercase tracking-wider transition-colors mb-1.5 group cursor-pointer"
+                        >
+                            <ArrowLeft size={13} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Resorts
+                        </button>
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                                <Building2 size={22} />
+                            </div>
+                            <span>
+                                {isViewMode ? (
+                                    <>View <span className="text-blue-500">Resort</span></>
+                                ) : id ? (
+                                    <>Edit <span className="text-blue-500">Resort</span></>
+                                ) : (
+                                    <>New <span className="text-blue-500">Resort</span></>
+                                )}
+                            </span>
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 font-bold mt-1 text-sm italic">Defining luxury standards for romantic getaways</p>
+                        <p className="text-slate-500 dark:text-slate-400 font-semibold mt-1 text-xs sm:text-sm">
+                            Define luxury standards, suite rates, and connectivity for romantic getaways.
+                        </p>
                     </div>
-                    <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800 p-2 rounded-[1.5rem]">
-                        <div className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest ${formData.is_active ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'bg-slate-300 text-slate-600'}`}>
-                            {formData.is_active ? 'Live on Portal' : 'Draft / Offline'}
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* View mode Edit button */}
+                        {isViewMode && (
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/resorts/edit/${id}`)}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-lg shadow-blue-600/30 uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                            >
+                                <Pencil size={14} /> Edit This Resort
+                            </button>
+                        )}
+
+                        {/* Live / Offline Status Badge */}
+                        <div className="bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl px-4 py-2.5 flex items-center gap-2.5 shadow-inner">
+                            <span className={`size-2.5 rounded-full ${formData.is_active ? "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" : "bg-slate-500"}`} />
+                            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                                {formData.is_active ? "Live on Portal" : "Draft / Offline"}
+                            </span>
                         </div>
+
+                        {/* Featured Badge */}
                         {formData.is_featured && (
-                            <div className="px-6 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-amber-500/30">
-                                <Sparkles size={16} /> Featured Premium
+                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl px-4 py-2.5 flex items-center gap-2 text-amber-400 shadow-inner">
+                                <Sparkles size={14} />
+                                <span className="text-xs font-bold uppercase tracking-wider">Featured</span>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-                {/* CORE INFO */}
-                <div className={styleProps.cardStyle}>
-                    <div className="flex items-center justify-between mb-10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><Info size={20} /></div>
-                            <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Resort Specifications</h2>
+            <form onSubmit={handleSubmit} className="space-y-8">
+                {/* 1. RESORT SPECIFICATIONS */}
+                <div className={cardStyle}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                            <Building2 size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Resort Specifications
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                Core title, romantic description, and nightly room tariffs
+                            </p>
                         </div>
                     </div>
-                    <div className="space-y-10">
-                        <div className="w-full">
-                            <label className={styleProps.labelStyle}>Resort Title</label>
-                            <input disabled={isViewMode} name="title" value={formData.title} onChange={handleChange} className={styleProps.inputStyle} placeholder="e.g. Soneva Jani Luxury Villas" />
+
+                    <div className="space-y-6">
+                        {/* Resort Title */}
+                        <div>
+                            <label className={labelStyle}>
+                                <Tag size={13} className="text-indigo-400" /> Resort Title *
+                            </label>
+                            <input
+                                disabled={isViewMode}
+                                name="title"
+                                value={formData.title}
+                                onChange={handleChange}
+                                className={inputStyle}
+                                placeholder="e.g. Soneva Jani Luxury Overwater Villas"
+                                required
+                            />
                         </div>
-                        <div className="w-full">
-                            <label className={styleProps.labelStyle}>Narrative Description</label>
-                            <textarea disabled={isViewMode} name="description" value={formData.description} onChange={handleChange} className={`${styleProps.inputStyle} h-40 resize-none italic`} placeholder="Describe the romantic essence of this resort..." />
+
+                        {/* Narrative Description */}
+                        <div>
+                            <label className={labelStyle}>
+                                <Info size={13} className="text-indigo-400" /> Narrative Description
+                            </label>
+                            <textarea
+                                disabled={isViewMode}
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                rows={4}
+                                className={`${inputStyle} resize-y min-h-[110px] leading-relaxed`}
+                                placeholder="Describe the romantic essence, lagoon views, signature amenities, and serene atmosphere..."
+                            />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        {/* Financials & Stay Duration */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            {/* Price per night */}
                             <div>
-                                <label className={styleProps.labelStyle}>Price Per Night (₹)</label>
-                                <div className="relative group">
-                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-600 group-focus-within:text-indigo-700 transition-colors">₹</div>
-                                    <input disabled={isViewMode} type="number" name="price_per_night" value={formData.price_per_night} onChange={handleChange} placeholder="e.g. 25000" min="0" className={`${styleProps.inputStyle} pl-12`} />
+                                <label className={labelStyle}>
+                                    Price Per Night (₹)
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pointer-events-none">
+                                        ₹
+                                    </span>
+                                    <input
+                                        disabled={isViewMode}
+                                        type="number"
+                                        name="price_per_night"
+                                        value={formData.price_per_night}
+                                        onChange={handleChange}
+                                        placeholder="e.g. 25000"
+                                        min="0"
+                                        className={`${inputStyle} pl-9`}
+                                    />
                                 </div>
                             </div>
+
+                            {/* Duration Preference */}
                             <div>
-                                <label className={styleProps.labelStyle}>Duration Preference</label>
-                                <div className="relative group">
-                                    <Calendar size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-indigo-700 transition-colors" />
-                                    <input disabled={isViewMode} type="number" name="duration_days" value={formData.duration_days} onChange={handleChange} placeholder="e.g. 7" min="1" className={`${styleProps.inputStyle} pl-14`} />
-                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Days</div>
+                                <label className={labelStyle}>
+                                    Duration Preference (Days)
+                                </label>
+                                <div className="relative">
+                                    <Calendar size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <input
+                                        disabled={isViewMode}
+                                        type="number"
+                                        name="duration_days"
+                                        value={formData.duration_days}
+                                        onChange={handleChange}
+                                        placeholder="e.g. 5"
+                                        min="1"
+                                        className={`${inputStyle} pl-10 pr-14`}
+                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                        Days
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* LOCATION & CONTACT */}
-                <div className={styleProps.cardStyle}>
-                    <div className="flex items-center gap-4 mb-10">
-                        <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><MapPin size={20} /></div>
-                        <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Location & Connectivity</h2>
-                    </div>
-                    <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label className={styleProps.labelStyle}>City / Region</label>
-                                <input disabled={isViewMode} name="city" value={formData.city} onChange={handleChange} className={styleProps.inputStyle} />
-                            </div>
-                            <div>
-                                <label className={styleProps.labelStyle}>Destination</label>
-                                <input disabled={isViewMode} name="destination" value={formData.destination} onChange={handleChange} className={styleProps.inputStyle} />
-                            </div>
-                            <div>
-                                <label className={styleProps.labelStyle}>State / Province</label>
-                                <input disabled={isViewMode} name="state" value={formData.state} onChange={handleChange} className={styleProps.inputStyle} />
-                            </div>
-                            <div>
-                                <label className={styleProps.labelStyle}>Country</label>
-                                <input disabled={isViewMode} name="country" value={formData.country} onChange={handleChange} className={styleProps.inputStyle} />
-                            </div>
+                {/* 2. LOCATION & ADDRESS */}
+                <div className={`${cardStyle} relative z-30 overflow-visible`}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                            <MapPin size={20} />
                         </div>
-                        <div className="pt-8 border-t border-slate-100 dark:border-slate-800 space-y-6">
-                            <div>
-                                <label className={styleProps.labelStyle}><Phone size={16} className="text-indigo-600" /> Primary Contact Line</label>
-                                <input disabled={isViewMode} type="tel" name="contact_phone" value={formData.contact_phone} onChange={handleChange} className={styleProps.inputStyle} placeholder="+91..." />
-                            </div>
-                            <div>
-                                <label className={styleProps.labelStyle}><Mail size={16} className="text-indigo-600" /> Official Registry Email</label>
-                                <input disabled={isViewMode} type="email" name="contact_email" value={formData.contact_email} onChange={handleChange} className={styleProps.inputStyle} placeholder="hello@resort.com" />
-                            </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Location & Destination Mapping
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                Regional territory, destination anchor, and specific property address
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                {/* MEDIA HUB */}
-                <div className={styleProps.cardStyle}>
-                    <div className="flex items-center gap-4 mb-10">
-                        <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><ImageIcon size={20} /></div>
-                        <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Premium Media Hub</h2>
-                    </div>
-
-                    <div className="space-y-12">
-                        {!isViewMode && <label className="group relative flex flex-col items-center justify-center w-full aspect-[21/7] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all hover:border-indigo-600">
-                            <div className="size-12 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-3">
-                                <Plus size={24} className="text-indigo-600" />
-                            </div>
-                            <div className="text-center">
-                                <p className="text-sm font-black text-slate-900 dark:text-white mb-1">Click to Upload Images</p>
-                                <p className="text-xs text-slate-400">JPG, PNG, WEBP supported</p>
-                            </div>
-                            <input disabled={isViewMode} type="file" multiple accept="image/*" onChange={handleChange} className="hidden" />
-                        </label>}
-
-                        {/* PREVIEWS */}
-                        {(previewUrls.length > 0 || existingImages.length > 0) && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 bg-slate-50 dark:bg-slate-800/30 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-inner">
-                                {existingImages.map((src, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => { if (isViewMode) setSelectedImage(src.startsWith('http') ? src : `${ENV.API_BASE_URL}${src}`); }}
-                                        className={`relative aspect-square rounded-[2rem] overflow-hidden group border-4 ${removedImageIndexes.includes(idx) ? 'border-red-600 opacity-50' : 'border-transparent shadow-xl'} ${isViewMode ? 'cursor-pointer hover:shadow-2xl hover:shadow-indigo-500/30' : ''}`}
+                    <div className="space-y-6 overflow-visible">
+                        {/* TOP CONTROLS: GEOGRAPHIC ZONE + AUTO-FILL DROPDOWN */}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-slate-100 dark:border-slate-800/80 relative z-30">
+                            {/* Left: GEOGRAPHIC ZONE */}
+                            <div>
+                                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+                                    <Globe size={13} className="text-indigo-400" /> Geographic Zone
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        disabled={isViewMode}
+                                        onClick={() => {
+                                            setGeographicZone("domestic");
+                                            setDestSearchQuery("");
+                                        }}
+                                        className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                                            geographicZone === "domestic"
+                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-1 ring-blue-400/50"
+                                                : "bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
+                                        }`}
                                     >
-                                        <img src={src.startsWith('http') ? src : `${ENV.API_BASE_URL}${src}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="" />
-                                        {!isViewMode && <button type="button" onClick={() => setRemovedImageIndexes(p => p.includes(idx) ? p.filter(i => i !== idx) : [...p, idx])} className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[2px]">
-                                            <X size={32} className="text-white" />
-                                        </button>}
-                                        <div className="absolute top-4 left-4 px-4 py-1.5 bg-slate-950/80 backdrop-blur-md rounded-xl shadow-2xl">
-                                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Active Hub Asset</p>
+                                        Domestic
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={isViewMode}
+                                        onClick={() => {
+                                            setGeographicZone("international");
+                                            setDestSearchQuery("");
+                                        }}
+                                        className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                                            geographicZone === "international"
+                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-1 ring-blue-400/50"
+                                                : "bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700"
+                                        }`}
+                                    >
+                                        International
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Right: AUTO-FILL FROM DESTINATION */}
+                            <div className="relative md:w-80 lg:w-96 z-40" ref={destDropdownRef}>
+                                <label className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2.5">
+                                    <Sparkles size={13} className="text-blue-500" /> Auto-Fill From Destination ({geographicZone.toUpperCase()})
+                                </label>
+
+                                {/* Dropdown Trigger Button */}
+                                <button
+                                    type="button"
+                                    disabled={isViewMode || destinationsLoading}
+                                    onClick={() => setDestDropdownOpen((p) => !p)}
+                                    className="w-full flex items-center justify-between bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F] border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 text-slate-900 dark:text-white rounded-2xl px-4 py-3 text-sm font-semibold transition-all shadow-inner cursor-pointer"
+                                >
+                                    <span className="flex items-center gap-2 truncate">
+                                        <MapPin size={15} className="text-blue-500 shrink-0" />
+                                        <span className={formData.destination ? "text-slate-900 dark:text-white font-bold" : "text-slate-400 dark:text-slate-500 font-normal"}>
+                                            {destinationsLoading
+                                                ? "Loading destinations..."
+                                                : formData.destination
+                                                ? formData.destination
+                                                : `Select ${geographicZone === "domestic" ? "Domestic" : "International"} Destination...`}
+                                        </span>
+                                    </span>
+                                    <ChevronDown
+                                        size={16}
+                                        className={`text-slate-400 transition-transform duration-200 ${
+                                            destDropdownOpen ? "rotate-180" : ""
+                                        }`}
+                                    />
+                                </button>
+
+                                {/* Popup Searchable Dropdown List */}
+                                {destDropdownOpen && (
+                                    <div className="absolute right-0 top-full mt-2 w-full min-w-[300px] sm:min-w-[340px] bg-white dark:bg-[#070D1F] border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 shadow-2xl dark:shadow-[0_25px_60px_rgba(0,0,0,0.95)] z-[100] space-y-3 backdrop-blur-2xl ring-1 ring-slate-900/5 dark:ring-white/10">
+                                        {/* Search Input */}
+                                        <div className="relative">
+                                            <Search
+                                                size={14}
+                                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder={`Search ${geographicZone} destination...`}
+                                                value={destSearchQuery}
+                                                onChange={(e) => setDestSearchQuery(e.target.value)}
+                                                className="w-full bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500"
+                                                autoFocus
+                                            />
+                                        </div>
+
+                                        {/* Group Heading with Count */}
+                                        <div className="flex items-center justify-between px-2 pt-1 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                                            <span className="flex items-center gap-1.5">
+                                                <Globe size={12} />{" "}
+                                                {geographicZone === "domestic"
+                                                    ? "Domestic Destinations / States"
+                                                    : "International Destinations"}
+                                            </span>
+                                            <span className="bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full text-[9px] font-bold">
+                                                {filteredZoneDestinations.length}
+                                            </span>
+                                        </div>
+
+                                        {/* Destinations List */}
+                                        <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
+                                            {filteredZoneDestinations.length === 0 ? (
+                                                <div className="text-center py-6 text-xs text-slate-400 dark:text-slate-500 font-semibold">
+                                                    No destinations found
+                                                </div>
+                                            ) : (
+                                                filteredZoneDestinations.map((dest) => (
+                                                    <div
+                                                        key={dest._id || dest.destination_name}
+                                                        onClick={() => handleSelectDestination(dest)}
+                                                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors cursor-pointer group"
+                                                    >
+                                                        <div>
+                                                            <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                                {dest.destination_name}
+                                                            </p>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                                                {geographicZone === "domestic"
+                                                                    ? "India"
+                                                                    : dest.destination_name}
+                                                            </p>
+                                                        </div>
+                                                        <span
+                                                            className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${
+                                                                geographicZone === "domestic"
+                                                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                                                                    : "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30"
+                                                            }`}
+                                                        >
+                                                            {geographicZone.toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     </div>
-                                ))}
-                                {previewUrls.map((url, idx) => (
-                                    <div key={idx} className="relative aspect-square rounded-[2rem] overflow-hidden group border-4 border-indigo-700 shadow-2xl shadow-indigo-500/30">
-                                        <img src={url} className="w-full h-full object-cover" alt="" />
-                                        <div className="absolute top-4 left-4 px-4 py-1.5 bg-indigo-700 rounded-xl shadow-2xl">
-                                            <p className="text-[10px] font-black text-white uppercase tracking-widest">New Deployment</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* BOTTOM INPUTS: CITY, STATE, COUNTRY */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                            {/* City / Region */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <MapPin size={13} className="text-indigo-400" /> City / Region
+                                </label>
+                                <input
+                                    disabled={isViewMode}
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    className={inputStyle}
+                                    placeholder="e.g. Munnar"
+                                />
+                            </div>
+
+                            {/* State / Province */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <Compass size={13} className="text-indigo-400" /> State / Province
+                                </label>
+                                <input
+                                    disabled={isViewMode}
+                                    name="state"
+                                    value={formData.state}
+                                    onChange={handleChange}
+                                    className={inputStyle}
+                                    placeholder="e.g. Kerala"
+                                />
+                            </div>
+
+                            {/* Country */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <Globe size={13} className="text-indigo-400" /> Country
+                                </label>
+                                <input
+                                    disabled={isViewMode}
+                                    name="country"
+                                    value={formData.country}
+                                    onChange={handleChange}
+                                    className={inputStyle}
+                                    placeholder="e.g. India"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. DIRECT CONTACTS */}
+                <div className={cardStyle}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                            <Phone size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Direct Communications
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                Official front desk telephone and reservation registry email
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label className={labelStyle}>
+                                <Phone size={13} className="text-indigo-400" /> Primary Contact Line
+                            </label>
+                            <input
+                                disabled={isViewMode}
+                                type="tel"
+                                name="contact_phone"
+                                value={formData.contact_phone}
+                                onChange={handleChange}
+                                className={inputStyle}
+                                placeholder="+91 98765 43210"
+                            />
+                        </div>
+
+                        <div>
+                            <label className={labelStyle}>
+                                <Mail size={13} className="text-indigo-400" /> Official Registry Email
+                            </label>
+                            <input
+                                disabled={isViewMode}
+                                type="email"
+                                name="contact_email"
+                                value={formData.contact_email}
+                                onChange={handleChange}
+                                className={inputStyle}
+                                placeholder="reservations@resort.com"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. PREMIUM MEDIA HUB */}
+                <div className={cardStyle}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                            <ImageIcon size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Visual Showcase & Gallery
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                High resolution photography of beachfront villas, infinity pools, and dining experiences
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        {!isViewMode && (
+                            <label className="group relative flex flex-col items-center justify-center w-full py-10 px-6 border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-400/80 bg-slate-50/80 dark:bg-[#050A17]/60 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20 rounded-3xl cursor-pointer transition-all shadow-inner">
+                                <div className="size-14 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 border border-indigo-500/30 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-3">
+                                    <UploadCloud size={26} className="text-indigo-400" />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white mb-1">
+                                        Click to Upload Resort Photos
+                                    </p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        JPG, PNG, WebP supported • Automatic WebP optimization
+                                    </p>
+                                </div>
+                                <input
+                                    disabled={isViewMode}
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handleChange}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
+
+                        {/* Previews Grid */}
+                        {(previewUrls.length > 0 || existingImages.length > 0) && (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                    <span>Uploaded Media ({existingImages.length - removedImageIndexes.length + previewUrls.length})</span>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-slate-50 dark:bg-[#050A17]/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-inner">
+                                    {/* Existing Images */}
+                                    {existingImages.map((src, idx) => {
+                                        const fullUrl = src.startsWith("http") ? src : `${ENV.API_BASE_URL}${src}`;
+                                        const isMarkedForRemoval = removedImageIndexes.includes(idx);
+
+                                        return (
+                                            <div
+                                                key={`exist-${idx}`}
+                                                className={`relative aspect-square rounded-2xl overflow-hidden group border-2 ${
+                                                    isMarkedForRemoval ? "border-red-500/60 opacity-40" : "border-slate-200 dark:border-slate-800/90 hover:border-indigo-500/60"
+                                                } transition-all shadow-lg`}
+                                            >
+                                                <img src={fullUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Resort Asset" />
+
+                                                {/* Overlay Actions */}
+                                                <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all backdrop-blur-[2px]">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedImage(fullUrl)}
+                                                        className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors cursor-pointer"
+                                                        title="View full image"
+                                                    >
+                                                        <Maximize2 size={16} />
+                                                    </button>
+                                                    {!isViewMode && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRemovedImageIndexes((p) => (p.includes(idx) ? p.filter((i) => i !== idx) : [...p, idx]))}
+                                                            className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                                                                isMarkedForRemoval ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "bg-red-600/80 hover:bg-red-600 text-white"
+                                                            }`}
+                                                            title={isMarkedForRemoval ? "Restore image" : "Remove image"}
+                                                        >
+                                                            {isMarkedForRemoval ? <Plus size={16} /> : <X size={16} />}
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div className="absolute top-2 left-2 px-2.5 py-0.5 bg-slate-950/80 backdrop-blur-md rounded-lg border border-white/10">
+                                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Saved</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+
+                                    {/* New Upload Previews */}
+                                    {previewUrls.map((url, idx) => (
+                                        <div
+                                            key={`preview-${idx}`}
+                                            className="relative aspect-square rounded-2xl overflow-hidden group border-2 border-indigo-500/60 shadow-lg shadow-indigo-500/20"
+                                        >
+                                            <img src={url} className="w-full h-full object-cover" alt="New Upload" />
+                                            <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[2px]">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedImage(url)}
+                                                    className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors cursor-pointer"
+                                                    title="View full image"
+                                                >
+                                                    <Maximize2 size={16} />
+                                                </button>
+                                            </div>
+                                            <div className="absolute top-2 left-2 px-2.5 py-0.5 bg-indigo-600/90 backdrop-blur-md rounded-lg shadow">
+                                                <span className="text-[9px] font-bold text-white uppercase tracking-wider">New</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* STATUS & ATTRIBUTES */}
-                <div className="space-y-10">
-                    <div className={styleProps.cardStyle}>
-                        <div className="flex items-center gap-4 mb-10">
-                            <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><Eye size={20} /></div>
-                            <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Visibility Settings</h2>
+                {/* 5. VISIBILITY & PORTAL STATUS */}
+                <div className={cardStyle}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                            <SlidersHorizontal size={20} />
                         </div>
-                        <div className="space-y-6">
-                            <div className="w-full">
-                                <label className={styleProps.labelStyle}>Visibility</label>
-                                <select disabled={isViewMode} name="visibility" value={formData.visibility} onChange={handleChange} className={styleProps.inputStyle}>
-                                    <option value="public">Public — Visible to everyone</option>
-                                    <option value="private">Private — Hidden from users</option>
-                                </select>
-                            </div>
-                            <div className="w-full">
-                                <label className={styleProps.labelStyle}>Availability</label>
-                                <select disabled={isViewMode} name="availability_status" value={formData.availability_status} onChange={handleChange} className={styleProps.inputStyle}>
-                                    <option value="Available">Available</option>
-                                    <option value="Booked">Sold Out</option>
-                                </select>
-                            </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Publishing & Portal Status
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                Public accessibility, inventory booking state, and homepage featuring
+                            </p>
                         </div>
                     </div>
 
-                    <div className={styleProps.cardStyle}>
-                        <div className="flex items-center gap-4 mb-10">
-                            <div className="p-3 bg-indigo-700 rounded-2xl text-white shadow-xl shadow-indigo-500/30"><Tag size={20} /></div>
-                            <h2 className="text-lg font-black text-slate-950 dark:text-white uppercase tracking-tight">Active & Featured Settings</h2>
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Visibility */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <Eye size={13} className="text-indigo-400" /> Platform Visibility
+                                </label>
+                                <select
+                                    disabled={isViewMode}
+                                    name="visibility"
+                                    value={formData.visibility}
+                                    onChange={handleChange}
+                                    className={selectStyle}
+                                >
+                                    <option value="public" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Public — Visible to everyone</option>
+                                    <option value="private" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Private — Hidden from guests</option>
+                                </select>
+                            </div>
+
+                            {/* Availability */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <CheckCircle2 size={13} className="text-indigo-400" /> Booking Availability
+                                </label>
+                                <select
+                                    disabled={isViewMode}
+                                    name="availability_status"
+                                    value={formData.availability_status}
+                                    onChange={handleChange}
+                                    className={selectStyle}
+                                >
+                                    <option value="Available" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Available for Booking</option>
+                                    <option value="Booked" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Sold Out / Fully Booked</option>
+                                    <option value="Unavailable" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Unavailable / Maintenance</option>
+                                </select>
+                            </div>
                         </div>
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border-2 border-slate-100 dark:border-slate-800 shadow-inner">
-                                <div className="flex items-center gap-4">
-                                    <div className={`size-12 rounded-xl shadow-lg flex items-center justify-center ${formData.is_active ? 'bg-emerald-600 text-white shadow-emerald-500/40' : 'bg-slate-200 text-slate-400'}`}><CheckCircle2 size={24} /></div>
+
+                        {/* Interactive Toggles */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+                            {/* Active Toggle Card */}
+                            <label
+                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all cursor-pointer ${
+                                    formData.is_active
+                                        ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/40 shadow-inner"
+                                        : "bg-slate-50/80 dark:bg-[#050A17] border-slate-200 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700"
+                                } ${isViewMode ? "pointer-events-none opacity-80" : ""}`}
+                            >
+                                <div className="flex items-center gap-3.5">
+                                    <div
+                                        className={`size-11 rounded-xl flex items-center justify-center transition-all ${
+                                            formData.is_active
+                                                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
+                                                : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                                        }`}
+                                    >
+                                        <CheckCircle2 size={20} />
+                                    </div>
                                     <div>
-                                        <p className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">Active Resort</p>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest italic opacity-60">Enable this resort to be shown to customers</p>
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                                            Active Resort
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                            Enable this resort to be shown to customers
+                                        </p>
                                     </div>
                                 </div>
-                                <input disabled={isViewMode} type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="size-8 accent-emerald-600 cursor-pointer" />
-                            </div>
-                            <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border-2 border-slate-100 dark:border-slate-800 shadow-inner">
-                                <div className="flex items-center gap-4">
-                                    <div className={`size-12 rounded-xl shadow-lg flex items-center justify-center ${formData.is_featured ? 'bg-amber-500 text-white shadow-amber-500/40' : 'bg-slate-200 text-slate-400'}`}><Sparkles size={24} /></div>
+                                <input
+                                    disabled={isViewMode}
+                                    type="checkbox"
+                                    name="is_active"
+                                    checked={formData.is_active}
+                                    onChange={handleChange}
+                                    className="size-5 rounded-md accent-emerald-500 cursor-pointer"
+                                />
+                            </label>
+
+                            {/* Featured Toggle Card */}
+                            <label
+                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all cursor-pointer ${
+                                    formData.is_featured
+                                        ? "bg-amber-50 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/40 shadow-inner"
+                                        : "bg-slate-50/80 dark:bg-[#050A17] border-slate-200 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700"
+                                } ${isViewMode ? "pointer-events-none opacity-80" : ""}`}
+                            >
+                                <div className="flex items-center gap-3.5">
+                                    <div
+                                        className={`size-11 rounded-xl flex items-center justify-center transition-all ${
+                                            formData.is_featured
+                                                ? "bg-amber-500 text-white shadow-lg shadow-amber-500/30"
+                                                : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                                        }`}
+                                    >
+                                        <Sparkles size={20} />
+                                    </div>
                                     <div>
-                                        <p className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">Feature on Homepage</p>
-                                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic opacity-60">Show this resort in the Top / Trending section</p>
+                                        <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                                            Feature on Homepage
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                            Spotlight in Top / Trending Collections
+                                        </p>
                                     </div>
                                 </div>
-                                <input disabled={isViewMode} type="checkbox" name="is_featured" checked={formData.is_featured} onChange={handleChange} className="size-8 accent-amber-500 cursor-pointer" />
-                            </div>
+                                <input
+                                    disabled={isViewMode}
+                                    type="checkbox"
+                                    name="is_featured"
+                                    checked={formData.is_featured}
+                                    onChange={handleChange}
+                                    className="size-5 rounded-md accent-amber-500 cursor-pointer"
+                                />
+                            </label>
                         </div>
                     </div>
                 </div>
 
-                {!isViewMode && <div className="flex justify-end pt-12">
-                    <button type="submit" disabled={loading} className="group relative bg-indigo-700 text-white px-10 py-5 rounded-[1.5rem] font-black text-lg shadow-2xl shadow-indigo-500/50 hover:bg-indigo-800 transition-all flex items-center gap-4 disabled:opacity-50 overflow-hidden transform hover:scale-[1.02] active:scale-95 uppercase tracking-widest">
-                        {loading ? <Loader2 className="animate-spin" size={24} /> : (id ? <ShieldCheck size={24} /> : <Plus size={24} />)}
-                        {loading ? 'Committing...' : (id ? 'PUSH UPDATES' : 'FINALIZE REGISTRY')}
-                    </button>
-                </div>}
+                {/* BOTTOM ACTION BAR */}
+                {!isViewMode && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-800/80">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/resorts/list")}
+                            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+                        >
+                            Cancel & Return
+                        </button>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full sm:w-auto px-9 py-3.5 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:opacity-95 text-white rounded-2xl font-bold text-xs shadow-xl shadow-indigo-600/30 uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="animate-spin" size={16} />
+                                    Saving Resort...
+                                </>
+                            ) : id ? (
+                                <>
+                                    <ShieldCheck size={16} />
+                                    Update Resort
+                                </>
+                            ) : (
+                                <>
+                                    <Plus size={16} strokeWidth={2.5} />
+                                    Create Resort
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
             </form>
 
             {/* LIGHTBOX MODAL */}
@@ -411,21 +1016,21 @@ const HoneymoonResortForm = ({ editId }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setSelectedImage(null)}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4 cursor-zoom-out"
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 cursor-zoom-out"
                     >
                         <motion.img
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             src={selectedImage}
-                            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
-                            alt="Resort Detail"
+                            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-white/10"
+                            alt="Resort View"
                         />
                         <button
                             onClick={() => setSelectedImage(null)}
                             className="absolute top-6 right-6 p-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
                         >
-                            <X size={24} />
+                            <X size={22} />
                         </button>
                     </motion.div>
                 )}

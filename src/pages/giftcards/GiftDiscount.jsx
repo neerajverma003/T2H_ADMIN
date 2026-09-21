@@ -121,32 +121,37 @@ const GiftDiscount = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen text-slate-900 dark:text-slate-100 transition-colors space-y-8">
-      
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100"
+    >
       {/* Top Banner Card */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 dark:bg-[#0d162b] dark:shadow-xl dark:border-[#1b2a47] p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2 flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
-                <Percent size={24} />
-              </div>
-              Gift Card Discount
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 max-w-2xl text-sm font-semibold">
-              Configure tiered percentage discounts for user gift card purchases based on minimum purchase amounts and maximum discount caps.
-            </p>
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+              <Percent size={22} />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+                Gift Card <span className="text-blue-500">Discount</span>
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm max-w-2xl">
+                Configure tiered percentage discounts for user gift card purchases based on minimum purchase amounts and maximum discount caps.
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-[#15233e] border border-slate-200 dark:border-[#233558] p-2 px-4 rounded-2xl">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Discount Status:</span>
+          <div className="flex items-center gap-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 p-2 px-4 rounded-2xl shadow-sm shrink-0">
+            <span className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider">Discount Status:</span>
             <button
               onClick={() => setIsActive(!isActive)}
-              className={`px-3 py-1 rounded-xl text-xs font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                 isActive
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
               {isActive ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
@@ -157,16 +162,16 @@ const GiftDiscount = () => {
       </div>
 
       {/* Main Configuration Card */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 dark:bg-[#0d162b] dark:shadow-xl dark:border-[#1b2a47] p-6 md:p-8">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8">
         
         {/* Section Header with Action Buttons */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800/80 mb-8">
           <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
               <Sparkles size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">User Gift Discount Configuration</h2>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">User Gift Discount Configuration</h2>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                 Set minimum qualifying amounts, percentage rates, and maximum discount caps.
               </p>
@@ -177,22 +182,22 @@ const GiftDiscount = () => {
             <button
               type="button"
               onClick={handleAddTier}
-              className="flex-1 sm:flex-none px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 sm:flex-none px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Plus size={18} />
+              <Plus size={16} />
               ADD DISCOUNT
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 sm:flex-none px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+              className="flex-1 sm:flex-none px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
             >
               {saving ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <Save size={18} />
+                  <Save size={16} />
                   SAVE CONFIG
                 </>
               )}
@@ -202,12 +207,13 @@ const GiftDiscount = () => {
 
         {/* Loading State */}
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-10 h-10 border-4 border-blue-600 dark:border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col justify-center items-center py-20 gap-3">
+            <div className="w-10 h-10 border-4 border-blue-600 dark:border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Discount Tiers...</p>
           </div>
         ) : tiers.length === 0 ? (
-          <div className="bg-slate-50 dark:bg-[#15233e]/50 rounded-2xl border border-dashed border-slate-200 dark:border-[#233558] p-12 text-center">
-            <div className="w-16 h-16 bg-blue-50 dark:bg-[#182745] text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-slate-50 dark:bg-[#050A17]/60 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
+            <div className="w-16 h-16 bg-blue-50 dark:bg-[#091126] text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-200 dark:border-blue-900/40">
               <Percent size={28} />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Discount Tiers Configured</h3>
@@ -216,9 +222,9 @@ const GiftDiscount = () => {
             </p>
             <button
               onClick={handleAddTier}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-all inline-flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
             >
-              <Plus size={18} /> Add First Discount Tier
+              <Plus size={16} /> Add First Discount Tier
             </button>
           </div>
         ) : (
@@ -231,12 +237,12 @@ const GiftDiscount = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-slate-50/80 dark:bg-[#15233e]/70 border border-slate-200/80 dark:border-[#233558] rounded-2xl p-6 relative group hover:border-blue-500/50 transition-all shadow-sm"
+                  className="bg-slate-50/80 dark:bg-[#050A17]/80 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl p-6 relative group hover:border-blue-500/40 transition-all shadow-sm"
                 >
                   {/* Tier Header */}
                   <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200/60 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                      <Tag size={16} className="text-blue-600 dark:text-blue-400" />
+                      <Tag size={16} className="text-blue-500" />
                       <span className="font-extrabold text-xs tracking-wider uppercase text-blue-600 dark:text-blue-400">
                         DISCOUNT TIER {index + 1}
                       </span>
@@ -267,11 +273,11 @@ const GiftDiscount = () => {
                           value={tier.discount_percentage === 0 ? '0' : (tier.discount_percentage ?? '')}
                           onChange={(e) => handleTierChange(index, 'discount_percentage', e.target.value)}
                           placeholder="e.g. 5"
-                          className="w-full px-4 py-3.5 bg-white dark:bg-[#0d162b] border border-slate-200 dark:border-[#233558] rounded-xl text-slate-900 dark:text-white font-bold text-base focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition-all"
+                          className="w-full px-4 py-3.5 bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800/90 rounded-xl text-slate-900 dark:text-white font-bold text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all shadow-inner"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1">E.g., 5 for 5% off</p>
+                      <p className="text-[11px] text-slate-400 mt-1 font-medium">E.g., 5 for 5% off</p>
                     </div>
 
                     {/* Minimum Purchase Amount */}
@@ -287,10 +293,10 @@ const GiftDiscount = () => {
                           value={tier.min_purchase_amount === 0 ? '0' : (tier.min_purchase_amount ?? '')}
                           onChange={(e) => handleTierChange(index, 'min_purchase_amount', e.target.value)}
                           placeholder="e.g. 3000"
-                          className="w-full pl-8 pr-4 py-3.5 bg-white dark:bg-[#0d162b] border border-slate-200 dark:border-[#233558] rounded-xl text-slate-900 dark:text-white font-bold text-base focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition-all"
+                          className="w-full pl-8 pr-4 py-3.5 bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800/90 rounded-xl text-slate-900 dark:text-white font-bold text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all shadow-inner"
                         />
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1">Qualifying purchase threshold</p>
+                      <p className="text-[11px] text-slate-400 mt-1 font-medium">Qualifying purchase threshold</p>
                     </div>
 
                     {/* Maximum Discount Cap */}
@@ -306,10 +312,10 @@ const GiftDiscount = () => {
                           value={tier.max_discount_cap === 0 ? '0' : (tier.max_discount_cap ?? '')}
                           onChange={(e) => handleTierChange(index, 'max_discount_cap', e.target.value)}
                           placeholder="e.g. 5000"
-                          className="w-full pl-8 pr-4 py-3.5 bg-white dark:bg-[#0d162b] border border-slate-200 dark:border-[#233558] rounded-xl text-slate-900 dark:text-white font-bold text-base focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none transition-all"
+                          className="w-full pl-8 pr-4 py-3.5 bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800/90 rounded-xl text-slate-900 dark:text-white font-bold text-base focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all shadow-inner"
                         />
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1">Max deduction allowed</p>
+                      <p className="text-[11px] text-slate-400 mt-1 font-medium">Max deduction allowed</p>
                     </div>
                   </div>
                 </motion.div>
@@ -322,13 +328,13 @@ const GiftDiscount = () => {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
               >
                 {saving ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <Save size={18} />
+                    <Save size={16} />
                     SAVE CONFIGURATION
                   </>
                 )}
@@ -341,10 +347,10 @@ const GiftDiscount = () => {
 
       {/* Categorized Discount Rules Summary Table at Bottom */}
       {tiers.length > 0 && (
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 dark:bg-[#0d162b] dark:shadow-xl dark:border-[#1b2a47] p-6 md:p-8">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8">
           <div className="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800/80 mb-6">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-600/15 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+              <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-600/15 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
                 <Layers size={20} />
               </div>
               <div>
@@ -380,7 +386,7 @@ const GiftDiscount = () => {
                   const userPays = minAmt - sampleCalc;
 
                   return (
-                    <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-[#15233e]/50 transition-colors">
+                    <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-[#050A17]/50 transition-colors">
                       <td className="py-4 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
                         <span className="size-7 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 font-black text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800/80">
                           {idx + 1}
@@ -416,7 +422,7 @@ const GiftDiscount = () => {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 };
 

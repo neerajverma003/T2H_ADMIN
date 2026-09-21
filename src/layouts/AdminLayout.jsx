@@ -11,6 +11,7 @@ const AdminLayout = () => {
     }
     return true
   })
+  const [search, setSearch] = useState("")
   const location = useLocation()
   const mainRef = useRef(null)
 
@@ -38,11 +39,11 @@ const AdminLayout = () => {
   return (
     <div className="flex h-screen bg-[#f0f2f5] dark:bg-slate-950 overflow-hidden font-sans antialiased text-slate-900 dark:text-slate-100 transition-colors duration-500">
 
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} setOpen={setOpen} search={search} setSearch={setSearch} />
 
       <div className={`flex flex-1 flex-col overflow-hidden transition-all duration-500 ease-in-out ${open ? "md:ml-[270px]" : "md:ml-[80px]"}`}>
 
-        <Header open={open} setOpen={setOpen} />
+        <Header open={open} setOpen={setOpen} search={search} setSearch={setSearch} />
 
         <main ref={mainRef} className="flex-1 overflow-y-auto px-2 md:px-4 py-4 md:py-8 custom-scrollbar">
           <div className="w-full">

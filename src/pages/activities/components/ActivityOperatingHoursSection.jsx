@@ -15,23 +15,31 @@ export const ActivityOperatingHoursSection = ({
 
   return (
     <div className={cardStyle}>
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <Clock className="text-blue-600 dark:text-blue-400" size={22} />
-          Operating Hours & Schedules
-        </h2>
-        <div className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-[11px] font-black uppercase tracking-widest">
+      <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="size-11 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/25 shrink-0">
+            <Clock size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Operating Hours & Schedules
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+              Operational base, active days of the week, and daily opening slots
+            </p>
+          </div>
+        </div>
+        <div className="px-3.5 py-1.5 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl text-[10px] font-black uppercase tracking-wider">
           {activeDays.length} Days Active
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 pt-2">
         {/* Location / Station Name */}
         <div>
           <label htmlFor="location_name" className={labelStyle}>
-            <span className="flex items-center gap-1.5">
-              <MapPin size={15} className="text-blue-600 dark:text-blue-400" /> Operational Hub / Area Name
-            </span>
+            <MapPin size={14} className="text-cyan-400" />
+            <span>Operational Hub / Area Base</span>
           </label>
           <input
             type="text"
@@ -39,20 +47,19 @@ export const ActivityOperatingHoursSection = ({
             name="location_name"
             value={opHours.location_name || ""}
             onChange={handleOperatingHoursChange}
-            placeholder="e.g. Sentosa Island, North Goa Beach Base"
+            placeholder="e.g. Sentosa Island Station, North Goa Beach Base"
             className={inputStyle}
           />
         </div>
 
         {/* Operating Days Selector Pills */}
-        <div>
+        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 shadow-inner">
           <label className={labelStyle}>
-            <span className="flex items-center gap-1.5">
-              <Calendar size={15} className="text-blue-600 dark:text-blue-400" /> Operating Days
-            </span>
+            <Calendar size={14} className="text-cyan-400" />
+            <span>Operating Days of the Week</span>
           </label>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-            Click to toggle which days of the week this activity operates:
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+            Click to toggle which days of the week this activity is open and bookable:
           </p>
 
           <div className="flex flex-wrap gap-2.5">
@@ -63,10 +70,10 @@ export const ActivityOperatingHoursSection = ({
                   key={day}
                   type="button"
                   onClick={() => handleDaysToggle(day)}
-                  className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer border ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer border ${
                     isSelected
-                      ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
-                      : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/50 shadow-lg shadow-cyan-500/25"
+                      : "bg-white dark:bg-[#091126] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
                   {day}
@@ -79,7 +86,8 @@ export const ActivityOperatingHoursSection = ({
         {/* Timings */}
         <div>
           <label htmlFor="timings" className={labelStyle}>
-            Timings & Schedule Details
+            <Clock size={14} className="text-cyan-400" />
+            <span>Timings & Batch Slots</span>
           </label>
           <input
             type="text"
@@ -96,3 +104,4 @@ export const ActivityOperatingHoursSection = ({
   );
 };
 export default ActivityOperatingHoursSection;
+

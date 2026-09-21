@@ -667,66 +667,79 @@ const BulkGiftCard = () => {
   );
 
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen text-slate-900 dark:text-slate-100 transition-colors">
-
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100"
+    >
       {/* Dynamic Header Panel */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 dark:bg-[#0d162b] dark:shadow-xl dark:border-[#1b2a47] p-8 mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-        <div className="relative z-10">
-          <span className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 border border-blue-200 dark:bg-[#15233e] dark:border-[#233558] px-3 py-1.5 rounded-md">PREMIUM REWARDS</span>
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mt-2 mb-2">
-            Bulk <span className="text-blue-600 dark:text-blue-400">Gift</span> Generation
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 max-w-2xl text-sm font-semibold">
-            Select multiple users to reward them with travel experience vouchers. Vouchers will be queued and sent via email with individual gift codes.
-          </p>
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Gift size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+                Bulk <span className="text-blue-500">Gift</span> Generation
+              </h1>
+              <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 px-2 py-0.5 rounded-lg hidden sm:inline-block">
+                PREMIUM REWARDS
+              </span>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm max-w-2xl">
+              Select multiple users to reward them with travel experience vouchers. Vouchers will be queued and sent via email with individual gift codes.
+            </p>
+          </div>
         </div>
 
         {recipientType !== 'manage' && (
-          <div className="relative z-10 shrink-0 flex items-center gap-4 bg-slate-50 border border-slate-200 dark:bg-[#15233e] dark:border-[#233558] p-4 rounded-2xl">
-            <div className="text-center px-4">
-              <span className="block text-3xl font-black text-slate-900 dark:text-white">
+          <div className="relative z-10 shrink-0 flex items-center gap-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 p-2.5 sm:p-3 rounded-2xl shadow-sm">
+            <div className="text-center px-3">
+              <span className="block text-2xl font-black text-slate-900 dark:text-white">
                 {recipientType === 'registered' ? selectedUserEmails.length : parsedEmails.length}
               </span>
-              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Recipients</span>
+              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Recipients</span>
             </div>
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="px-6 py-4 bg-blue-600 hover:bg-blue-700 dark:bg-[#2563EB] dark:hover:bg-blue-600 text-white font-black text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Play size={16} className="fill-current" />
+              <Play size={14} className="fill-current" />
               {submitting ? 'Sending...' : 'Send Gift Cards'}
             </button>
           </div>
         )}
 
         {recipientType === 'manage' && (
-          <div className="relative z-10 shrink-0 flex items-center gap-4 bg-slate-50 border border-slate-200 dark:bg-[#15233e] dark:border-[#233558] p-4 rounded-2xl">
-            <div className="text-center px-4">
-              <span className="block text-3xl font-black text-slate-900 dark:text-white">
+          <div className="relative z-10 shrink-0 flex items-center gap-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 px-4 py-2.5 rounded-2xl shadow-sm">
+            <div className="text-center">
+              <span className="block text-2xl font-black text-slate-900 dark:text-white">
                 {giftCards.length}
               </span>
-              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Cards</span>
+              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Cards</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Premium Toggle Hub */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 dark:bg-[#0b1426] dark:border-[#1b2a47] flex gap-1 shadow-inner">
+      <div className="flex justify-center">
+        <div className="bg-slate-100 p-1.5 rounded-2xl border border-slate-200 dark:bg-[#050A17] dark:border-slate-800 flex gap-1 shadow-inner">
           <button
             onClick={() => {
               setRecipientType('registered');
               setSearchQuery('');
             }}
-            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${recipientType === 'registered'
-              ? 'bg-blue-600 text-white shadow-md dark:bg-[#2563EB] dark:shadow-lg dark:shadow-blue-600/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#15233e]'
-              }`}
+            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+              recipientType === 'registered'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#091126]'
+            }`}
           >
-            <Users size={16} />
+            <Users size={15} />
             Registered Users
           </button>
 
@@ -735,12 +748,13 @@ const BulkGiftCard = () => {
               setRecipientType('custom');
               setSearchQuery('');
             }}
-            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${recipientType === 'custom'
-              ? 'bg-blue-600 text-white shadow-md dark:bg-[#2563EB] dark:shadow-lg dark:shadow-blue-600/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#15233e]'
-              }`}
+            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+              recipientType === 'custom'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#091126]'
+            }`}
           >
-            <Mail size={16} />
+            <Mail size={15} />
             Custom Email List
           </button>
 
@@ -749,12 +763,13 @@ const BulkGiftCard = () => {
               setRecipientType('manage');
               setSearchQuery('');
             }}
-            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${recipientType === 'manage'
-              ? 'bg-blue-600 text-white shadow-md dark:bg-[#2563EB] dark:shadow-lg dark:shadow-blue-600/30'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#15233e]'
-              }`}
+            className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+              recipientType === 'manage'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-[#091126]'
+            }`}
           >
-            <List size={16} />
+            <List size={15} />
             Verify & Manage
           </button>
         </div>
@@ -766,10 +781,10 @@ const BulkGiftCard = () => {
         {recipientType !== 'manage' && (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
             {/* LEFT COLUMN: Gift Settings */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-[#0d162b] dark:border-[#1b2a47] dark:shadow-xl p-6 md:p-8 flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8 flex flex-col justify-between">
               <div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <Gift className="text-blue-600 dark:text-blue-400" size={20} /> Gift Settings
+                  <Gift className="text-blue-500" size={20} /> Gift Settings
                 </h3>
                 <div className="space-y-6">
                   {/* Campaign Name */}
@@ -781,7 +796,7 @@ const BulkGiftCard = () => {
                       value={campaignName}
                       onChange={(e) => setCampaignName(e.target.value)}
                       placeholder="e.g. Summer Promo 2026"
-                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all font-bold text-base shadow-inner"
+                      className="w-full px-5 py-3.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all font-bold text-base shadow-inner"
                     />
                   </div>
 
@@ -797,7 +812,7 @@ const BulkGiftCard = () => {
                           min={100}
                           value={giftAmount}
                           onChange={(e) => setGiftAmount(e.target.value)}
-                          className="w-full pl-8 pr-5 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all font-bold text-base shadow-inner"
+                          className="w-full pl-8 pr-5 py-3.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all font-bold text-base shadow-inner"
                         />
                       </div>
                     </div>
@@ -811,7 +826,7 @@ const BulkGiftCard = () => {
                         min={1}
                         value={expiryDays}
                         onChange={(e) => setExpiryDays(e.target.value)}
-                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all font-bold text-base shadow-inner"
+                        className="w-full px-5 py-3.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all font-bold text-base shadow-inner"
                       />
                     </div>
                   </div>
@@ -824,7 +839,7 @@ const BulkGiftCard = () => {
                       required
                       value={customMessage}
                       onChange={(e) => setCustomMessage(e.target.value)}
-                      className="w-full p-5 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-slate-200 dark:placeholder-slate-500 rounded-2xl focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all font-semibold text-sm md:text-base shadow-inner"
+                      className="w-full p-5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all font-semibold text-sm md:text-base shadow-inner"
                     ></textarea>
                   </div>
 
@@ -835,9 +850,9 @@ const BulkGiftCard = () => {
                         type="button"
                         key={preset}
                         onClick={() => setGiftAmount(preset)}
-                        className={`px-4 py-2 text-xs font-black rounded-xl border transition-all ${giftAmount === preset
-                          ? 'bg-blue-600 border-blue-600 text-white shadow-md dark:bg-[#2563EB] dark:border-[#2563EB]'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-blue-500 dark:bg-[#15233e] dark:border-[#233558] dark:text-slate-300 dark:hover:border-blue-500'
+                        className={`px-4 py-2 text-xs font-black rounded-xl border transition-all cursor-pointer ${giftAmount === preset
+                          ? 'bg-blue-600 border-blue-600 text-white shadow-md dark:bg-blue-600 dark:border-blue-600'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-blue-500 dark:bg-[#050A17] dark:border-slate-800 dark:text-slate-300 dark:hover:border-blue-500'
                           }`}
                       >
                         ₹{Number(preset).toLocaleString('en-IN')}
@@ -848,12 +863,12 @@ const BulkGiftCard = () => {
               </div>
 
               {recipientType === 'custom' && (
-                <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-[#1b2a47] mt-6">
+                <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800 mt-6">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Provide Recipients</label>
-                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 dark:bg-[#0b1426] dark:border-[#1b2a47]">
-                      <button type="button" onClick={() => setIsUploadMode(false)} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${!isUploadMode ? 'bg-blue-600 text-white dark:bg-[#2563EB]' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>Paste Text</button>
-                      <button type="button" onClick={() => setIsUploadMode(true)} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${isUploadMode ? 'bg-blue-600 text-white dark:bg-[#2563EB]' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>Upload CSV/XLSX</button>
+                    <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 dark:bg-[#050A17] dark:border-slate-800">
+                      <button type="button" onClick={() => setIsUploadMode(false)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${!isUploadMode ? 'bg-blue-600 text-white dark:bg-blue-600' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>Paste Text</button>
+                      <button type="button" onClick={() => setIsUploadMode(true)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${isUploadMode ? 'bg-blue-600 text-white dark:bg-blue-600' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>Upload CSV/XLSX</button>
                     </div>
                   </div>
 
@@ -863,18 +878,18 @@ const BulkGiftCard = () => {
                       value={rawEmails}
                       onChange={(e) => setRawEmails(e.target.value)}
                       placeholder="Enter emails comma-separated or one per line (e.g. user@gmail.com, hello@domain.com)"
-                      className="w-full p-5 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all font-mono text-sm font-semibold"
+                      className="w-full p-5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all font-mono text-sm font-semibold shadow-inner"
                     ></textarea>
                   ) : (
                     <div 
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all ${isDragging ? 'border-blue-600 bg-blue-50/50 dark:border-[#2563EB] dark:bg-[#15233e]' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-[#233558] dark:bg-[#0b1426] dark:hover:bg-[#15233e]'}`}
+                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all ${isDragging ? 'border-blue-600 bg-blue-50/50 dark:border-blue-500 dark:bg-[#050A17]' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-slate-800 dark:bg-[#050A17] dark:hover:bg-[#091126]'}`}
                     >
                       <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                       <div className="flex flex-col items-center justify-center space-y-2">
-                        <div className={`p-3 rounded-full ${isDragging ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : 'bg-slate-200 text-slate-500 dark:bg-[#15233e] dark:text-slate-400'}`}>
+                        <div className={`p-3 rounded-2xl ${isDragging ? 'bg-blue-100 text-blue-600 dark:bg-blue-600/20 dark:text-blue-400' : 'bg-slate-200 text-slate-500 dark:bg-[#091126] dark:text-slate-400'}`}>
                           <UploadCloud size={24} />
                         </div>
                         <h4 className="font-bold text-slate-900 dark:text-white text-sm">{uploadedFileName || 'Drag and drop your file here'}</h4>
@@ -887,11 +902,11 @@ const BulkGiftCard = () => {
                     <span className="text-slate-500 dark:text-slate-400">Unique valid emails extracted:</span>
                     <div className="flex items-center gap-2">
                       {isUploadMode && uploadedFileName && uploadStats.invalid > 0 && (
-                        <span className="px-2.5 py-0.5 rounded font-black bg-red-50 text-red-600 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800 text-xs">
+                        <span className="px-2.5 py-0.5 rounded-lg font-black bg-red-50 text-red-600 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800 text-xs">
                           {uploadStats.invalid} Invalid
                         </span>
                       )}
-                      <span className={`px-2.5 py-0.5 rounded font-black ${parsedEmails.length > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800' : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-[#15233e] dark:text-slate-400 dark:border-[#233558]'}`}>
+                      <span className={`px-2.5 py-0.5 rounded-lg font-black ${parsedEmails.length > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800' : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-[#050A17] dark:text-slate-400 dark:border-slate-800'}`}>
                         {parsedEmails.length} Valid Recipient{parsedEmails.length !== 1 ? 's' : ''}
                       </span>
                     </div>
@@ -901,15 +916,15 @@ const BulkGiftCard = () => {
             </div>
 
             {/* RIGHT COLUMN: Voucher Visual Preview */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-[#0d162b] dark:border-[#1b2a47] dark:shadow-xl p-6 md:p-8 flex flex-col justify-start relative overflow-hidden sticky top-24">
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8 flex flex-col justify-start relative overflow-hidden sticky top-24">
               <div className="relative z-10 w-full">
                 <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <List className="text-blue-600 dark:text-blue-400" size={20} /> GIFT CARD EMAIL PREVIEW
+                  <List className="text-blue-500" size={20} /> GIFT CARD EMAIL PREVIEW
                 </h3>
 
                 {/* Exact CSS Replica of the Backend Canvas Generation */}
                 <div className="w-full flex justify-center items-center py-4">
-                  <div className="relative w-full max-w-[600px] aspect-[1672/941] rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-[#233558] ring-4 ring-slate-100 dark:ring-[#15233e]" style={{ containerType: 'inline-size' }}>
+                  <div className="relative w-full max-w-[600px] aspect-[1672/941] rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 ring-4 ring-slate-100 dark:ring-slate-800/40" style={{ containerType: 'inline-size' }}>
                     <img src={GiftCardBg} className="absolute inset-0 w-full h-full object-cover" alt="Gift Card Template" />
 
                     {/* Amount */}
@@ -949,11 +964,11 @@ const BulkGiftCard = () => {
         {/* BOTTOM FULL-WIDTH SECTIONS DEPENDING ON TOGGLES */}
 
         {recipientType === 'registered' && (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-[#0d162b] dark:border-[#1b2a47] dark:shadow-xl p-6 md:p-8">
+          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Users className="text-blue-600 dark:text-blue-400" size={20} /> Customer Registry Selection
+                  <Users className="text-blue-500" size={20} /> Customer Registry Selection
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Search, select and manage individual registered users from active database records.</p>
               </div>
@@ -963,7 +978,7 @@ const BulkGiftCard = () => {
                   placeholder="Search registered users..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-5 pr-5 py-3 bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:bg-[#15233e] dark:border-[#233558] dark:text-white dark:placeholder-slate-500 rounded-2xl text-sm font-semibold focus:border-blue-600 focus:bg-white dark:focus:border-[#2563EB] dark:focus:bg-[#182745] outline-none transition-all shadow-inner"
+                  className="w-full pl-5 pr-5 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 rounded-2xl text-sm font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 outline-none transition-all shadow-inner"
                 />
               </div>
             </div>
@@ -1035,11 +1050,11 @@ const BulkGiftCard = () => {
         {recipientType === 'custom' && (
           <div className="space-y-8">
             {/* Campaign History Log list */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm dark:bg-[#0d162b] dark:border-[#1b2a47] dark:shadow-xl p-6 md:p-8">
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl p-6 md:p-8">
               <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Clock className="text-blue-600 dark:text-blue-400" size={20} /> Generation History
+                    <Clock className="text-blue-500" size={20} /> Generation History
                   </h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Recent bulk campaign distribution logs, delivery batches, and dispatch status metrics.</p>
                 </div>
@@ -1303,24 +1318,24 @@ const BulkGiftCard = () => {
         {recipientType === 'manage' && (
           <div className="space-y-8">
             {/* Search HUD Box */}
-            <div className="bg-[#0d162b] rounded-3xl shadow-xl border border-[#1b2a47] p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
               <div className="relative z-10">
-                <h3 className="text-xl font-black text-white mb-2 flex items-center gap-2">
-                  <Play className="text-blue-400" size={20} /> Verify & Manage Gift Cards
+                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                  <Play className="text-blue-500" size={20} /> Verify & Manage Gift Cards
                 </h3>
-                <p className="text-slate-400 text-sm font-semibold mb-6">Enter an exact Gift Card Code to securely verify and manage it, or search by email to find associated cards.</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold mb-6">Enter an exact Gift Card Code to securely verify and manage it, or search by email to find associated cards.</p>
 
                 <div className="relative max-w-3xl">
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <Info className="text-blue-400 animate-pulse" size={24} />
+                    <Info className="text-blue-500 animate-pulse" size={22} />
                   </div>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={handleSearch}
                     placeholder="ENTER CARD CODE (E.G. T2H-XXXXXX) TO VIEW FULL DETAILS..."
-                    className="w-full pl-14 pr-6 py-4.5 bg-[#15233e] border border-[#233558] rounded-2xl focus:border-[#2563EB] focus:bg-[#182745] text-base md:text-lg outline-none transition-all font-mono font-bold text-white placeholder-slate-500 uppercase tracking-wide shadow-inner"
+                    className="w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 text-base outline-none transition-all font-mono font-bold text-slate-900 placeholder:text-slate-400 dark:text-white dark:placeholder-slate-500 uppercase tracking-wide shadow-inner"
                   />
                 </div>
               </div>
@@ -2308,7 +2323,7 @@ const BulkGiftCard = () => {
         )}
       </AnimatePresence>
 
-    </div>
+    </motion.div>
   );
 };
 

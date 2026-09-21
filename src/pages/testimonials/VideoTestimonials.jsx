@@ -150,27 +150,37 @@ const VideoTestimonials = () => {
   }
 
   const { inputStyle, labelStyle, cardStyle } = {
-    inputStyle: "w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-400",
-    labelStyle: "flex items-center gap-2 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-1.5 ml-1",
-    cardStyle: "bg-white dark:bg-slate-900 rounded-[2rem] p-6 lg:p-8 border border-slate-100 dark:border-slate-800 shadow-sm dark:shadow-none",
+    inputStyle: "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3 text-sm font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder-slate-500 shadow-inner outline-none",
+    labelStyle: "flex items-center gap-2 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1",
+    cardStyle: "bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl",
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full space-y-6 pb-12 text-left">
-      {/* HEADER */}
-      <div className={cardStyle}>
-        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none text-indigo-600"><Video size={100} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-3">
-              <Film className="text-indigo-600" size={32} /> VIDEO STORIES
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mt-2 text-sm italic text-left">Capturing the joy of perfectly planned honeymoons</p>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
+    >
+      {/* HEADER HUB */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Film size={22} />
           </div>
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
-            <div className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm">
-              <Sparkles size={16} /> {testimonials.length} Official Memories
-            </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Video <span className="text-blue-500">Stories</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Capturing the joy of perfectly planned honeymoons
+            </p>
+          </div>
+        </div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="px-4 py-2 bg-slate-50 dark:bg-[#050A17] text-slate-700 dark:text-slate-300 rounded-2xl text-xs font-extrabold uppercase tracking-wider border border-slate-200 dark:border-slate-800/90 shadow-sm flex items-center gap-2">
+            <Sparkles size={14} className="text-blue-500" />
+            <span>{testimonials.length} Official Memories</span>
           </div>
         </div>
       </div>
@@ -179,35 +189,40 @@ const VideoTestimonials = () => {
         {/* UPLOAD FORM */}
         <div className="w-full">
           <form onSubmit={handleSubmit} className={cardStyle}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-sm"><UploadCloud size={24} /></div>
-              <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">Onboard New Video Story</h2>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center text-blue-500 border border-blue-200 dark:border-blue-800/60 shadow-sm">
+                <UploadCloud size={22} />
+              </div>
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Onboard New Video Story</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Upload couple video and assign destination metadata</p>
+              </div>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* LEFT: MASTER ASSET (COMPACT) */}
+              {/* LEFT: MASTER ASSET */}
               <div className="w-full lg:w-1/3 shrink-0">
                 <label className={labelStyle}>Cinematic Master Asset</label>
                 {previewUrl ? (
-                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-inner">
                     <video src={previewUrl} controls className="w-full h-full object-contain" />
                     <div className="absolute top-3 right-3 flex gap-2">
-                      <label htmlFor="videoUpload" className="px-3 py-1.5 bg-slate-900/80 backdrop-blur-xl rounded-lg flex items-center gap-1.5 text-white cursor-pointer hover:bg-indigo-600 transition-all border border-white/10 text-[10px] font-black uppercase tracking-widest">
+                      <label htmlFor="videoUpload" className="px-3 py-1.5 bg-slate-900/80 backdrop-blur-xl rounded-lg flex items-center gap-1.5 text-white cursor-pointer hover:bg-blue-600 transition-all border border-white/10 text-[10px] font-black uppercase tracking-widest shadow-md">
                         <Replace size={14} /> Swap
                       </label>
-                      <button type="button" onClick={handleRemoveVideo} className="size-7 bg-red-600/80 backdrop-blur-xl rounded-lg flex items-center justify-center text-white hover:bg-red-600 transition-all border border-white/10">
+                      <button type="button" onClick={handleRemoveVideo} className="size-7 bg-red-600/80 backdrop-blur-xl rounded-lg flex items-center justify-center text-white hover:bg-red-600 transition-all border border-white/10 shadow-md">
                         <X size={14} />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <label htmlFor="videoUpload" className="group flex flex-col items-center justify-center w-full aspect-[4/3] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all hover:border-indigo-600">
+                  <label htmlFor="videoUpload" className="group flex flex-col items-center justify-center w-full aspect-[4/3] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl cursor-pointer bg-slate-50 dark:bg-[#050A17] hover:bg-slate-100 dark:hover:bg-[#0c142b] transition-all hover:border-blue-500/50 shadow-inner">
                     <div className="flex flex-col items-center justify-center p-6 text-center">
-                      <div className="size-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600 mb-4 transition-transform group-hover:scale-110">
-                        <UploadCloud size={24} />
+                      <div className="size-12 bg-white dark:bg-[#091126] rounded-2xl flex items-center justify-center text-blue-500 mb-3 shadow-md border border-slate-200 dark:border-slate-800 transition-transform group-hover:scale-110">
+                        <UploadCloud size={24} strokeWidth={1.5} />
                       </div>
-                      <p className="text-base font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Sync Video</p>
-                      <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest italic">Direct-to-S3 Upload</p>
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">Sync Video</p>
+                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mt-1 opacity-80">Direct-to-S3 Upload</p>
                     </div>
                     <input id="videoUpload" type="file" hidden accept="video/*,.av1,.mkv" onChange={handleVideoFileChange} />
                   </label>
@@ -224,7 +239,7 @@ const VideoTestimonials = () => {
                   <div>
                     <label className={labelStyle}>Honeymoon Destination</label>
                     <div className="relative group">
-                      <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                      <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                       <input ref={locationRef} className={`${inputStyle} pl-12`} placeholder="e.g. Maldives" />
                     </div>
                   </div>
@@ -233,18 +248,37 @@ const VideoTestimonials = () => {
                 <div>
                   <label className={labelStyle}>Visibility & Publishing</label>
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setVisibility("public")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${visibility === "public" ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'}`}>
+                    <button 
+                      type="button" 
+                      onClick={() => setVisibility("public")} 
+                      className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        visibility === "public" 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white shadow-lg shadow-blue-600/25' 
+                          : 'bg-slate-50 dark:bg-[#050A17] border-slate-200 dark:border-slate-800/90 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
                       <Eye size={16} /> Public
                     </button>
-                    <button type="button" onClick={() => setVisibility("private")} className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${visibility === "private" ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'}`}>
+                    <button 
+                      type="button" 
+                      onClick={() => setVisibility("private")} 
+                      className={`flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        visibility === "private" 
+                          ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
+                          : 'bg-slate-50 dark:bg-[#050A17] border-slate-200 dark:border-slate-800/90 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
                       <EyeOff size={16} /> Private
                     </button>
                   </div>
                 </div>
 
                 <div className="pt-2">
-                  <button disabled={!videoFile || isLoading} className="w-full bg-indigo-600 text-white py-4 rounded-xl font-black text-base uppercase tracking-widest shadow-md hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : <ShieldCheck size={20} />}
+                  <button 
+                    disabled={!videoFile || isLoading} 
+                    className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isLoading ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
                     {isLoading ? "Synchronizing..." : "FINALIZE & PUBLISH"}
                   </button>
                 </div>

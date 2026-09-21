@@ -152,9 +152,12 @@ const ChatbotSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4 text-slate-900 dark:text-white">
-        <Loader2 className="animate-spin text-purple-600 dark:text-purple-400" size={48} strokeWidth={2} />
-        <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin" />
+          <MessageSquare className="absolute inset-0 m-auto text-purple-500 animate-pulse" size={22} />
+        </div>
+        <p className="mt-4 text-xs font-bold tracking-widest text-slate-400 uppercase">
           Loading Travel Assistant Settings...
         </p>
       </div>
@@ -165,37 +168,47 @@ const ChatbotSettings = () => {
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans max-w-6xl mx-auto"
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
     >
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
-        <div>
-          <span className="text-purple-600 dark:text-purple-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
-            <Sparkles size={14} className="text-purple-600 dark:text-purple-400 animate-pulse" /> CHATBOT MANAGER
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Travel Assistant <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 dark:from-purple-400 dark:via-indigo-400 dark:to-blue-400 bg-clip-text text-transparent">Dynamic Controls</span>
-          </h1>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-            Customize all bot prompts, messages, and selectable option pills for every step of the 5-step trip planning assistant.
-          </p>
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-purple-500/10 dark:bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-purple-500/30 shrink-0">
+            <MessageSquare className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-500 dark:text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full">
+                Chatbot Manager
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Travel Assistant <span className="bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">Dynamic Controls</span>
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Customize all bot prompts, messages, and selectable option pills for every step of the 5-step trip planning assistant.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 relative z-10 self-start md:self-auto">
           <button
             type="button"
             onClick={fetchSettings}
-            className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl text-xs font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-2 transition-all cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 font-medium text-xs border border-slate-200 dark:border-slate-700/70 transition-colors shadow-sm cursor-pointer active:scale-95"
           >
-            <RefreshCw size={15} /> Reload
+            <RefreshCw size={13} /> Reload
           </button>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-6 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all cursor-pointer shadow-md disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-purple-500/30 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
           >
-            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             Save All Changes
           </button>
         </div>
@@ -203,13 +216,13 @@ const ChatbotSettings = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* STEP 1 CARD */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-purple-500/20">
               1
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Step 1: Welcome & Travel Types</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Step 1: Welcome & Travel Types</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Configure the opening greeting message and initial trip type pills.</p>
             </div>
           </div>
@@ -225,7 +238,7 @@ const ChatbotSettings = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, step1: { ...formData.step1, botMessage: e.target.value } })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -237,7 +250,7 @@ const ChatbotSettings = () => {
                 {formData.step1.options.map((opt, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-1.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 px-3 py-1.5 rounded-xl text-xs font-bold text-purple-700 dark:text-purple-300"
+                    className="flex items-center gap-1.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 px-3 py-1.5 rounded-lg text-xs font-bold text-purple-700 dark:text-purple-300"
                   >
                     <input
                       type="text"
@@ -268,12 +281,12 @@ const ChatbotSettings = () => {
                       handleAddOption("step1", newOptionStep1, setNewOptionStep1);
                     }
                   }}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddOption("step1", newOptionStep1, setNewOptionStep1)}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -283,13 +296,13 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 2 CARD */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-2xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20">
               2
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Step 2: Region / Destination Type</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Step 2: Region / Destination Type</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Configure prompt message and region options (e.g. Domestic, International).</p>
             </div>
           </div>
@@ -305,7 +318,7 @@ const ChatbotSettings = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, step2: { ...formData.step2, botMessage: e.target.value } })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -317,7 +330,7 @@ const ChatbotSettings = () => {
                 {formData.step2.options.map((opt, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300"
+                    className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 px-3 py-1.5 rounded-lg text-xs font-bold text-blue-700 dark:text-blue-300"
                   >
                     <input
                       type="text"
@@ -348,12 +361,12 @@ const ChatbotSettings = () => {
                       handleAddOption("step2", newOptionStep2, setNewOptionStep2);
                     }
                   }}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddOption("step2", newOptionStep2, setNewOptionStep2)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -363,13 +376,13 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 3 CARD */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-emerald-500/20">
               3
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Step 3: Destination Prompts</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Step 3: Destination Prompts</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Configure bot question prompts for domestic and international trips.</p>
             </div>
           </div>
@@ -388,7 +401,7 @@ const ChatbotSettings = () => {
                     step3: { ...formData.step3, botMessageDomestic: e.target.value },
                   })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -405,7 +418,7 @@ const ChatbotSettings = () => {
                     step3: { ...formData.step3, botMessageInternational: e.target.value },
                   })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -419,13 +432,13 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 4 CARD */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-amber-500/20">
               4
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Step 4: Budget Range Selection</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Step 4: Budget Range Selection</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Configure prompt message and selectable budget range pills.</p>
             </div>
           </div>
@@ -441,7 +454,7 @@ const ChatbotSettings = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, step4: { ...formData.step4, botMessage: e.target.value } })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -453,7 +466,7 @@ const ChatbotSettings = () => {
                 {formData.step4.options.map((opt, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300"
+                    className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-3 py-1.5 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300"
                   >
                     <input
                       type="text"
@@ -484,12 +497,12 @@ const ChatbotSettings = () => {
                       handleAddOption("step4", newOptionStep4, setNewOptionStep4);
                     }
                   }}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddOption("step4", newOptionStep4, setNewOptionStep4)}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all"
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -499,13 +512,13 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 5 CARD */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-rose-500/20">
               5
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Step 5: Timeframe & Lead Form</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Step 5: Timeframe & Lead Form</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Configure trip timeframe options and the final contact details form prompt message.</p>
             </div>
           </div>
@@ -521,7 +534,7 @@ const ChatbotSettings = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, step5: { ...formData.step5, botMessage: e.target.value } })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all shadow-inner"
               />
             </div>
 
@@ -533,7 +546,7 @@ const ChatbotSettings = () => {
                 {formData.step5.options.map((opt, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 dark:text-rose-300"
+                    className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-700 dark:text-rose-300"
                   >
                     <input
                       type="text"
@@ -564,12 +577,12 @@ const ChatbotSettings = () => {
                       handleAddOption("step5", newOptionStep5, setNewOptionStep5);
                     }
                   }}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddOption("step5", newOptionStep5, setNewOptionStep5)}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -589,7 +602,7 @@ const ChatbotSettings = () => {
                     step5: { ...formData.step5, leadFormPromptMessage: e.target.value },
                   })
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 text-xs font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-xs font-medium text-slate-900 dark:text-white focus:ring-1 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all shadow-inner"
               />
             </div>
           </div>
@@ -600,7 +613,7 @@ const ChatbotSettings = () => {
           <button
             type="submit"
             disabled={isSaving}
-            className="px-8 py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2.5 transition-all cursor-pointer shadow-lg disabled:opacity-50"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-purple-500/30 disabled:opacity-50 active:scale-95"
           >
             {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             Save Travel Assistant Settings

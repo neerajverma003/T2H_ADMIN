@@ -107,38 +107,49 @@ const PlanYourJourney = () => {
   const newCount = journeys.filter(j => j.status === 'new' || !j.status).length;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
-            <Compass size={14} className="text-blue-600 dark:text-blue-400 animate-pulse" /> JOURNEY ARCHITECTS
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Journey <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Architects</span>
-          </h1>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-            Curating bespoke travel experiences and high-conversion itinerary blueprints.
-          </p>
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Compass size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                JOURNEY ARCHITECTS
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Journey <span className="text-blue-500">Architects</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Curating bespoke travel experiences and high-conversion itinerary blueprints.
+            </p>
+          </div>
         </div>
 
         {/* SEARCH & FILTER CONTROLS */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 relative z-10 w-full md:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={15} />
             <input
               type="text"
               placeholder="Search blueprints..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+              className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-xl text-xs font-semibold w-full outline-none transition-all placeholder:text-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-white shadow-inner"
             />
           </div>
 
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-300 outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer shadow-sm"
+            className="w-full sm:w-auto px-4 py-2 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 transition-all cursor-pointer shadow-inner"
           >
             <option value="all">All Blueprints</option>
             <option value="pending">Pending</option>
@@ -148,53 +159,53 @@ const PlanYourJourney = () => {
       </div>
 
       {/* 4 TOP METRIC CARDS */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* CARD 1: BLUEPRINT VOLUME */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <Compass size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <Compass size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">BLUEPRINT VOLUME</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">BLUEPRINT VOLUME</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{journeys.length}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{journeys.length}</h3>
           </div>
         </div>
 
         {/* CARD 2: NEW ARRIVAL */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-amber-50 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-              <Clock size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+              <Clock size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">NEW ARRIVAL</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">NEW ARRIVAL</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{newCount}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{newCount}</h3>
           </div>
         </div>
 
         {/* CARD 3: MATCHED SIGNALS */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <Filter size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+              <Filter size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">MATCHED SIGNALS</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">MATCHED SIGNALS</span>
           </div>
           <div className="mt-4">
-            <h3 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{filteredJourneys.length}</h3>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{filteredJourneys.length}</h3>
           </div>
         </div>
 
         {/* CARD 4: ACTIVE PIPELINE */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
-            <div className="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 size={22} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <CheckCircle2 size={20} />
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">ACTIVE PIPELINE</span>
+            <span className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">ACTIVE PIPELINE</span>
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Normal</h3>
@@ -203,20 +214,20 @@ const PlanYourJourney = () => {
       </div>
 
       {/* JOURNEY REGISTRY TABLE SECTION */}
-      <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl">
+      <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="size-10 rounded-2xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
               <Compass size={20} />
             </div>
-            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Journey Registry</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Journey Registry</h3>
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="hidden sm:block px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-600/15 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider">
+            <button className="hidden sm:block px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold uppercase tracking-wider hover:bg-blue-500/20 transition-all">
               SELECT MULTIPLE
             </button>
-            <span className="px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-slate-700 text-xs font-black">
+            <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 text-blue-500 border border-slate-200 dark:border-slate-700/60 text-xs font-bold">
               {filteredJourneys.length} RECORDS
             </span>
           </div>
@@ -427,7 +438,7 @@ const PlanYourJourney = () => {
           </div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 

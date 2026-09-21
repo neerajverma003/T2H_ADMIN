@@ -257,67 +257,73 @@ const AboutSettings = () => {
   };
 
   const styleProps = {
-    inputStyle: "w-full rounded-[1.2rem] border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 pl-12 text-slate-950 dark:text-slate-100 font-bold focus:border-indigo-700/20 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400 shadow-inner",
-    labelStyle: "flex items-center gap-2 text-xs font-black text-slate-950 dark:text-slate-400 uppercase tracking-[0.2em] mb-3",
-    cardStyle: "bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-100/50 dark:shadow-none text-left",
+    inputStyle: "w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-4 text-slate-900 dark:text-white font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-400 shadow-inner text-sm",
+    labelStyle: "flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-2",
+    cardStyle: "bg-white dark:bg-[#091126]/95 rounded-3xl p-6 lg:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl text-left",
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-48 gap-8">
-        <RefreshCcw className="size-16 animate-spin text-indigo-700" strokeWidth={1} />
-        <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Syncing Editorial Engine...</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+          <ShieldCheck className="absolute inset-0 m-auto text-blue-500 animate-pulse" size={22} />
+        </div>
+        <p className="mt-4 text-xs font-bold tracking-widest text-slate-400 uppercase">Syncing Editorial Engine...</p>
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-full mx-auto space-y-12 pb-24 px-6 text-left">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
 
       {/* 1. HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-100/50 dark:shadow-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-700"><FiSettings size={200} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
           <div>
-            <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-5">
-              <ShieldCheck className="text-indigo-700" size={44} /> ABOUT US CONTROL
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic">
-              Dynamic page customizer, counters stats, and team roster control hub
-            </p>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">Content Management</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">About Us Control</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Dynamic page customizer, counters stats, and team roster control hub</p>
           </div>
         </div>
       </div>
 
       {/* 2. TABS SELECTOR */}
-      <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800/60 p-2 rounded-2xl w-fit">
+      <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#091126]/80 p-1.5 rounded-xl w-fit border border-slate-200/80 dark:border-indigo-500/20">
         <button
           onClick={() => setActiveTab("story")}
-          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${activeTab === "story"
-              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md"
-              : "text-slate-600 hover:text-indigo-700"
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold uppercase tracking-wider text-xs transition-all cursor-pointer ${activeTab === "story"
+              ? "bg-white dark:bg-gradient-to-r dark:from-blue-600 dark:to-indigo-600 text-blue-600 dark:text-white shadow-md"
+              : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300"
             }`}
         >
-          <FiInfo size={16} /> Story & Settings
+          <FiInfo size={14} /> Story & Settings
         </button>
         <button
           onClick={() => setActiveTab("team")}
-          className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all ${activeTab === "team"
-              ? "bg-white dark:bg-slate-900 text-indigo-700 shadow-md"
-              : "text-slate-600 hover:text-indigo-700"
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold uppercase tracking-wider text-xs transition-all cursor-pointer ${activeTab === "team"
+              ? "bg-white dark:bg-gradient-to-r dark:from-blue-600 dark:to-indigo-600 text-blue-600 dark:text-white shadow-md"
+              : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300"
             }`}
         >
-          <FiUsers size={16} /> Team Directory
+          <FiUsers size={14} /> Team Directory
         </button>
       </div>
 
       {/* 3. STORY TAB CONTENT */}
       {activeTab === "story" && (
-        <form onSubmit={handleSaveStory} className="space-y-12">
+        <form onSubmit={handleSaveStory} className="space-y-8">
 
           {/* EDITORIAL STORY HUB */}
           <div className={styleProps.cardStyle}>
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-8">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-6">
               B. Editorial Brand Story
             </h3>
             <div className="space-y-8">
@@ -358,13 +364,13 @@ const AboutSettings = () => {
           </div>
 
           {/* MISSION & VISION */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* MISSION CARD */}
             <div className={styleProps.cardStyle}>
               <div className="flex items-center gap-3 mb-6">
-                <FiTarget className="text-indigo-700" size={24} />
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Our Mission</h3>
+                <FiTarget className="text-blue-500" size={20} />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Our Mission</h3>
               </div>
               <div className="space-y-6">
                 <input
@@ -388,8 +394,8 @@ const AboutSettings = () => {
             {/* VISION CARD */}
             <div className={styleProps.cardStyle}>
               <div className="flex items-center gap-3 mb-6">
-                <FiEye className="text-indigo-700" size={24} />
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Our Vision</h3>
+                <FiEye className="text-indigo-500" size={20} />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Our Vision</h3>
               </div>
               <div className="space-y-6">
                 <input
@@ -415,13 +421,13 @@ const AboutSettings = () => {
           {/* DYNAMIC counters */}
           <div className={styleProps.cardStyle}>
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 C. Live Counter Milestones
               </h3>
               <button
                 type="button"
                 onClick={addStatRow}
-                className="flex items-center gap-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-4 py-2 font-bold text-xs uppercase tracking-wider hover:bg-indigo-100 transition-colors"
+                className="flex items-center gap-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 px-4 py-2 font-bold text-xs uppercase tracking-wider hover:bg-blue-500/20 transition-colors border border-blue-500/20 cursor-pointer"
               >
                 <FiPlus /> Add Counter Point
               </button>
@@ -429,7 +435,7 @@ const AboutSettings = () => {
 
             <div className="space-y-4">
               {storyForm.stats.map((stat, index) => (
-                <div key={index} className="flex flex-col md:flex-row items-center gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div key={index} className="flex flex-col md:flex-row items-center gap-4 bg-slate-50/70 dark:bg-[#050A17]/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/90">
                   <div className="flex-1 w-full">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Counter Title</label>
                     <input
@@ -437,7 +443,7 @@ const AboutSettings = () => {
                       value={stat.title}
                       onChange={(e) => updateStatRow(index, "title", e.target.value)}
                       placeholder="e.g. Happy Couples"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm font-bold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-[#091126] p-3 text-sm font-semibold text-slate-900 dark:text-white shadow-inner focus:outline-none focus:border-blue-500 transition-all"
                     />
                   </div>
                   <div className="w-full md:w-32">
@@ -463,7 +469,7 @@ const AboutSettings = () => {
                   <button
                     type="button"
                     onClick={() => removeStatRow(index)}
-                    className="mt-6 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 text-red-500 hover:bg-red-100 transition-colors"
+                    className="mt-6 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                   >
                     <FiTrash2 size={16} />
                   </button>
@@ -479,19 +485,19 @@ const AboutSettings = () => {
           </div>
 
           {/* SUBMIT HERO */}
-          <div className="flex justify-end pt-8">
+          <div className="flex justify-end pt-4">
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-5 rounded-[2rem] bg-indigo-700 px-16 py-6 text-lg font-black text-white shadow-xl shadow-indigo-500/20 hover:bg-indigo-800 transition-all active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {saving ? (
                 <>
-                  <RefreshCcw className="animate-spin" size={24} /> Syncing Hub...
+                  <RefreshCcw className="animate-spin" size={15} /> Syncing Hub...
                 </>
               ) : (
                 <>
-                  <Save size={24} /> Synchronize Story config
+                  <Save size={15} /> Synchronize Story Config
                 </>
               )}
             </button>
@@ -502,21 +508,21 @@ const AboutSettings = () => {
 
       {/* 4. TEAM TAB CONTENT */}
       {activeTab === "team" && (
-        <div className="space-y-12">
+        <div className="space-y-8">
 
           <div className={styleProps.cardStyle}>
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                   Team Members Directory
                 </h3>
-                <p className="text-slate-400 font-bold text-xs mt-1">Manage staff lists and ordering indexes</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Manage staff lists and ordering indexes</p>
               </div>
               <button
                 onClick={() => openMemberModal()}
-                className="flex items-center gap-2 rounded-xl bg-indigo-700 text-white px-6 py-3 font-bold text-xs uppercase tracking-wider hover:bg-indigo-800 transition-colors shadow-md"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 transition-all cursor-pointer active:scale-95 self-start sm:self-auto"
               >
-                <FiPlus /> Add Team Member
+                <FiPlus size={14} /> Add Team Member
               </button>
             </div>
 
@@ -524,9 +530,9 @@ const AboutSettings = () => {
               {teamList.map((member) => (
                 <div
                   key={member._id}
-                  className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center relative group"
+                  className="bg-slate-50/70 dark:bg-[#050A17]/80 border border-slate-200/80 dark:border-slate-800/90 rounded-2xl p-5 flex flex-col items-center relative group hover:border-blue-500/30 transition-all"
                 >
-                  <div className="relative w-36 h-36 rounded-full overflow-hidden mb-4 border border-slate-200 dark:border-slate-700 shadow-md">
+                  <div className="relative w-28 h-28 rounded-full overflow-hidden mb-4 border-2 border-slate-200 dark:border-slate-700/60 shadow-md">
                     <img
                       src={member.image.startsWith("http") ? member.image : `https://media.trip2honeymoon.com/${member.image}`}
                       alt={member.name}
@@ -553,13 +559,13 @@ const AboutSettings = () => {
                   <div className="flex items-center gap-3 mt-6">
                     <button
                       onClick={() => openMemberModal(member)}
-                      className="p-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                      className="p-2 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
                     >
                       <FiEdit2 size={14} />
                     </button>
                     <button
                       onClick={() => handleDeleteMember(member._id)}
-                      className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-500 hover:bg-red-100 transition-colors"
+                      className="p-2 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                     >
                       <FiTrash2 size={14} />
                     </button>
@@ -586,10 +592,10 @@ const AboutSettings = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-2xl max-w-lg w-full"
+              className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-2xl max-w-lg w-full ring-1 ring-slate-900/5 dark:ring-white/5"
             >
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tight">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                   {editingMember ? "✏️ Edit Team Profile" : "👥 Register Team Profile"}
                 </h3>
                 <button
@@ -608,7 +614,7 @@ const AboutSettings = () => {
                     value={memberForm.name}
                     onChange={(e) => setMemberForm(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Sophia Bennett"
-                    className="w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 p-4 font-bold outline-none focus:border-indigo-700/20"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-3.5 font-semibold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
                     required
                   />
                 </div>
@@ -690,13 +696,13 @@ const AboutSettings = () => {
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black text-sm uppercase tracking-wider transition-colors"
+                    className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-4 bg-indigo-700 hover:bg-indigo-800 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-colors shadow-md shadow-indigo-500/20"
+                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/30 cursor-pointer"
                   >
                     Save Changes
                   </button>

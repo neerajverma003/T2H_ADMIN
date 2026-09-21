@@ -552,82 +552,85 @@ const AuditLogs = () => {
     endDate !== "";
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-8 max-w-full mx-auto pb-16 text-left transition-colors duration-300">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       
-      {/* 1. ENTERPRISE HEADER BANNER */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-indigo-900/50 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none text-indigo-300">
-          <ShieldCheck size={280} />
-        </div>
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+      {/* ── 1. HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold tracking-widest uppercase">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live Security Surveillance Relay
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <FiShield size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                SECURITY SURVEILLANCE
+              </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-3">
-              <FiShield className="text-indigo-400 shrink-0" size={32} />
-              Security Audit & Activity Logs
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Security Audit & <span className="text-blue-500">Activity Logs</span>
             </h1>
-            <p className="text-slate-300 font-medium text-xs sm:text-sm max-w-2xl">
-              Comprehensive immutable ledger tracking administrative mutations, security authentications, configuration updates, and multi-tier operator activities.
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Comprehensive immutable ledger tracking administrative mutations and operator activities.
             </p>
           </div>
+        </div>
 
-          {/* Quick Action Toolbar */}
-          <div className="flex flex-wrap items-center gap-2.5 pt-2 lg:pt-0">
-            {/* Auto-Refresh Toggle */}
+        {/* Quick Action Toolbar */}
+        <div className="relative z-10 flex flex-wrap items-center gap-2.5">
+          {/* Auto-Refresh Toggle */}
+          <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all cursor-pointer ${
+              autoRefresh
+                ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                : "bg-slate-100 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+            }`}
+            title={autoRefresh ? "Auto-refresh active (15s)" : "Enable live polling"}
+          >
+            <RefreshCcw className={`size-3.5 ${autoRefresh ? "animate-spin text-emerald-500" : ""}`} />
+            {autoRefresh ? `Live (${refreshCountdown}s)` : "Live Sync"}
+          </button>
+
+          {/* Manual Refresh Button */}
+          <button
+            onClick={() => fetchLogs()}
+            disabled={loading}
+            className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCcw className={`size-3.5 ${loading ? "animate-spin text-blue-500" : ""}`} />
+            Refresh
+          </button>
+
+          {/* CSV Export Button */}
+          <button
+            onClick={handleExportCSV}
+            disabled={isExporting}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-blue-500/30 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+          >
+            <Download className="size-3.5" />
+            {isExporting ? "Exporting..." : "Export CSV"}
+          </button>
+
+          {/* Purge / Clear History (Superadmin Only) */}
+          {isSuperAdmin && (
             <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all ${
-                autoRefresh
-                  ? "bg-emerald-500/20 border-emerald-400/40 text-emerald-300 shadow-lg shadow-emerald-500/10"
-                  : "bg-white/10 border-white/10 text-slate-300 hover:bg-white/20"
-              }`}
-              title={autoRefresh ? "Auto-refresh active (15s)" : "Enable live polling"}
+              onClick={() => setShowClearModal(true)}
+              className="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer active:scale-95"
             >
-              <RefreshCcw className={`size-3.5 ${autoRefresh ? "animate-spin text-emerald-400" : ""}`} />
-              {autoRefresh ? `Live (${refreshCountdown}s)` : "Live Sync"}
+              <Trash2 className="size-3.5" />
+              Purge
             </button>
-
-            {/* Manual Refresh Button */}
-            <button
-              onClick={() => fetchLogs()}
-              disabled={loading}
-              className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-            >
-              <RefreshCcw className={`size-3.5 ${loading ? "animate-spin text-indigo-400" : ""}`} />
-              Refresh
-            </button>
-
-            {/* CSV Export Button */}
-            <button
-              onClick={handleExportCSV}
-              disabled={isExporting}
-              className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/40 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all active:scale-95 disabled:opacity-50"
-            >
-              <Download className="size-3.5" />
-              {isExporting ? "Exporting..." : "Export CSV"}
-            </button>
-
-            {/* Purge / Clear History (Superadmin Only) */}
-            {isSuperAdmin && (
-              <button
-                onClick={() => setShowClearModal(true)}
-                className="px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all active:scale-95"
-              >
-                <Trash2 className="size-3.5" />
-                Purge
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
       {/* 2. INTERACTIVE KPI ANALYTICS CARDS */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Card 1: Total Events */}
         <button
           onClick={() => {
@@ -635,15 +638,15 @@ const AuditLogs = () => {
             setSelectedModule("ALL");
             setCurrentPage(1);
           }}
-          className={`p-4 rounded-2xl border text-left transition-all group relative overflow-hidden ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
             selectedAction === "ALL" && selectedModule === "ALL"
-              ? "bg-indigo-50/50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700 ring-2 ring-indigo-500/20"
-              : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800"
+              ? "bg-blue-50/50 dark:bg-blue-950/40 border-blue-500/60 dark:border-blue-500/50 ring-2 ring-blue-500/20"
+              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-blue-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Registry</span>
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <FiLayers className="size-4" />
             </div>
           </div>
@@ -652,7 +655,7 @@ const AuditLogs = () => {
               {(stats?.total ?? 0).toLocaleString()}
             </div>
             <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
-              <span className="text-indigo-600 dark:text-indigo-400 font-bold">+{stats?.last24h ?? 0}</span> in last 24h
+              <span className="text-blue-600 dark:text-blue-400 font-bold">+{stats?.last24h ?? 0}</span> in last 24h
             </div>
           </div>
         </button>
@@ -663,15 +666,15 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "CREATE" ? "ALL" : "CREATE");
             setCurrentPage(1);
           }}
-          className={`p-4 rounded-2xl border text-left transition-all group relative overflow-hidden ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
             selectedAction === "CREATE"
-              ? "bg-emerald-50/50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-500/20"
-              : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800"
+              ? "bg-emerald-50/50 dark:bg-emerald-950/40 border-emerald-500/60 dark:border-emerald-500/50 ring-2 ring-emerald-500/20"
+              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-emerald-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Creations</span>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <PlusCircle className="size-4" />
             </div>
           </div>
@@ -689,15 +692,15 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "UPDATE" ? "ALL" : "UPDATE");
             setCurrentPage(1);
           }}
-          className={`p-4 rounded-2xl border text-left transition-all group relative overflow-hidden ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
             selectedAction === "UPDATE"
-              ? "bg-blue-50/50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 ring-2 ring-blue-500/20"
-              : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-800"
+              ? "bg-indigo-50/50 dark:bg-indigo-950/40 border-indigo-500/60 dark:border-indigo-500/50 ring-2 ring-indigo-500/20"
+              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-indigo-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Modifications</span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+            <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
               <Edit3 className="size-4" />
             </div>
           </div>
@@ -705,7 +708,7 @@ const AuditLogs = () => {
             <div className="text-2xl font-black text-slate-900 dark:text-white">
               {(stats?.updates ?? 0).toLocaleString()}
             </div>
-            <div className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 mt-0.5">Edits & config tweaks</div>
+            <div className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">Edits & config tweaks</div>
           </div>
         </button>
 
@@ -715,15 +718,15 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "DELETE" ? "ALL" : "DELETE");
             setCurrentPage(1);
           }}
-          className={`p-4 rounded-2xl border text-left transition-all group relative overflow-hidden ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
             selectedAction === "DELETE"
-              ? "bg-rose-50/50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 ring-2 ring-rose-500/20"
-              : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-800"
+              ? "bg-rose-50/50 dark:bg-rose-950/40 border-rose-500/60 dark:border-rose-500/50 ring-2 ring-rose-500/20"
+              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-rose-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Removals</span>
-            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
+            <div className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
               <Trash2 className="size-4" />
             </div>
           </div>
@@ -741,15 +744,15 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "SETTINGS_CHANGE" ? "ALL" : "SETTINGS_CHANGE");
             setCurrentPage(1);
           }}
-          className={`p-4 rounded-2xl border text-left transition-all group relative overflow-hidden col-span-2 sm:col-span-1 ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden col-span-2 sm:col-span-1 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
             selectedAction === "SETTINGS_CHANGE"
-              ? "bg-purple-50/50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-700 ring-2 ring-purple-500/20"
-              : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-800"
+              ? "bg-purple-50/50 dark:bg-purple-950/40 border-purple-500/60 dark:border-purple-500/50 ring-2 ring-purple-500/20"
+              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-purple-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Config & Status</span>
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
               <SlidersHorizontal className="size-4" />
             </div>
           </div>
@@ -763,7 +766,7 @@ const AuditLogs = () => {
       </div>
 
       {/* 3. MULTI-DIMENSION FILTER SUITE */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[#091126]/95 p-6 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-4">
         
         {/* Main Controls Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -942,11 +945,11 @@ const AuditLogs = () => {
       </div>
 
       {/* 4. AUDIT LOGS TABLE */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <tr className="bg-slate-50/70 dark:bg-[#050A17]/60 border-b border-slate-200 dark:border-slate-800/80 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <th className="px-5 py-3.5">Timestamp</th>
                 <th className="px-5 py-3.5">Operator Identity</th>
                 <th className="px-5 py-3.5">Module & Scope</th>

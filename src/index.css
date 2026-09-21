@@ -5,10 +5,23 @@
 @layer base {
   html {
     @apply transition-colors duration-500 ease-in-out;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
     @apply transition-colors duration-500 ease-in-out font-sans antialiased;
+  }
+
+  textarea, input, select {
+    color-scheme: light;
+  }
+
+  .dark textarea, .dark input, .dark select {
+    color-scheme: dark;
   }
 
   /* Custom Scrollbar for the Sleek Design */
@@ -22,11 +35,25 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 dark:bg-slate-800 rounded-full;
+    @apply bg-slate-400/20 dark:bg-slate-700/40 rounded-full;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-600;
+    @apply bg-slate-400/50 dark:bg-slate-600/60;
+  }
+
+  /* Utility to completely hide scrollbars across all browsers */
+  .scrollbar-none,
+  .no-scrollbar {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  .scrollbar-none::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 

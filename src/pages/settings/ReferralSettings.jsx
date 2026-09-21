@@ -85,9 +85,12 @@ const ReferralSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4 text-slate-900 dark:text-white">
-        <Loader2 className="animate-spin text-blue-500" size={48} strokeWidth={2} />
-        <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-2xl border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+          <Gift className="absolute inset-0 m-auto text-blue-500/60" size={20} />
+        </div>
+        <p className="mt-4 text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 animate-pulse">
           Loading Referral Configuration...
         </p>
       </div>
@@ -98,44 +101,59 @@ const ReferralSettings = () => {
     <motion.div 
       initial={{ opacity: 0, y: 15 }} 
       animate={{ opacity: 1, y: 0 }} 
-      className="space-y-8 pb-16 text-slate-900 dark:text-white font-sans"
+      transition={{ duration: 0.25 }}
+      className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left text-slate-900 dark:text-white font-sans"
     >
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest text-[11px] uppercase flex items-center gap-1.5 mb-1">
-            <Sparkles size={14} className="text-blue-600 dark:text-blue-400 animate-pulse" /> SYSTEM CONFIGURATION
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Referral & <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 dark:from-blue-400 dark:via-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">Reward Engine</span>
-          </h1>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-            Configure dynamic referral cashbacks, signup incentives, and tour booking rewards.
-          </p>
+      {/* ── HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Gift size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                SYSTEM CONFIGURATION
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              Referral & <span className="text-blue-500">Reward Engine</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Configure dynamic referral cashbacks, signup incentives, and tour booking rewards.
+            </p>
+          </div>
         </div>
 
-        <button
-          onClick={fetchSettings}
-          className="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl text-xs font-extrabold text-slate-700 dark:text-slate-300 flex items-center gap-2 transition-all cursor-pointer shadow-sm"
-        >
-          <RefreshCw size={14} /> Refresh Rules
-        </button>
+        <div className="relative z-10 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={fetchSettings}
+            className="px-4 py-2 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer active:scale-95"
+          >
+            <RefreshCw size={14} /> Refresh Rules
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT COLUMN: EDITABLE FORM CONTROLS */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
             
             {/* SYSTEM STATUS TOGGLE */}
-            <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl">
-              <div className="flex items-center gap-3">
-                <div className={`size-11 rounded-2xl flex items-center justify-center font-bold ${formData.is_referral_active ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30'}`}>
+            <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl">
+              <div className="flex items-center gap-3.5">
+                <div className={`size-11 rounded-xl flex items-center justify-center font-bold ${formData.is_referral_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'}`}>
                   <Power size={20} />
                 </div>
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">Program Status</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                     {formData.is_referral_active ? 'Referral engine is ACTIVE and distributing rewards.' : 'Referral engine is PAUSED.'}
                   </p>
                 </div>
@@ -149,20 +167,20 @@ const ReferralSettings = () => {
                   onChange={handleChange}
                   className="sr-only peer"
                 />
-                <div className="w-12 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                <div className="w-12 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
               </label>
             </div>
 
             {/* MILESTONE 1: SIGNUP REWARDS */}
             <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                <UserCheck size={18} className="text-blue-600 dark:text-blue-400" />
-                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Milestone 1: Friend Registration</h3>
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800/80 pb-3">
+                <UserCheck size={18} className="text-blue-500" />
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Milestone 1: Friend Registration</h3>
               </div>
 
               {/* REFERRER SIGNUP BONUS */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
                   Referrer Reward (Inviter Gets)
                 </label>
                 <div className="relative">
@@ -174,7 +192,7 @@ const ReferralSettings = () => {
                     value={formData.referrer_signup_bonus}
                     onChange={handleChange}
                     onFocus={(e) => e.target.select()}
-                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xs"
+                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-all shadow-inner"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
@@ -183,8 +201,8 @@ const ReferralSettings = () => {
               </div>
 
               {/* REFEREE SIGNUP BONUS */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
                   Referee Welcome Bonus (New User Gets)
                 </label>
                 <div className="relative">
@@ -196,7 +214,7 @@ const ReferralSettings = () => {
                     value={formData.referee_signup_bonus}
                     onChange={handleChange}
                     onFocus={(e) => e.target.select()}
-                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xs"
+                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-all shadow-inner"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
@@ -207,14 +225,14 @@ const ReferralSettings = () => {
 
             {/* MILESTONE 2: BOOKING REWARD */}
             <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                <ShoppingBag size={18} className="text-indigo-600 dark:text-indigo-400" />
-                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Milestone 2: First Tour Booking</h3>
+              <div className="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800/80 pb-3">
+                <ShoppingBag size={18} className="text-indigo-500" />
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Milestone 2: First Tour Booking</h3>
               </div>
 
               {/* REFERRER BOOKING BONUS */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wide block">
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">
                   Referrer Booking Bonus (Inviter Gets on Friend's 1st Tour)
                 </label>
                 <div className="relative">
@@ -226,7 +244,7 @@ const ReferralSettings = () => {
                     value={formData.referrer_booking_bonus}
                     onChange={handleChange}
                     onFocus={(e) => e.target.select()}
-                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xs"
+                    className="w-full pl-9 pr-4 py-3 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 transition-all shadow-inner"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
@@ -236,13 +254,13 @@ const ReferralSettings = () => {
             </div>
 
             {/* SAVE ACTION */}
-            <div className="pt-4 flex justify-end">
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 flex justify-end">
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-lg shadow-blue-600/30 disabled:opacity-50 cursor-pointer"
+                className="px-7 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
-                {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                {isSaving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
                 {isSaving ? "Saving Configuration..." : "Save Referral Engine Rules"}
               </button>
             </div>
@@ -251,13 +269,13 @@ const ReferralSettings = () => {
 
         {/* RIGHT COLUMN: LIVE END-USER DASHBOARD PREVIEW */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-              <div className="flex items-center gap-2">
-                <Gift size={20} className="text-blue-600 dark:text-blue-400" />
+          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
+              <div className="flex items-center gap-2.5">
+                <Gift size={20} className="text-blue-500" />
                 <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Live User Dashboard Preview</h3>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-2.5 py-1 rounded-full">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
                 Real-Time Preview
               </span>
             </div>
@@ -265,12 +283,12 @@ const ReferralSettings = () => {
             {/* PREVIEW CARDS (MATCHING USER DASHBOARD REWARD CARDS) */}
             <div className="space-y-4">
               {/* MILESTONE 1 PREVIEW CARD */}
-              <div className="bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-5 space-y-2 relative overflow-hidden shadow-xs">
-                <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/30">
+              <div className="bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 space-y-2 relative overflow-hidden">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-500/30 inline-block">
                   MILESTONE 1
                 </span>
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-white">Friend Registers</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                   You get <strong className="text-emerald-600 dark:text-emerald-400">₹{(Number(formData.referrer_signup_bonus) || 0).toLocaleString('en-IN')}</strong> credited to your Referral Wallet instantly, and your friend gets <strong className="text-emerald-600 dark:text-emerald-400">₹{(Number(formData.referee_signup_bonus) || 0).toLocaleString('en-IN')}</strong> in their Referral Wallet!
                 </p>
                 <div className="pt-2 text-xl font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
@@ -279,12 +297,12 @@ const ReferralSettings = () => {
               </div>
 
               {/* MILESTONE 2 PREVIEW CARD */}
-              <div className="bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-5 space-y-2 relative overflow-hidden shadow-xs">
-                <span className="text-[9px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-2.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/30">
+              <div className="bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-5 space-y-2 relative overflow-hidden">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 px-2.5 py-0.5 rounded border border-indigo-500/30 inline-block">
                   MILESTONE 2
                 </span>
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-white">Friend Books a Tour</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                   You get credited <strong className="text-indigo-600 dark:text-indigo-400">₹{(Number(formData.referrer_booking_bonus) || 0).toLocaleString('en-IN')}</strong> bonus in your Referral Wallet once your friend completes payment for any tour package.
                 </p>
                 <div className="pt-2 text-xl font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
@@ -293,9 +311,9 @@ const ReferralSettings = () => {
               </div>
             </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <div className="p-4 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl flex items-start gap-3">
+              <CheckCircle2 size={18} className="text-blue-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                 Saving these settings updates the numbers displayed across all customer Referral pages and automatically adjusts backend credit algorithms.
               </p>
             </div>

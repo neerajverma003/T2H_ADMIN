@@ -333,37 +333,37 @@ const GlobalImpact = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen text-slate-900 dark:text-slate-100 transition-colors space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       
       {/* Top Banner Card */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 dark:bg-[#0d162b] dark:shadow-xl dark:border-[#1b2a47] p-6 md:p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
+            <Globe className="w-7 h-7 sm:w-8 sm:h-8" />
+          </div>
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
-                <Globe size={24} />
-              </div>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                Our Global Impact & Hospitality Partners
-              </h1>
-            </div>
-            <p className="text-slate-500 dark:text-slate-400 max-w-2xl text-sm font-semibold">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              Our Global Impact & <span className="text-blue-500">Hospitality Partners</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1 text-xs sm:text-sm md:text-base">
               Manage dynamic homepage impact metrics, milestone counters, and elite hotel & resort partner logos.
             </p>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 dark:bg-[#15233e] border border-slate-200 dark:border-[#233558] p-2 px-4 rounded-2xl">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Portal Status:</span>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="px-4 py-2 bg-slate-50 dark:bg-[#050A17] text-slate-700 dark:text-slate-300 rounded-2xl text-xs font-extrabold uppercase tracking-wider border border-slate-200 dark:border-slate-800/90 shadow-sm flex items-center gap-2">
+            <span className="text-[10px] text-slate-400 font-black">PORTAL STATUS:</span>
             <button
               onClick={handleToggleStatus}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
                 data?.is_active
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
               }`}
             >
-              {data?.is_active ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+              {data?.is_active ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
               {data?.is_active ? 'Active' : 'Disabled'}
             </button>
           </div>
@@ -372,7 +372,7 @@ const GlobalImpact = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-24">
-          <div className="w-12 h-12 border-4 border-blue-600 dark:border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : (
         <>
@@ -380,19 +380,19 @@ const GlobalImpact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             {/* Primary Header Box */}
-            <div className="bg-white dark:bg-[#0d162b] border border-slate-100 dark:border-[#1b2a47] rounded-3xl p-6 shadow-sm relative group hover:border-blue-500/40 transition-all">
+            <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative group hover:border-blue-500/40 transition-all">
               <div className="flex items-start justify-between gap-4 mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-200 dark:border-purple-800/80">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800/80">
                   <Sparkles size={12} />
                   {data?.header?.badge || 'Our Global Footprint & Impact'}
                 </span>
 
                 <button
                   onClick={handleOpenHeaderModal}
-                  className="size-8 rounded-lg bg-slate-100 dark:bg-[#15233e] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center transition-all cursor-pointer"
+                  className="size-8 rounded-lg bg-slate-100 dark:bg-[#050A17] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-800"
                   title="Edit Primary Header"
                 >
-                  <Edit size={15} />
+                  <Edit size={14} />
                 </button>
               </div>
 
@@ -406,7 +406,7 @@ const GlobalImpact = () => {
             </div>
 
             {/* Platform Overview & Subtitle Box */}
-            <div className="bg-white dark:bg-[#0d162b] border border-slate-100 dark:border-[#1b2a47] rounded-3xl p-6 shadow-sm relative group hover:border-blue-500/40 transition-all flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative group hover:border-blue-500/40 transition-all flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <span className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -416,10 +416,10 @@ const GlobalImpact = () => {
 
                   <button
                     onClick={handleOpenHeaderModal}
-                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#15233e] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center transition-all cursor-pointer"
+                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#050A17] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-800"
                     title="Edit Subtitle"
                   >
-                    <Edit size={15} />
+                    <Edit size={14} />
                   </button>
                 </div>
 
@@ -437,11 +437,11 @@ const GlobalImpact = () => {
           </div>
 
           {/* SECTION 2: GLOBAL IMPACT STATISTICS & METRICS CARDS */}
-          <div className="bg-white dark:bg-[#0d162b] border border-slate-100 dark:border-[#1b2a47] rounded-3xl p-6 md:p-8 shadow-sm">
+          <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800/80 mb-6">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Sparkles size={20} className="text-blue-600 dark:text-blue-400" />
+                  <Sparkles size={20} className="text-blue-500" />
                   Global Impact Statistics & Metrics Cards ({data?.impact_metrics?.length || 0})
                 </h2>
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
@@ -452,7 +452,7 @@ const GlobalImpact = () => {
               <button
                 type="button"
                 onClick={() => handleOpenMetricModal(null)}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Plus size={16} />
                  Add New Impact Box
@@ -461,7 +461,7 @@ const GlobalImpact = () => {
 
             {/* Metrics Grid */}
             {!data?.impact_metrics || data.impact_metrics.length === 0 ? (
-              <div className="p-12 text-center border border-dashed border-slate-200 dark:border-[#233558] rounded-2xl">
+              <div className="p-12 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                 <p className="text-sm font-bold text-slate-400">No impact metrics created yet.</p>
               </div>
             ) : (
@@ -469,11 +469,11 @@ const GlobalImpact = () => {
                 {data.impact_metrics.map((metric) => (
                   <div
                     key={metric._id}
-                    className="bg-slate-50/80 dark:bg-[#15233e]/70 border border-slate-200/80 dark:border-[#233558] rounded-2xl p-6 flex flex-col justify-between hover:border-blue-500/50 transition-all shadow-sm group"
+                    className="bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between hover:border-blue-500/50 transition-all shadow-inner group"
                   >
                     <div>
                       {/* Metric Icon */}
-                      <div className="size-11 rounded-xl bg-blue-100/70 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4">
+                      <div className="size-11 rounded-xl bg-blue-100/70 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4 shadow-sm">
                         {renderIcon(metric.icon, 22)}
                       </div>
 
@@ -490,14 +490,14 @@ const GlobalImpact = () => {
                     <div className="pt-4 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold">
                       <button
                         onClick={() => setViewModalData({ type: 'metric', data: metric })}
-                        className="text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 flex items-center gap-1 cursor-pointer transition-colors"
+                        className="text-slate-500 hover:text-blue-500 dark:text-slate-400 dark:hover:text-blue-400 flex items-center gap-1 cursor-pointer transition-colors"
                       >
                         <Eye size={14} /> View
                       </button>
 
                       <button
                         onClick={() => handleOpenMetricModal(metric)}
-                        className="text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center gap-1 cursor-pointer transition-colors"
+                        className="text-slate-500 hover:text-emerald-500 dark:text-slate-400 dark:hover:text-emerald-400 flex items-center gap-1 cursor-pointer transition-colors"
                       >
                         <Edit size={14} /> Edit
                       </button>
@@ -520,19 +520,19 @@ const GlobalImpact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             {/* Partner Title Box */}
-            <div className="bg-white dark:bg-[#0d162b] border border-slate-100 dark:border-[#1b2a47] rounded-3xl p-6 shadow-sm relative group hover:border-amber-500/40 transition-all">
+            <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative group hover:border-blue-500/40 transition-all">
               <div className="flex items-start justify-between gap-4 mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800/80">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800/80">
                   <Building2 size={12} />
                   {data?.partner_section?.badge || 'Hospitality & Resort Partners'}
                 </span>
 
                 <button
                   onClick={handleOpenPartnerHeaderModal}
-                  className="size-8 rounded-lg bg-slate-100 dark:bg-[#15233e] hover:bg-amber-50 dark:hover:bg-amber-900/40 text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 flex items-center justify-center transition-all cursor-pointer"
+                  className="size-8 rounded-lg bg-slate-100 dark:bg-[#050A17] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-800"
                   title="Edit Partner Title"
                 >
-                  <Edit size={15} />
+                  <Edit size={14} />
                 </button>
               </div>
 
@@ -546,20 +546,20 @@ const GlobalImpact = () => {
             </div>
 
             {/* Partnership Vision & Mission Box */}
-            <div className="bg-white dark:bg-[#0d162b] border border-slate-100 dark:border-[#1b2a47] rounded-3xl p-6 shadow-sm relative group hover:border-amber-500/40 transition-all flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative group hover:border-blue-500/40 transition-all flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <span className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Building2 size={14} className="text-amber-500" />
+                    <Building2 size={14} className="text-blue-500" />
                     PARTNERSHIP VISION & MISSION
                   </span>
 
                   <button
                     onClick={handleOpenPartnerHeaderModal}
-                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#15233e] hover:bg-amber-50 dark:hover:bg-amber-900/40 text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 flex items-center justify-center transition-all cursor-pointer"
+                    className="size-8 rounded-lg bg-slate-100 dark:bg-[#050A17] hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-600 dark:text-slate-300 hover:text-blue-500 flex items-center justify-center transition-all cursor-pointer border border-slate-200 dark:border-slate-800"
                     title="Edit Partner Mission"
                   >
-                    <Edit size={15} />
+                    <Edit size={14} />
                   </button>
                 </div>
 
@@ -577,14 +577,14 @@ const GlobalImpact = () => {
           </div>
 
           {/* SECTION 4: PARTNER HOTEL LOGOS & BRAND GALLERY */}
-          <div className="bg-[#0b1120] dark:bg-[#0b1120] border border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 mb-6">
+          <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800/80 mb-6">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Building2 size={20} className="text-amber-500" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Building2 size={20} className="text-blue-500" />
                   Partner Hotel Logos & Brand Gallery ({data?.partner_logos?.length || 0})
                 </h2>
-                <p className="text-xs font-semibold text-slate-400 mt-0.5">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
                   Upload and manage luxury hotel & resort brand logo images displayed on the global impact portal.
                 </p>
               </div>
@@ -592,7 +592,7 @@ const GlobalImpact = () => {
               <button
                 type="button"
                 onClick={() => handleOpenLogoModal(null)}
-                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Upload size={16} />
                  Upload New Logo

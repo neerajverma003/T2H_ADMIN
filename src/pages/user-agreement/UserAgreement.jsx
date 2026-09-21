@@ -99,43 +99,52 @@ const UserAgreement = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-full mx-auto space-y-8 pb-20 px-4 sm:px-6 text-left"
-    >
-      {/* ── HEADER HUB (Admire Holidays Style) ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            User <span className="text-blue-600 dark:text-blue-500">Agreement</span>
-          </h1>
-          <p className="text-xs sm:text-sm font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
-            Manage legal user standards and website terms of service for all travelers.
-          </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
+      {/* ── HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <FileText size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                LEGAL COMPLIANCE
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              User <span className="text-blue-500">Agreement</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Manage legal user standards and website terms of service for all travelers.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* ── MAIN CARD: USER AGREEMENT ── */}
-      <div className="bg-slate-900 dark:bg-slate-900 text-white rounded-3xl p-6 lg:p-8 border border-slate-800 shadow-2xl space-y-6">
-        
+      <div className="bg-white dark:bg-[#091126]/95 text-slate-900 dark:text-white rounded-3xl p-6 lg:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
         {/* Card Header & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <FileText size={24} />
+            <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <FileText size={22} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 User Agreement
               </h2>
-              <div className="flex items-center gap-3 mt-1 text-[11px] font-extrabold tracking-wider text-slate-400 uppercase">
+              <div className="flex items-center gap-3 mt-1 text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                 <span>{clauses.length} {clauses.length === 1 ? "CLAUSE" : "CLAUSES"} ACTIVE</span>
                 <span>•</span>
                 <button
                   type="button"
                   onClick={handleCopyAll}
-                  className="hover:text-blue-400 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="hover:text-blue-500 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                   <span>{copied ? "COPIED" : "COPY ALL"}</span>
@@ -148,7 +157,7 @@ const UserAgreement = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <X size={14} /> CANCEL
             </button>
@@ -157,9 +166,9 @@ const UserAgreement = () => {
               type="button"
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-blue-600/40 hover:shadow-blue-500/60 transition-all duration-300 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+              {isSaving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
               <span>{isSaving ? "SAVING..." : "SAVE AGREEMENT"}</span>
             </button>
           </div>
@@ -176,7 +185,7 @@ const UserAgreement = () => {
             {clauses.map((clause, idx) => (
               <div
                 key={idx}
-                className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-5 space-y-4 shadow-inner group hover:border-slate-700 transition-all text-left"
+                className="bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 space-y-4 shadow-inner group hover:border-blue-500/40 transition-all text-left"
               >
                 {/* Title Input */}
                 <div className="flex items-center justify-between gap-4">
@@ -185,12 +194,12 @@ const UserAgreement = () => {
                     value={clause.title}
                     onChange={(e) => handleTitleChange(idx, e.target.value)}
                     placeholder="Section Title (e.g., Acceptance of Terms)"
-                    className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 font-bold text-base outline-none focus:border-blue-500 transition-colors"
+                    className="flex-1 bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-slate-100 font-bold text-sm outline-none focus:border-blue-500 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => handleDeleteClause(idx)}
-                    className="flex items-center gap-1 text-slate-400 hover:text-rose-400 text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-lg hover:bg-slate-900 transition-all cursor-pointer shrink-0"
+                    className="flex items-center gap-1.5 text-slate-400 hover:text-rose-500 text-xs font-bold uppercase tracking-wider px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shrink-0"
                   >
                     <Trash2 size={14} />
                     <span>Remove</span>
@@ -203,7 +212,7 @@ const UserAgreement = () => {
                   value={clause.content}
                   onChange={(e) => handleContentChange(idx, e.target.value)}
                   placeholder="Enter clause content or terms of service paragraph..."
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-slate-200 font-medium text-sm outline-none focus:border-blue-500 transition-colors leading-relaxed resize-y"
+                  className="w-full bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-slate-800 dark:text-slate-200 font-medium text-sm outline-none focus:border-blue-500 transition-colors leading-relaxed resize-y"
                 />
               </div>
             ))}
@@ -212,7 +221,7 @@ const UserAgreement = () => {
             <button
               type="button"
               onClick={handleAddClause}
-              className="w-full py-4 border-2 border-dashed border-slate-800 hover:border-blue-500/60 rounded-2xl text-slate-400 hover:text-blue-400 font-extrabold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 bg-slate-950/30 hover:bg-slate-950/70 cursor-pointer"
+              className="w-full py-3.5 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-blue-500/60 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-blue-500 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 bg-slate-50/50 dark:bg-[#050A17]/40 hover:bg-blue-500/5 cursor-pointer"
             >
               <Plus size={16} /> ADD NEW CLAUSE
             </button>
@@ -221,20 +230,20 @@ const UserAgreement = () => {
       </div>
 
       {/* ── FOOTER INTEGRATION BANNER ── */}
-      <div className="p-6 bg-slate-900/60 border border-slate-800/80 rounded-2xl flex items-start gap-4 text-left">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+      <div className="p-5 bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl flex items-start gap-4 text-left">
+        <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
           <Info size={20} />
         </div>
         <div>
-          <h3 className="text-xs font-black uppercase tracking-wider text-blue-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-blue-500">
             FOOTER USER AGREEMENT INTEGRATION
           </h3>
-          <p className="text-xs text-slate-300 leading-relaxed font-medium mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium mt-1">
             These terms are fetched and displayed on the main website's footer "User Agreement" page.
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

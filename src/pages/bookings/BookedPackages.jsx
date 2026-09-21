@@ -29,12 +29,15 @@ import {
   Receipt,
   Users,
   Ticket,
-  Gift
+  Gift,
+  ArrowUpDown,
+  ChevronDown,
+  Filter,
+  RotateCcw,
+  IndianRupee
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-
-const ITEMS_PER_PAGE = 10;
 
 
 // Helper to calculate start date, end date and duration
@@ -225,6 +228,8 @@ const BookedPackages = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest"); // "newest" | "oldest"
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [downloadingId, setDownloadingId] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
@@ -355,8 +360,12 @@ const BookedPackages = () => {
       if (statusFilter === "pending") return b.payment_status !== "paid";
 
       return true;
+    }).sort((a, b) => {
+      const dateA = new Date(a.travel_date || a.createdAt || 0);
+      const dateB = new Date(b.travel_date || b.createdAt || 0);
+      return sortOrder === "oldest" ? dateA - dateB : dateB - dateA;
     });
-  }, [bookings, searchTerm, statusFilter]);
+  }, [bookings, searchTerm, statusFilter, sortOrder]);
 
   // Filter Activity Bookings
   const filteredActivityBookings = useMemo(() => {
@@ -375,8 +384,12 @@ const BookedPackages = () => {
         (statusFilter === "pending" && b.payment_status !== "paid");
 
       return matchSearch && matchStatus;
+    }).sort((a, b) => {
+      const dateA = new Date(a.activity_date || a.createdAt || 0);
+      const dateB = new Date(b.activity_date || b.createdAt || 0);
+      return sortOrder === "oldest" ? dateA - dateB : dateB - dateA;
     });
-  }, [activityBookings, searchTerm, statusFilter]);
+  }, [activityBookings, searchTerm, statusFilter, sortOrder]);
 
   // Filter Gift Card Bookings
   const filteredGiftCardBookings = useMemo(() => {
@@ -408,8 +421,12 @@ const BookedPackages = () => {
       if (statusFilter === "pending") return !paid;
 
       return true;
+    }).sort((a, b) => {
+      const dateA = new Date(a.created_at || a.createdAt || 0);
+      const dateB = new Date(b.created_at || b.createdAt || 0);
+      return sortOrder === "oldest" ? dateA - dateB : dateB - dateA;
     });
-  }, [giftCardBookings, searchTerm, statusFilter]);
+  }, [giftCardBookings, searchTerm, statusFilter, sortOrder]);
 
   // Current list count for pagination
   const currentCategoryCount = useMemo(() => {
@@ -418,23 +435,36 @@ const BookedPackages = () => {
     return filteredGiftCardBookings.length;
   }, [activeCategory, filteredBookings.length, filteredActivityBookings.length, filteredGiftCardBookings.length]);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(currentCategoryCount / ITEMS_PER_PAGE);
+  // Dynamic Pagination Logic
+  const effectiveItemsPerPage =
+    itemsPerPage >= currentCategoryCount && currentCategoryCount > 0 && itemsPerPage > 50
+      ? currentCategoryCount
+      : itemsPerPage;
+
+  const totalPages = Math.max(1, Math.ceil(currentCategoryCount / effectiveItemsPerPage));
 
   const paginatedBookings = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredBookings, currentPage]);
+    const start = (currentPage - 1) * effectiveItemsPerPage;
+    return filteredBookings.slice(start, start + effectiveItemsPerPage);
+  }, [filteredBookings, currentPage, effectiveItemsPerPage]);
 
   const paginatedActivityBookings = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredActivityBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredActivityBookings, currentPage]);
+    const start = (currentPage - 1) * effectiveItemsPerPage;
+    return filteredActivityBookings.slice(start, start + effectiveItemsPerPage);
+  }, [filteredActivityBookings, currentPage, effectiveItemsPerPage]);
 
   const paginatedGiftCardBookings = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredGiftCardBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredGiftCardBookings, currentPage]);
+    const start = (currentPage - 1) * effectiveItemsPerPage;
+    return filteredGiftCardBookings.slice(start, start + effectiveItemsPerPage);
+  }, [filteredGiftCardBookings, currentPage, effectiveItemsPerPage]);
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setSortOrder("newest");
+    setItemsPerPage(10);
+    setCurrentPage(1);
+  };
 
   // Calculations for Stat Cards
   const stats = useMemo(() => {
@@ -576,25 +606,27 @@ const BookedPackages = () => {
   }, []);
 
   return (
-    <div className="p-4 md:p-8 w-full min-h-screen text-slate-900 dark:text-slate-100">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100">
 
       {/* 1. TITLE & CATEGORY SWITCHER SECTION */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 mb-6 relative shadow-sm dark:shadow-none">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-7 relative border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-indigo-600 dark:bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-indigo-600/30 shrink-0">
+            <div className="flex items-center gap-3.5 mb-2.5">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
                 {activeCategory === "packages" ? <FileText size={24} /> : activeCategory === "activities" ? <Ticket size={24} /> : <Gift size={24} />}
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight font-['Playfair_Display']">
-                  {activeCategory === "packages"
-                    ? "Booked Packages Directory"
-                    : activeCategory === "activities"
-                    ? "Booked Activities Directory"
-                    : "Gift Card Purchases Directory"}
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+                  {activeCategory === "packages" ? (
+                    <>Booked <span className="text-blue-500">Packages</span> Directory</>
+                  ) : activeCategory === "activities" ? (
+                    <>Booked <span className="text-blue-500">Activities</span> Directory</>
+                  ) : (
+                    <>Gift Card <span className="text-blue-500">Purchases</span> Directory</>
+                  )}
                 </h1>
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
                   {activeCategory === "packages"
                     ? "Real-time Booking & Invoice Logs"
                     : activeCategory === "activities"
@@ -603,7 +635,7 @@ const BookedPackages = () => {
                 </span>
               </div>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm max-w-2xl">
               {activeCategory === "packages"
                 ? "Inspect traveller profiles, payment gateway receipts, travel departure origins, and financial ledgers."
                 : activeCategory === "activities"
@@ -613,37 +645,43 @@ const BookedPackages = () => {
           </div>
 
           {/* Category Switcher Tabs */}
-          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex-wrap shrink-0">
+          <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#050A17] p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800/90 flex-wrap shrink-0">
             <button
               type="button"
               onClick={() => { setActiveCategory("packages"); setCurrentPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${activeCategory === "packages"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "packages"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"
                 }`}
             >
-               Packages ({bookings.length})
+              <span>Packages</span>
+              <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${activeCategory === "packages" ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}>
+                {bookings.length}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => { setActiveCategory("activities"); setCurrentPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${activeCategory === "activities"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "activities"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"
                 }`}
             >
-               Activities ({activityBookings.length})
+              <span>Activities</span>
+              <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${activeCategory === "activities" ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}>
+                {activityBookings.length}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => { setActiveCategory("giftcards"); setCurrentPage(1); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${activeCategory === "giftcards"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "giftcards"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"
                 }`}
             >
-              <span> Gift Cards</span>
-              <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${activeCategory === "giftcards" ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"}`}>
+              <span>Gift Cards</span>
+              <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${activeCategory === "giftcards" ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}>
                 {giftCardBookings.length}
               </span>
             </button>
@@ -652,14 +690,15 @@ const BookedPackages = () => {
       </div>
 
       {/* 2. FINANCIAL LEDGER STATS (KPI) CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-slate-700 transition-all">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Booked / Passes / Cards */}
+        <div className="bg-white dark:bg-[#091126]/95 p-5 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl hover:border-blue-500/50 dark:hover:border-indigo-500/50 transition-all duration-300">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {activeCategory === "packages" ? "Total Booked Trips" : activeCategory === "activities" ? "Total Activity Passes" : "Total Gift Cards"}
             </span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              {activeCategory === "packages" ? <FileText size={16} /> : activeCategory === "activities" ? <Ticket size={16} /> : <Gift size={16} />}
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              {activeCategory === "packages" ? <FileText size={18} /> : activeCategory === "activities" ? <Ticket size={18} /> : <Gift size={18} />}
             </div>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white">
@@ -670,11 +709,12 @@ const BookedPackages = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-slate-700 transition-all">
+        {/* Total Collection Paid */}
+        <div className="bg-white dark:bg-[#091126]/95 p-5 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all duration-300">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total Collection Paid</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <DollarSign size={16} />
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Collection Paid</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <DollarSign size={18} />
             </div>
           </div>
           <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
@@ -687,13 +727,14 @@ const BookedPackages = () => {
           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-1">Captured via Razorpay Gateway</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-slate-700 transition-all">
+        {/* Total Pending Balances */}
+        <div className="bg-white dark:bg-[#091126]/95 p-5 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl hover:border-amber-500/50 dark:hover:border-amber-500/50 transition-all duration-300">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {activeCategory === "packages" ? "Total Pending Balances" : activeCategory === "activities" ? "Pending Passes" : "Pending Purchases"}
             </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Clock size={16} />
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <Clock size={18} />
             </div>
           </div>
           <div className="text-3xl font-black text-amber-600 dark:text-amber-400">
@@ -708,13 +749,14 @@ const BookedPackages = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none hover:border-slate-700 transition-all">
+        {/* Custom Notes / Tickets / Credit */}
+        <div className="bg-white dark:bg-[#091126]/95 p-5 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl hover:border-purple-500/50 dark:hover:border-purple-500/50 transition-all duration-300">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {activeCategory === "packages" ? "Custom Notes / Addons" : activeCategory === "activities" ? "Total Tickets Booked" : "Total Card Credit"}
             </span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-slate-800 border border-rose-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-              {activeCategory === "packages" ? <AlertTriangle size={16} /> : activeCategory === "activities" ? <Users size={16} /> : <Tag size={16} />}
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              {activeCategory === "packages" ? <AlertTriangle size={18} /> : activeCategory === "activities" ? <Users size={18} /> : <Tag size={18} />}
             </div>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white">
@@ -730,12 +772,13 @@ const BookedPackages = () => {
         </div>
       </div>
 
-      {/* 3. SEARCH BAR & STATUS FILTER CHIPS */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 mb-6 shadow-sm dark:shadow-none">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      {/* 3. SEARCH & FILTERS TOOLBAR CARD */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-5 md:p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-4 relative z-30">
+        {/* ROW 1: Search Input & Sort Order */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 dark:text-indigo-400" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
             <input
               type="text"
               value={searchTerm}
@@ -750,12 +793,12 @@ const BookedPackages = () => {
                   ? "Search by guest name, email, booking ref, activity title..."
                   : "Search by buyer, recipient, gift code (T2H-...), payment ID..."
               }
-              className="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-xl text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all shadow-inner focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full pl-11 pr-10 py-3.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-2xl text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all shadow-inner"
             />
             {searchTerm && (
               <button
                 type="button"
-                onClick={() => setSearchTerm("")}
+                onClick={() => { setSearchTerm(""); setCurrentPage(1); }}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
                 title="Clear Search"
               >
@@ -764,8 +807,35 @@ const BookedPackages = () => {
             )}
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 shrink-0">
+          {/* Sort Order (Newest First / Oldest First) */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-xs flex items-center gap-1.5 shrink-0">
+              <ArrowUpDown size={14} className="text-blue-500" /> Sort:
+            </span>
+            <div className="relative">
+              <select
+                value={sortOrder}
+                onChange={(e) => {
+                  setSortOrder(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="appearance-none bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#080E21] border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-indigo-500/50 text-slate-900 dark:text-white text-xs font-bold py-3 pl-4 pr-9 rounded-2xl outline-none focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500 transition-all cursor-pointer shadow-inner min-w-[135px]"
+              >
+                <option value="newest" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Newest First</option>
+                <option value="oldest" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Oldest First</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* ROW 2: Filters Below (Status Filter Chips, Per Page, Reset) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+          {/* Status Filter Chips */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-xs flex items-center gap-1.5 shrink-0 mr-1">
+              <Filter size={14} className="text-blue-500" /> Status:
+            </span>
             {[
               {
                 id: 'all',
@@ -801,51 +871,89 @@ const BookedPackages = () => {
                   setStatusFilter(tab.id);
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border ${statusFilter === tab.id
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30'
-                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border ${statusFilter === tab.id
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30'
+                    : 'bg-slate-50 dark:bg-[#050A17] text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
               >
                 <span>{tab.label}</span>
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${statusFilter === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-                  }`}>
+                <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${statusFilter === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                   {tab.count}
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* Right side: Per Page & Reset */}
+          <div className="flex items-center gap-3 ml-auto">
+            {/* Per Page */}
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400 font-bold uppercase tracking-wider text-xs shrink-0">
+                Per Page:
+              </span>
+              <div className="relative">
+                <select
+                  value={itemsPerPage >= currentCategoryCount && currentCategoryCount > 0 && itemsPerPage > 50 ? "all" : itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(e.target.value === "all" ? 9999 : Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="appearance-none bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#080E21] border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-indigo-500/50 text-slate-900 dark:text-white text-xs font-bold py-2.5 pl-3.5 pr-8 rounded-2xl outline-none focus:ring-1 focus:ring-blue-500/40 focus:border-blue-500 transition-all cursor-pointer shadow-inner min-w-[90px]"
+                >
+                  <option value={10} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">10</option>
+                  <option value={25} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">25</option>
+                  <option value={50} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">50</option>
+                  <option value="all" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">All</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Reset Filters */}
+            {(searchTerm !== "" || statusFilter !== "all" || sortOrder !== "newest" || itemsPerPage !== 10) && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 shrink-0"
+                title="Reset all filters"
+              >
+                <RotateCcw size={13} />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* LOADER & NO RESULTS */}
       {(activeCategory === "packages" ? isLoading : activeCategory === "activities" ? isLoadingActivities : isLoadingGiftCards) ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
-          <Loader2 className="animate-spin text-indigo-500 dark:text-indigo-400 mb-4" size={40} />
-          <span className="text-base font-bold text-slate-800 dark:text-slate-300">Synchronizing Directory...</span>
-          <p className="text-xs text-slate-500 mt-1">Fetching records from database</p>
+        <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
+          <Loader2 className="animate-spin text-blue-500 mb-4" size={40} />
+          <span className="text-base font-bold text-slate-800 dark:text-slate-200">Synchronizing Directory...</span>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Fetching records from database</p>
         </div>
       ) : error && activeCategory === "packages" ? (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm dark:shadow-none">
-          <p className="text-rose-500 font-bold mb-3">{error}</p>
-          <button onClick={fetchBookings} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 p-12 text-center shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
+          <p className="text-rose-500 font-bold mb-4">{error}</p>
+          <button onClick={fetchBookings} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-blue-600/30 cursor-pointer active:scale-95">
             Reload Directory
           </button>
         </div>
       ) : (activeCategory === "packages" ? filteredBookings.length : activeCategory === "activities" ? filteredActivityBookings.length : filteredGiftCardBookings.length) === 0 ? (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 border-dashed p-14 text-center shadow-sm dark:shadow-none">
-          <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 border-dashed p-14 text-center shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
+          <div className="w-20 h-20 bg-slate-50 dark:bg-[#050A17] rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 border border-slate-200 dark:border-slate-800">
             <Search size={32} />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Matching Bookings Found</h3>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto mb-5">
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">No Matching Bookings Found</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto mb-5 font-medium">
             {searchTerm ? `No results found for "${searchTerm}".` : "There are no bookings under this status category."}
           </p>
-          {searchTerm && (
+          {(searchTerm || statusFilter !== "all" || sortOrder !== "newest") && (
             <button
-              onClick={() => setSearchTerm("")}
-              className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-slate-200 dark:hover:text-white text-xs font-bold transition cursor-pointer"
+              onClick={handleResetFilters}
+              className="px-5 py-2.5 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 text-xs font-bold uppercase tracking-wider transition cursor-pointer active:scale-95"
             >
-              Clear Search Query
+              Reset Filters
             </button>
           )}
         </div>
@@ -854,7 +962,7 @@ const BookedPackages = () => {
           {activeCategory === "packages" ? (
             <>
               {/* HIGH-VISIBILITY TABLE HEADER */}
-              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 mb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-sm dark:shadow-none">
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 mb-3 bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-2xl text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-md dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ring-1 ring-slate-900/5 dark:ring-white/5">
                 <div className="col-span-3">Customer & Invoice</div>
                 <div className="col-span-2">Payment Status</div>
                 <div className="col-span-3">Package & Travel Origin</div>
@@ -891,24 +999,24 @@ const BookedPackages = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(idx * 0.03, 0.2) }}
                       key={b._id}
-                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400/50 dark:hover:border-slate-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 shadow-sm dark:shadow-none rounded-2xl transition-all duration-200 group"
+                      className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-slate-800/90 hover:border-blue-500/50 dark:hover:border-indigo-500/50 hover:bg-slate-50/50 dark:hover:bg-[#0d1733]/80 shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.35)] rounded-2xl transition-all duration-200 group ring-1 ring-slate-900/5 dark:ring-white/5"
                     >
                       <div className="px-6 py-4.5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
 
                         {/* 1. Customer & Invoice Column */}
                         <div className="col-span-3 flex items-center gap-3.5">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/20">
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
                             {initials}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
+                            <h3 className="font-extrabold text-sm text-slate-900 dark:text-white truncate group-hover:text-blue-500 transition-colors">
                               {custName}
                             </h3>
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-300 truncate" title={custEmail}>
+                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate" title={custEmail}>
                               {custEmail}
                             </p>
                             <div className="flex items-center gap-1.5 mt-1">
-                              <span className="font-mono font-bold text-[11px] text-indigo-600 dark:text-indigo-300 tracking-wider">
+                              <span className="font-mono font-bold text-[11px] text-blue-600 dark:text-blue-400 tracking-wider">
                                 {invoiceId}
                               </span>
                               <button
@@ -916,7 +1024,7 @@ const BookedPackages = () => {
                                   e.stopPropagation();
                                   handleCopy(invoiceId);
                                 }}
-                                className="p-0.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors shrink-0 cursor-pointer"
+                                className="p-0.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors shrink-0 cursor-pointer"
                                 title="Copy Invoice ID"
                               >
                                 {copiedId === invoiceId ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
@@ -927,7 +1035,7 @@ const BookedPackages = () => {
 
                         {/* 2. Payment Status Badge */}
                         <div className="col-span-2">
-                          <span className={`inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl ${badge.bg} ${badge.text} border ${badge.border} shadow-xs`}>
+                          <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl ${badge.bg} ${badge.text} border ${badge.border} shadow-xs`}>
                             <span className={`w-2 h-2 rounded-full ${badge.dot} animate-pulse`}></span>
                             {badge.label}
                           </span>
@@ -935,7 +1043,7 @@ const BookedPackages = () => {
 
                         {/* 3. Package & Origin */}
                         <div className="col-span-3">
-                          <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                          <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
                             {b.itinerary_id?.title || "Custom Tour Package"}
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -952,8 +1060,8 @@ const BookedPackages = () => {
 
                         {/* 4. Travel Schedule */}
                         <div className="col-span-2">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                            <Calendar size={13} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                            <Calendar size={13} className="text-blue-500 dark:text-blue-400 shrink-0" />
                             <span>{dateInfo.start}</span>
                           </div>
                           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 pl-5">
@@ -981,14 +1089,14 @@ const BookedPackages = () => {
                         <div className="col-span-1 flex items-center justify-center gap-2">
                           <button
                             onClick={() => setViewBooking(b)}
-                            className="p-2.5 rounded-xl bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-slate-700 transition-all duration-200 cursor-pointer shadow-sm"
+                            className="p-2.5 rounded-xl bg-blue-50 dark:bg-[#050A17] hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-200 dark:border-slate-700/80 hover:border-blue-600 transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
                             title="View Full Booking & Customer Details"
                           >
                             <Eye size={16} />
                           </button>
                           <button
                             onClick={() => setDeleteBookingModal(b)}
-                            className="p-2.5 rounded-xl bg-rose-50 dark:bg-slate-800 hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-200 dark:border-slate-700 transition-all duration-200 cursor-pointer shadow-sm"
+                            className="p-2.5 rounded-xl bg-rose-50 dark:bg-[#050A17] hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-200 dark:border-slate-700/80 hover:border-rose-600 transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
                             title="Delete Booking Record"
                           >
                             <Trash2 size={16} />
@@ -1004,7 +1112,7 @@ const BookedPackages = () => {
           ) : activeCategory === "activities" ? (
             <>
               {/* HIGH-VISIBILITY ACTIVITY TABLE HEADER */}
-              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 mb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-sm dark:shadow-none">
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 mb-3 bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-2xl text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-md dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ring-1 ring-slate-900/5 dark:ring-white/5">
                 <div className="col-span-3">Customer & Ref</div>
                 <div className="col-span-2">Payment Status</div>
                 <div className="col-span-3">Activity & Destination</div>
@@ -1025,7 +1133,7 @@ const BookedPackages = () => {
                       key={act._id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400/50 dark:hover:border-slate-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 rounded-2xl p-4 sm:p-5 transition-all shadow-sm dark:shadow-none"
+                      className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-slate-800/90 hover:border-blue-500/50 dark:hover:border-indigo-500/50 hover:bg-slate-50/50 dark:hover:bg-[#0d1733]/80 rounded-2xl p-4 sm:p-5 transition-all shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.35)] ring-1 ring-slate-900/5 dark:ring-white/5"
                     >
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                         {/* 1. Customer & Ref */}
@@ -1037,7 +1145,7 @@ const BookedPackages = () => {
                             <Mail size={12} className="text-slate-400 dark:text-slate-500" />
                             <span className="truncate">{custEmail}</span>
                           </p>
-                          <p className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                          <p className="text-[11px] font-mono text-blue-600 dark:text-blue-400 flex items-center gap-1">
                             <Tag size={11} /> {act.booking_reference || act._id}
                           </p>
                         </div>
@@ -1045,7 +1153,7 @@ const BookedPackages = () => {
                         {/* 2. Payment Status */}
                         <div className="lg:col-span-2">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${isPaid
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${isPaid
                                 ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30"
                                 : "bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30"
                               }`}
@@ -1062,7 +1170,7 @@ const BookedPackages = () => {
 
                         {/* 3. Activity & Destination */}
                         <div className="lg:col-span-3">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/40">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800/40">
                             {act.activity_id?.selected_destination?.destination_name || "Destination Activity"}
                           </span>
                           <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 mt-1 line-clamp-1">
@@ -1076,7 +1184,7 @@ const BookedPackages = () => {
                         {/* 4. Date & Tickets */}
                         <div className="lg:col-span-2 space-y-1">
                           <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                            <Calendar size={13} className="text-indigo-500 dark:text-indigo-400" />
+                            <Calendar size={13} className="text-blue-500 dark:text-blue-400" />
                             <span>
                               {new Date(act.activity_date).toLocaleDateString("en-IN", {
                                 day: "numeric",
@@ -1095,7 +1203,7 @@ const BookedPackages = () => {
 
                         {/* 5. Amount */}
                         <div className="lg:col-span-1 lg:text-right">
-                          <span className="text-base font-black text-indigo-600 dark:text-indigo-400">
+                          <span className="text-base font-black text-slate-900 dark:text-white">
                             ₹{Number(act.total_amount || 0).toLocaleString("en-IN")}
                           </span>
                           <p className="text-[10px] text-slate-500 font-medium">
@@ -1107,14 +1215,14 @@ const BookedPackages = () => {
                         <div className="lg:col-span-1 flex items-center justify-center gap-2">
                           <button
                             onClick={() => setViewActivityBooking(act)}
-                            className="p-2.5 rounded-xl bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-slate-700 transition-all cursor-pointer shadow-sm"
+                            className="p-2.5 rounded-xl bg-blue-50 dark:bg-[#050A17] hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-200 dark:border-slate-700/80 hover:border-blue-600 transition-all cursor-pointer shadow-sm active:scale-95"
                             title="View Activity Details"
                           >
                             <Eye size={16} />
                           </button>
                           <button
                             onClick={() => handleDeleteActivityBooking(act._id)}
-                            className="p-2.5 rounded-xl bg-rose-50 dark:bg-slate-800 hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-200 dark:border-slate-700 transition-all cursor-pointer shadow-sm"
+                            className="p-2.5 rounded-xl bg-rose-50 dark:bg-[#050A17] hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-200 dark:border-slate-700/80 hover:border-rose-600 transition-all cursor-pointer shadow-sm active:scale-95"
                             title="Delete Activity Booking"
                           >
                             <Trash2 size={16} />
@@ -1129,7 +1237,7 @@ const BookedPackages = () => {
           ) : (
             <>
               {/* HIGH-VISIBILITY GIFT CARDS TABLE HEADER */}
-              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 mb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-sm dark:shadow-none">
+              <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 mb-3 bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-2xl text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider shadow-md dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] ring-1 ring-slate-900/5 dark:ring-white/5">
                 <div className="col-span-3">Purchaser & Card Code</div>
                 <div className="col-span-2">Payment Status</div>
                 <div className="col-span-3">Recipient & Card Type</div>
@@ -1158,23 +1266,23 @@ const BookedPackages = () => {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(idx * 0.03, 0.2) }}
-                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-400/50 dark:hover:border-slate-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 shadow-sm dark:shadow-none rounded-2xl transition-all duration-200 group"
+                      className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-slate-800/90 hover:border-blue-500/50 dark:hover:border-indigo-500/50 hover:bg-slate-50/50 dark:hover:bg-[#0d1733]/80 shadow-md dark:shadow-[0_8px_30px_rgb(0,0,0,0.35)] rounded-2xl transition-all duration-200 group ring-1 ring-slate-900/5 dark:ring-white/5"
                     >
                       <div className="px-6 py-4.5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                         {/* 1. Purchaser & Card Code */}
                         <div className="col-span-3 flex items-center gap-3.5">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/20">
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
                             {buyerInitials}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-bold text-sm text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
+                            <h3 className="font-extrabold text-sm text-slate-900 dark:text-white truncate group-hover:text-blue-500 transition-colors">
                               {buyerName}
                             </h3>
                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate" title={buyerEmail}>
                               {buyerEmail}
                             </p>
                             <div className="flex items-center gap-1.5 mt-1">
-                              <span className="font-mono font-black text-xs text-indigo-600 dark:text-indigo-400 tracking-wider">
+                              <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 tracking-wider">
                                 {card.public_code}
                               </span>
                               <button
@@ -1183,7 +1291,7 @@ const BookedPackages = () => {
                                   e.stopPropagation();
                                   handleCopy(card.public_code);
                                 }}
-                                className="p-0.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors shrink-0 cursor-pointer"
+                                className="p-0.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors shrink-0 cursor-pointer"
                                 title="Copy Gift Card Code"
                               >
                                 {copiedId === card.public_code ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
@@ -1195,7 +1303,7 @@ const BookedPackages = () => {
                         {/* 2. Payment Status */}
                         <div className="col-span-2">
                           <div className="flex flex-col gap-1 items-start">
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-xl ${paymentBadge.bg} ${paymentBadge.text} border ${paymentBadge.border} shadow-xs`}>
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl ${paymentBadge.bg} ${paymentBadge.text} border ${paymentBadge.border} shadow-xs`}>
                               <span className={`w-2 h-2 rounded-full ${paymentBadge.dot} animate-pulse`}></span>
                               {paymentBadge.label}
                             </span>
@@ -1243,8 +1351,8 @@ const BookedPackages = () => {
 
                         {/* 4. Purchase & Expiry */}
                         <div className="col-span-2 space-y-1">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                            <Calendar size={13} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                            <Calendar size={13} className="text-blue-500 dark:text-blue-400 shrink-0" />
                             <span>
                               {new Date(card.created_at || card.createdAt).toLocaleDateString("en-IN", {
                                 day: "numeric",
@@ -1282,7 +1390,7 @@ const BookedPackages = () => {
                           <button
                             type="button"
                             onClick={() => setViewGiftCardBooking(card)}
-                            className="p-2.5 rounded-xl bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-slate-700 transition-all duration-200 cursor-pointer shadow-sm"
+                            className="p-2.5 rounded-xl bg-blue-50 dark:bg-[#050A17] hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-200 dark:border-slate-700/80 hover:border-blue-600 transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
                             title="View Gift Card Payment & Full Details"
                           >
                             <Eye size={16} />
@@ -1300,9 +1408,9 @@ const BookedPackages = () => {
 
       {/* PAGINATION INTERACTION */}
       {totalPages > 1 && !(activeCategory === "packages" ? isLoading : activeCategory === "activities" ? isLoadingActivities : isLoadingGiftCards) && (
-        <div className="flex items-center justify-between mt-6 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-white dark:bg-[#091126]/95 p-4 sm:p-5 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-            Showing Page {currentPage} of {totalPages} ({currentCategoryCount} total results)
+            Showing Page {currentPage} of {totalPages} ({currentCategoryCount} total records)
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -1310,11 +1418,11 @@ const BookedPackages = () => {
                 setCurrentPage(prev => Math.max(prev - 1, 1));
               }}
               disabled={currentPage === 1}
-              className="p-2.5 border border-slate-200 dark:border-slate-700/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 cursor-pointer transition"
+              className="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 text-slate-700 dark:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-700 cursor-pointer transition active:scale-95"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs rounded-lg border border-slate-200 dark:border-slate-700">
+            <span className="px-3.5 py-1.5 bg-slate-100 dark:bg-[#050A17] text-slate-800 dark:text-white font-bold text-xs rounded-xl border border-slate-200 dark:border-slate-800">
               {currentPage} / {totalPages}
             </span>
             <button
@@ -1322,7 +1430,7 @@ const BookedPackages = () => {
                 setCurrentPage(prev => Math.min(prev + 1, totalPages));
               }}
               disabled={currentPage === totalPages}
-              className="p-2.5 border border-slate-200 dark:border-slate-700/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 cursor-pointer transition"
+              className="p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 text-slate-700 dark:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-700 cursor-pointer transition active:scale-95"
             >
               <ChevronRight size={16} />
             </button>

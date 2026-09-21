@@ -23,10 +23,10 @@ import { convertImageFileToWebP } from "../../utils/imageConverter";
 import "quill/dist/quill.snow.css";
 
 const styleProps = {
-  inputStyle: "w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-lg font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all placeholder:text-slate-500 shadow-inner",
-  labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1",
-  cardStyle: "bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none",
-  buttonStyle: "bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30",
+  inputStyle: "w-full rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-4 text-base font-semibold focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 text-slate-900 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-inner",
+  labelStyle: "flex items-center gap-2 text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 ml-1",
+  cardStyle: "bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl",
+  buttonStyle: "bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer",
 };
 
 const CreateBlog = ({ postType = 'blog' }) => {
@@ -206,65 +206,67 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-full mx-auto space-y-6 pb-24 text-left"
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
     >
       {/* HEADER SECTION */}
-      <div className={styleProps.cardStyle + " relative overflow-hidden"}>
-        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-indigo-600 rotate-12"><Zap size={240} /></div>
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-10">
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            {isEditMode ? <Edit size={22} /> : <PlusCircle size={22} />}
+          </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-950 dark:text-white tracking-tight flex items-center gap-4">
-              {isEditMode ? <Edit className="text-indigo-600" size={32} /> : <PlusCircle className="text-indigo-600" size={32} />}
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
               {postType === 'article'
-                ? (isEditMode ? "EDIT SPOTLIGHT/TRENDING ARTICLE" : "WRITE SPOTLIGHT/TRENDING ARTICLE")
-                : (isEditMode ? "EDIT STORY" : "NEW STORY")}
+                ? (isEditMode ? <>Edit <span className="text-blue-500">Spotlight & Trending</span> Article</> : <>Write <span className="text-blue-500">Spotlight & Trending</span> Article</>)
+                : (isEditMode ? <>Edit <span className="text-blue-500">Story</span></> : <>New <span className="text-blue-500">Story</span></>)}
             </h1>
-            <p className="text-slate-500 font-medium mt-1">
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
               {postType === 'article'
                 ? "Forge high-fidelity narratives displayed in the Editorial Spotlight & Trending sections"
                 : "Share your honeymoon wisdom and strategic travel insights"}
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate(postType === 'article' ? '/articles/list' : '/blogs/list')}
-              className="px-8 py-4 rounded-2xl font-black text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs uppercase tracking-[0.2em] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm"
-            >
-              Discard
-            </button>
-            <button onClick={handleSubmit} disabled={isLoading} className={styleProps.buttonStyle + " flex items-center gap-3 active:scale-95 disabled:opacity-50"}>
-              {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
-              {isEditMode ? "PUSH CHANGES" : "PUBLISH STORY"}
-            </button>
-          </div>
+        </div>
+        <div className="relative z-10 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(postType === 'article' ? '/articles/list' : '/blogs/list')}
+            className="px-5 py-2.5 rounded-xl font-black text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#050A17] transition-all text-xs uppercase tracking-wider border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#091126] shadow-sm cursor-pointer"
+          >
+            Discard
+          </button>
+          <button onClick={handleSubmit} disabled={isLoading} className={styleProps.buttonStyle + " flex items-center gap-2"}>
+            {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+            {isEditMode ? "PUSH CHANGES" : "PUBLISH STORY"}
+          </button>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* SECTION 1: VISUAL IDENTITY */}
         <div className={styleProps.cardStyle}>
-          <label className={styleProps.labelStyle}><Layout size={18} className="text-indigo-600" /> Story Visual Identity</label>
-          <label className="group relative block w-full aspect-[4/1] rounded-[2rem] border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer overflow-hidden transition-all hover:border-indigo-600/30">
+          <label className={styleProps.labelStyle}><Layout size={18} className="text-blue-500" /> Story Visual Identity</label>
+          <label className="group relative block w-full aspect-[4/1] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] cursor-pointer overflow-hidden transition-all hover:border-blue-500/50 shadow-inner">
             {imagePreview ? (
               <>
                 <img src={imagePreview} alt="preview" className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-1000" />
                 <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[4px]">
-                  <div className="px-8 py-4 bg-white text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-2">
+                  <div className="px-6 py-3 bg-white text-slate-950 rounded-xl font-black text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2">
                     <UploadCloud size={16} /> Replace Visual
                   </div>
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-slate-300 gap-6">
-                <div className="size-24 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center shadow-xl text-indigo-600 group-hover:scale-110 transition-transform border border-slate-100 dark:border-slate-800">
-                  <UploadCloud size={48} strokeWidth={1.5} />
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div className="w-14 h-14 bg-white dark:bg-[#091126] rounded-2xl flex items-center justify-center shadow-md text-blue-500 group-hover:scale-105 transition-transform border border-slate-200 dark:border-slate-800">
+                  <UploadCloud size={28} strokeWidth={1.5} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-black text-slate-950 dark:text-white uppercase tracking-[0.2em] mb-1">Deploy Story Cover</p>
-                  <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest opacity-60">UHD Processing Ready</p>
+                  <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-0.5">Deploy Story Cover</p>
+                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest opacity-80">UHD Processing Ready</p>
                 </div>
               </div>
             )}
@@ -273,24 +275,24 @@ const CreateBlog = ({ postType = 'blog' }) => {
         </div>
 
         {/* SECTION 2: METADATA GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           <div className={`${styleProps.cardStyle} lg:col-span-2`}>
-            <label className={styleProps.labelStyle}><Type size={18} className="text-indigo-600" /> Story Headline</label>
+            <label className={styleProps.labelStyle}><Type size={18} className="text-blue-500" /> Story Headline</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className={`${styleProps.inputStyle} text-2xl font-black h-20 placeholder:italic`}
+              className={`${styleProps.inputStyle} text-xl font-bold h-16`}
               placeholder="Draft your story's high-impact title..."
               required
             />
           </div>
 
           <div className={styleProps.cardStyle}>
-            <label className={styleProps.labelStyle}><Layout size={18} className="text-indigo-600" /> Category</label>
+            <label className={styleProps.labelStyle}><Layout size={18} className="text-blue-500" /> Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className={`${styleProps.inputStyle} h-20`}
+              className={`${styleProps.inputStyle} h-16`}
             >
               <option value="honeymoon">Honeymoon Hub</option>
               <option value="travel">Travel Strategy</option>
@@ -299,26 +301,26 @@ const CreateBlog = ({ postType = 'blog' }) => {
             </select>
           </div>
         </div>
+
         {/* SECTION 2.5: EDITORIAL QUOTE (Only for Spotlight/Trending Articles) */}
         {postType === 'article' && (
           <div className={styleProps.cardStyle}>
-            <label className={styleProps.labelStyle}><Sparkles size={18} className="text-indigo-600" /> Editorial Quote / Spotlight Summary</label>
+            <label className={styleProps.labelStyle}><Sparkles size={18} className="text-blue-500" /> Editorial Quote / Spotlight Summary</label>
             <textarea
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
-              className={`${styleProps.inputStyle} min-h-[100px] py-3 placeholder:italic`}
+              className={`${styleProps.inputStyle} min-h-[100px] py-3`}
               placeholder="Enter the signature quote to highlight (e.g., 'The perfect blend of romantic sunsets, pristine overwater villas...')"
             />
-            <span className="text-[11px] text-amber-600/90 font-semibold flex items-center gap-1 mt-2 pl-1">
+            <span className="text-[11px] text-amber-500 font-semibold flex items-center gap-1 mt-2 pl-1">
               ✦ Note: Write the quote naturally. Do not include outer quotation marks (" or “) here; the system adds gorgeous editorial serif quote flourishes automatically.
             </span>
           </div>
         )}
 
-
         {/* SECTION 3: VISIBILITY */}
         <div className={styleProps.cardStyle}>
-          <label className={styleProps.labelStyle}><Eye size={18} className="text-indigo-600" /> Visibility Matrix</label>
+          <label className={styleProps.labelStyle}><Eye size={18} className="text-blue-500" /> Visibility Matrix</label>
           <div className="flex gap-4">
             {[
               { id: 'public', label: 'Live Broadcast', icon: Zap },
@@ -328,13 +330,13 @@ const CreateBlog = ({ postType = 'blog' }) => {
                 key={v.id}
                 type="button"
                 onClick={() => setVisibility(v.id)}
-                className={`flex-1 p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${visibility === v.id
-                  ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 shadow-lg'
-                  : 'border-slate-100 dark:border-slate-800 text-slate-400'
+                className={`flex-1 p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 cursor-pointer ${visibility === v.id
+                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 shadow-md'
+                  : 'border-slate-200 dark:border-slate-800/90 text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
               >
-                <v.icon size={24} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{v.label}</span>
+                <v.icon size={22} />
+                <span className="text-[10px] font-black uppercase tracking-wider">{v.label}</span>
               </button>
             ))}
           </div>
@@ -342,44 +344,49 @@ const CreateBlog = ({ postType = 'blog' }) => {
 
         {/* SECTION 4: STORY CONTENT */}
         <div className={styleProps.cardStyle}>
-          <label className={styleProps.labelStyle}><FileText size={18} className="text-indigo-600" /> Story Manuscript</label>
-          <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5 mb-2 pl-0.5">
-            💡 Writing Tip: Use "Heading 2" (H2) for section headers inside the editor below to trigger beautiful navy styling with gold highlights automatically!
+          <label className={styleProps.labelStyle}><FileText size={18} className="text-blue-500" /> Story Manuscript</label>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5 mb-3 pl-0.5">
+            💡 Writing Tip: Use "Heading 2" (H2) for section headers inside the editor below to trigger beautiful styling with highlights automatically!
           </span>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="hidden"
           />
-          <div className="mt-2 overflow-hidden rounded-2xl">
+          <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner">
             <div ref={quillRef} />
           </div>
           <style dangerouslySetInnerHTML={{
             __html: `
             .ql-toolbar.ql-snow {
-              border: 1px solid #e2e8f0 !important;
+              border: 0 !important;
+              border-bottom: 1px solid #e2e8f0 !important;
               background-color: #f8fafc !important;
-              border-top-left-radius: 1.5rem !important;
-              border-top-right-radius: 1.5rem !important;
               padding: 12px 16px !important;
             }
             .ql-container.ql-snow {
-              border: 1px solid #e2e8f0 !important;
-              border-bottom-left-radius: 1.5rem !important;
-              border-bottom-right-radius: 1.5rem !important;
+              border: 0 !important;
               min-height: 400px !important;
-              font-family: 'Plus Jakarta Sans', sans-serif !important;
-              font-size: 16px !important;
+              font-family: inherit !important;
+              font-size: 15px !important;
               background-color: #ffffff !important;
             }
             .dark .ql-toolbar.ql-snow {
-              background-color: #1e293b !important;
-              border-color: #334155 !important;
+              background-color: #050A17 !important;
+              border-bottom-color: #1e293b !important;
             }
             .dark .ql-container.ql-snow {
-              background-color: #0f172a !important;
-              border-color: #334155 !important;
+              background-color: #050A17 !important;
               color: #ffffff !important;
+            }
+            .dark .ql-snow .ql-stroke {
+              stroke: #94a3b8 !important;
+            }
+            .dark .ql-snow .ql-fill {
+              fill: #94a3b8 !important;
+            }
+            .dark .ql-snow .ql-picker {
+              color: #94a3b8 !important;
             }
             .ql-editor {
               min-height: 400px !important;
@@ -389,9 +396,9 @@ const CreateBlog = ({ postType = 'blog' }) => {
               font-style: italic !important;
             }
           `}} />
-          <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex items-start gap-4">
-            <Sparkles size={20} className="text-indigo-600 shrink-0" />
-            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-widest">
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex items-center gap-3">
+            <Sparkles size={18} className="text-blue-500 shrink-0" />
+            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-wider">
               Ensuring all narratives adhere to the brand's premium linguistic standards. High-fidelity storytelling is mandatory.
             </p>
           </div>

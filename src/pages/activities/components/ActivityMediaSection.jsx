@@ -106,13 +106,22 @@ export const ActivityMediaSection = ({
 
   return (
     <div className={cardStyle}>
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-          <ImageIcon className="text-blue-600 dark:text-blue-400" size={22} />
-          Media & Photo Gallery
-        </h2>
-        <div className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
-          <Sparkles size={12} className="text-amber-500" /> WebP Auto-Compression
+      <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="size-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 shrink-0">
+            <ImageIcon size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Media & Photo Gallery
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+              High-resolution cover visual and mosaic gallery with automated WebP conversion
+            </p>
+          </div>
+        </div>
+        <div className="px-3.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+          <Sparkles size={11} className="text-amber-400" /> WebP Auto-Compression
         </div>
       </div>
 
@@ -120,20 +129,20 @@ export const ActivityMediaSection = ({
         {/* Cover Image Section */}
         <div>
           <label className={labelStyle}>
-            Primary Cover Photo <span className="text-red-500">*</span>
+            Primary Cover Photo <span className="text-red-400">*</span>
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
             Main display image shown on search cards and top of details page.
           </p>
 
           {formData.cover_image ? (
-            <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 h-64">
+            <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-64 shadow-inner">
               <img
                 src={getImagePreviewUrl(formData.cover_image)}
                 alt="Activity Cover"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                 <label className="px-4 py-2 bg-white text-slate-900 font-bold rounded-xl text-xs cursor-pointer shadow-lg hover:bg-slate-100 transition-colors">
                   Replace Photo
                   <input
@@ -153,7 +162,7 @@ export const ActivityMediaSection = ({
                   Remove
                 </button>
               </div>
-              <span className="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1">
+              <span className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 border border-white/10">
                 <Check size={12} className="text-emerald-400" /> WebP Optimized
               </span>
             </div>
@@ -161,8 +170,8 @@ export const ActivityMediaSection = ({
             <label
               className={`flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
                 errors.cover_image
-                  ? "border-red-500 bg-red-50/20"
-                  : "border-slate-300 dark:border-slate-700 hover:border-blue-500 bg-slate-50 dark:bg-slate-800/40"
+                  ? "border-red-500/60 bg-red-500/10"
+                  : "border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F]"
               }`}
             >
               <input
@@ -174,20 +183,20 @@ export const ActivityMediaSection = ({
               />
               {isUploadingCover ? (
                 <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="animate-spin text-blue-600" size={32} />
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                  <Loader2 className="animate-spin text-indigo-400" size={32} />
+                  <span className="text-xs font-bold text-slate-300">
                     Converting to WebP & Uploading...
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 p-6 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center mb-1">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1">
                     <UploadCloud size={24} />
                   </div>
-                  <span className="text-sm font-bold text-slate-800 dark:text-white">
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
                     Click to upload Cover Photo
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs text-slate-500 font-medium">
                     PNG, JPG, JPEG (Automatically converted to WebP)
                   </span>
                 </div>
@@ -195,7 +204,7 @@ export const ActivityMediaSection = ({
             </label>
           )}
           {errors.cover_image && (
-            <p className="mt-1.5 text-xs font-bold text-red-500 uppercase tracking-wider">
+            <p className="mt-1.5 text-xs font-bold text-red-400 uppercase tracking-wider">
               {errors.cover_image}
             </p>
           )}
@@ -217,48 +226,44 @@ export const ActivityMediaSection = ({
             {formData.gallery_images?.map((imgKey, index) => (
               <div
                 key={index}
-                className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 h-28"
+                className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-28 shadow-inner"
               >
                 <img
                   src={getImagePreviewUrl(imgKey)}
-                  alt={`Gallery ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  alt={`Gallery ${index}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveGalleryImage(index)}
-                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-600/90 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
-                  title="Remove image"
+                  className="absolute top-1.5 right-1.5 p-1 bg-red-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md hover:bg-red-700"
+                  title="Remove photo"
                 >
-                  <X size={13} />
+                  <X size={12} />
                 </button>
-                <span className="absolute bottom-1 left-1 bg-slate-900/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                  #{index + 1}
-                </span>
               </div>
             ))}
 
-            {/* Add More Button */}
-            <label className="flex flex-col items-center justify-center h-28 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-blue-500 bg-slate-50 dark:bg-slate-800/40 cursor-pointer transition-all">
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 rounded-xl bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F] h-28 cursor-pointer transition-all">
               <input
                 type="file"
-                multiple
                 accept="image/*"
+                multiple
                 onChange={handleGalleryUpload}
                 disabled={isUploadingGallery}
                 className="hidden"
               />
               {isUploadingGallery ? (
                 <div className="flex flex-col items-center gap-1.5 p-2 text-center">
-                  <Loader2 className="animate-spin text-blue-600" size={22} />
-                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400">
+                  <Loader2 className="animate-spin text-indigo-400" size={18} />
+                  <span className="text-[10px] font-bold text-slate-400">
                     {galleryProgress || "Uploading..."}
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400">
-                  <UploadCloud size={20} className="text-blue-600" />
-                  <span className="text-[11px] font-bold text-center">Add Photos</span>
+                <div className="flex flex-col items-center gap-1 text-center p-2">
+                  <UploadCloud size={18} className="text-indigo-400" />
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Add Photos</span>
                 </div>
               )}
             </label>

@@ -267,16 +267,18 @@ const PricingSection = ({ formData, handleInputChange, setFormData, styles }) =>
 
     return (
         <div className={cardStyle}>
-            {/* SECTION HEADER (MATCHING ADMIRE HOLIDAYS) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-100 dark:border-slate-800 pb-6">
-                <div>
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <DollarSign className="text-emerald-500" size={24} />
-                        Hotel Category Pricing
-                    </h2>
-                    <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">
-                        SET PRICING FOR EXISTING HOTEL CATEGORIES FOR THIS DESTINATION {activeCategories.length > 0 ? `(${activeCategories.map(c => c.label).join(" / ")})` : ""}
-                    </p>
+            {/* LUXURY CARD HEADER */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
+                <div className="flex items-center gap-4">
+                    <div className="size-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
+                        <DollarSign size={22} />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Hotel Category Pricing</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                            Set base and discounted rates for destination hotel categories {activeCategories.length > 0 ? `(${activeCategories.map(c => c.label).join(" / ")})` : ""}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
@@ -284,59 +286,59 @@ const PricingSection = ({ formData, handleInputChange, setFormData, styles }) =>
                         <button
                             type="button"
                             onClick={handleClearAllPrices}
-                            className="flex items-center gap-1.5 px-4 py-3 rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all font-black text-xs uppercase tracking-wider cursor-pointer"
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 dark:text-red-400 hover:bg-red-500 hover:text-white transition-all font-bold text-xs uppercase tracking-wider cursor-pointer"
                             title="Clear all category prices"
                         >
-                            <RotateCcw size={14} /> Clear Prices
+                            <RotateCcw size={13} /> Clear Prices
                         </button>
                     )}
 
                     {/* AS PER BEST QUOTE CHECKBOX TOGGLE */}
-                    <label className="flex items-center gap-3 px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:border-emerald-500/40 transition-all shrink-0">
+                    <label className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all cursor-pointer shrink-0 ${isBestQuote ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-500/50 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] hover:border-slate-300 dark:hover:border-slate-700'}`}>
                         <input 
                             type="checkbox" 
                             checked={isBestQuote} 
                             onChange={handleBestQuoteToggle} 
-                            className="accent-emerald-600 size-5 rounded cursor-pointer" 
+                            className="accent-indigo-500 size-4 rounded cursor-pointer" 
                         />
-                        <span className="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                        <span className={`text-xs font-bold uppercase tracking-wider ${isBestQuote ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>
                             AS PER BEST QUOTE
                         </span>
                     </label>
                 </div>
             </div>
 
-            {/* DYNAMIC CATEGORY CARDS GRID (SHOWS ONLY EXISTED DESTINATION HOTEL CATEGORIES) */}
+            {/* DYNAMIC CATEGORY CARDS GRID */}
             {!isBestQuote ? (
                 activeCategories.length > 0 ? (
                     <div className={`grid grid-cols-1 gap-6 ${activeCategories.length === 1 ? 'max-w-md' : activeCategories.length === 2 ? 'sm:grid-cols-2 max-w-2xl' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
                         {activeCategories.map((cat) => (
-                            <div key={cat.key} className="p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-                                <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-700/80 pb-3">
-                                    <span className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                            <div key={cat.key} className="p-6 rounded-3xl bg-slate-50/90 dark:bg-[#050A17] border border-slate-200/90 dark:border-slate-800/90 space-y-4 shadow-inner">
+                                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-3">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
                                         <TrendingUp size={14} /> {cat.label}
                                     </span>
                                     <button
                                         type="button"
                                         onClick={() => handleClearCategoryPrice(cat.key)}
-                                        className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1 cursor-pointer"
+                                        className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
                                         title={`Clear ${cat.label} price`}
                                     >
                                         <Trash2 size={12} /> Clear
                                     </button>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-3.5">
                                     <div>
                                         <label className={labelStyle}>HOTEL PRICE</label>
                                         <div className="relative">
-                                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-xs">₹</span>
+                                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 dark:text-slate-500 text-xs">₹</span>
                                             <input
                                                 type="number"
                                                 min="0"
                                                 value={categoryPrices[cat.key]?.hotel_price ?? ""}
                                                 onChange={(e) => handleCategoryPriceChange(cat.key, "hotel_price", e.target.value)}
-                                                className={`${inputStyle} pl-7 text-slate-900 dark:text-white font-black text-sm`}
+                                                className={`${inputStyle} pl-8 text-slate-900 dark:text-white font-bold text-sm`}
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -345,13 +347,13 @@ const PricingSection = ({ formData, handleInputChange, setFormData, styles }) =>
                                     <div>
                                         <label className={labelStyle}>DISCOUNTED PRICE</label>
                                         <div className="relative">
-                                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-emerald-500 text-xs">₹</span>
+                                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-emerald-500 dark:text-emerald-400 text-xs">₹</span>
                                             <input
                                                 type="number"
                                                 min="0"
                                                 value={categoryPrices[cat.key]?.discounted_price ?? ""}
                                                 onChange={(e) => handleCategoryPriceChange(cat.key, "discounted_price", e.target.value)}
-                                                className={`${inputStyle} pl-7 text-emerald-600 dark:text-emerald-400 font-black text-sm border-emerald-200 dark:border-emerald-900/30`}
+                                                className={`${inputStyle} pl-8 text-emerald-600 dark:text-emerald-400 font-bold text-sm border-emerald-500/30 focus:border-emerald-500/60`}
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -361,23 +363,23 @@ const PricingSection = ({ formData, handleInputChange, setFormData, styles }) =>
                         ))}
                     </div>
                 ) : (
-                    <div className="p-10 rounded-[2rem] bg-slate-50/70 dark:bg-slate-800/30 border border-slate-200/80 dark:border-slate-800 flex flex-col items-center justify-center text-center space-y-3 shadow-inner py-14">
-                        <div className="size-14 rounded-2xl bg-slate-200/80 dark:bg-slate-700/60 flex items-center justify-center text-slate-500 dark:text-slate-400 font-black text-2xl shadow-sm">
+                    <div className="p-10 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center space-y-2 py-12">
+                        <div className="size-12 rounded-xl bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 font-bold text-xl shadow-sm">
                             ₹
                         </div>
-                        <p className="text-sm font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        <p className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                             Assign hotels above to enable category-wise pricing.
                         </p>
-                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                            SELECT HOTELS IN THE MAPPING SECTION FIRST
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Select hotels in Accommodation Setup first
                         </p>
                     </div>
                 )
             ) : (
-                <div className="p-8 rounded-[2rem] bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-start gap-4">
-                    <Sparkles size={24} className="text-emerald-600 shrink-0 mt-0.5" />
+                <div className="p-6 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/20 border border-indigo-500/30 flex items-start gap-4">
+                    <Sparkles size={22} className="text-indigo-500 dark:text-indigo-400 shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                        <p className="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
                             As Per Best Quote Active
                         </p>
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">

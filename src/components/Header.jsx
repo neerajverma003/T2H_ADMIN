@@ -19,6 +19,7 @@ import {
   Clock,
   ExternalLink,
   Compass,
+  X,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
@@ -83,10 +84,129 @@ const getTypeBadgeColor = (type) => {
   }
 }
 
-const Header = ({ open, setOpen }) => {
+const SEARCHABLE_ROUTES = [
+  { label: "Dashboard", to: "/", keywords: ["dashboard", "home", "metrics", "stats"], sectionKey: "dashboard" },
+  { label: "Registered Users", to: "/customers", keywords: ["public user", "registered users", "customers"], sectionKey: "public_user" },
+  { label: "Users List", to: "/users/list", keywords: ["admin users", "users list", "staff", "users"], sectionKey: "users" },
+  { label: "Add User", to: "/users/add", keywords: ["add user", "create user", "new admin"], sectionKey: "users" },
+  { label: "Section Controls", to: "/users/section-controls", keywords: ["section controls", "permissions", "roles"], sectionKey: "users" },
+  { label: "Referral Audit", to: "/users/referrals", keywords: ["referrals audit", "user referrals"], sectionKey: "users" },
+  { label: "Create Destination", to: "/destinations/create", keywords: ["destinations", "create destination", "add destination"], sectionKey: "destinations" },
+  { label: "Create City", to: "/destinations/city", keywords: ["create city", "add city", "cities"], sectionKey: "destinations" },
+  { label: "Create Itinerary", to: "/itineraries/create", keywords: ["itineraries", "create itinerary", "add itinerary", "package"], sectionKey: "itineraries" },
+  { label: "Itinerary List", to: "/itineraries/list", keywords: ["itineraries", "itinerary list", "packages", "tours"], sectionKey: "itineraries" },
+  { label: "All Activities", to: "/activities", keywords: ["activities", "all activities", "adventure", "things to do"], sectionKey: "activities" },
+  { label: "Add Activity", to: "/activities/create", keywords: ["add activity", "create activity"], sectionKey: "activities" },
+  { label: "Create Resort", to: "/resorts/create", keywords: ["resorts", "create resort", "add resort"], sectionKey: "resorts" },
+  { label: "Resort Directory", to: "/resorts/list", keywords: ["resorts", "resort directory", "villas"], sectionKey: "resorts" },
+  { label: "Create Hotel", to: "/hotels/create", keywords: ["hotels", "create hotel", "add hotel"], sectionKey: "hotels" },
+  { label: "Hotel List", to: "/hotels/list", keywords: ["hotels", "hotel list", "accommodations"], sectionKey: "hotels" },
+  { label: "Booked Packages", to: "/bookings", keywords: ["booked packages", "bookings", "orders"], sectionKey: "bookings" },
+  { label: "Hero Content", to: "/hero-content", keywords: ["hero", "hero content", "banner"], sectionKey: "banner_management" },
+  { label: "Hero Media", to: "/hero-media", keywords: ["hero", "hero media", "video", "slider"], sectionKey: "banner_management" },
+  { label: "Customer Gallery", to: "/gallery/images", keywords: ["gallery", "customer gallery", "photos", "images"], sectionKey: "customer_gallery" },
+  { label: "Social Management", to: "/social-management", keywords: ["social", "social management", "instagram", "facebook"], sectionKey: "social_management" },
+  { label: "Verify & Manage", to: "/giftcards/verify", keywords: ["gift cards", "verify giftcard", "manage gift cards"], sectionKey: "gift_cards" },
+  { label: "Bulk Issue", to: "/giftcards/bulk", keywords: ["gift cards", "bulk issue", "issue giftcard"], sectionKey: "gift_cards" },
+  { label: "Gift Discount", to: "/giftcards/discount", keywords: ["gift cards", "gift discount", "coupons"], sectionKey: "gift_cards" },
+  { label: "Write Blog", to: "/blogs/create", keywords: ["blog", "write blog", "create blog"], sectionKey: "blog_articles" },
+  { label: "Blog List", to: "/blogs/list", keywords: ["blog", "blog list", "blogs"], sectionKey: "blog_articles" },
+  { label: "Write Article", to: "/articles/create", keywords: ["article", "write article", "create article"], sectionKey: "blog_articles" },
+  { label: "Article List", to: "/articles/list", keywords: ["article", "article list", "articles"], sectionKey: "blog_articles" },
+  { label: "Upload Video Story", to: "/testimonials/video", keywords: ["testimonials", "video story", "upload video story"], sectionKey: "testimonials" },
+  { label: "Video Storyboard", to: "/testimonials/video-list", keywords: ["testimonials", "video storyboard"], sectionKey: "testimonials" },
+  { label: "Compose Review", to: "/testimonials/written", keywords: ["testimonials", "compose review", "write review"], sectionKey: "testimonials" },
+  { label: "General Reviews", to: "/testimonials/written-list", keywords: ["testimonials", "general reviews", "reviews list"], sectionKey: "testimonials" },
+  { label: "Impact Overview", to: "/global-impact", keywords: ["impact overview", "global impact"], sectionKey: "global_impact" },
+  { label: "Consultations", to: "/leads/consultation", keywords: ["leads", "consultation", "consultations"], sectionKey: "leads" },
+  { label: "Trip Requests", to: "/leads/honeymoon-requests", keywords: ["leads", "trip requests", "honeymoon requests"], sectionKey: "leads" },
+  { label: "Itinerary Leads", to: "/leads/itinerary-leads", keywords: ["leads", "itinerary leads"], sectionKey: "leads" },
+  { label: "Journey Plans", to: "/leads/plan-journey", keywords: ["leads", "journey plans", "plan your journey"], sectionKey: "leads" },
+  { label: "Contact Leads", to: "/leads/contacts", keywords: ["leads", "contacts", "contact leads"], sectionKey: "leads" },
+  { label: "Suggestions", to: "/leads/suggestions", keywords: ["leads", "suggestions"], sectionKey: "leads" },
+  { label: "Newsletter", to: "/leads/subscribe", keywords: ["leads", "newsletter", "subscribers"], sectionKey: "leads" },
+  { label: "Global Terms", to: "/global-terms", keywords: ["compliance", "terms", "global terms"], sectionKey: "compliance" },
+  { label: "User Agreement", to: "/user-agreement", keywords: ["compliance", "terms", "user agreement"], sectionKey: "compliance" },
+  { label: "Destination T&C", to: "/terms-and-conditions", keywords: ["compliance", "terms", "destination tc"], sectionKey: "compliance" },
+  { label: "Payment Terms", to: "/payment-mode-terms", keywords: ["compliance", "terms", "payment terms"], sectionKey: "compliance" },
+  { label: "Cancellation Policy", to: "/cancellation-policy", keywords: ["compliance", "terms", "cancellation policy"], sectionKey: "compliance" },
+  { label: "Add Member", to: "/team/create", keywords: ["our team", "team", "add member"], sectionKey: "our_team" },
+  { label: "Manage Team", to: "/team/list", keywords: ["our team", "team", "manage team"], sectionKey: "our_team" },
+  { label: "Create Job", to: "/jobs/create", keywords: ["jobs", "job management", "create job"], sectionKey: "jobs" },
+  { label: "All Job List", to: "/jobs/list", keywords: ["jobs", "job management", "all job list"], sectionKey: "jobs" },
+  { label: "Applications", to: "/jobs/applications", keywords: ["jobs", "job management", "applications"], sectionKey: "jobs" },
+  { label: "Email Templates", to: "/email-templates", keywords: ["marketing", "email templates"], sectionKey: "marketing" },
+  { label: "Campaign Management", to: "/email-campaigns", keywords: ["marketing", "campaign management"], sectionKey: "marketing" },
+  { label: "Analytics", to: "/reports", keywords: ["analytics", "reports", "audit"], sectionKey: "system_audit" },
+  { label: "Security Audit", to: "/audit-logs", keywords: ["security audit", "audit logs", "logs"], sectionKey: "system_audit" },
+  { label: "Notification Emails", to: "/settings/notifications", keywords: ["notification", "settings", "notification emails"], sectionKey: "settings" },
+  { label: "Referral Rewards", to: "/settings/referral", keywords: ["referral", "settings", "referral rewards"], sectionKey: "settings" },
+  { label: "GST & Business Settings", to: "/settings/gst", keywords: ["gst", "settings", "tax", "gst & business settings"], sectionKey: "settings" },
+  { label: "Home Stats Settings", to: "/settings/stats", keywords: ["home stats settings", "settings", "stats"], sectionKey: "settings" },
+  { label: "About Us Settings", to: "/about-settings", keywords: ["about us settings", "settings", "about us"], sectionKey: "settings" },
+  { label: "Travel Assistant", to: "/settings/chatbot", keywords: ["travel assistant", "settings", "chatbot", "assistant"], sectionKey: "settings" },
+  { label: "Settings", to: "/settings", keywords: ["setting", "settings", "config"], sectionKey: "settings" }
+]
+
+const resolveSearchRoute = (query, role, allowedSections) => {
+  if (!query || typeof query !== "string") return null
+  const clean = query.trim().toLowerCase()
+  if (!clean) return null
+
+  const hasPermission = (sectionKey) => {
+    if (role === "superadmin") return true
+    if (!sectionKey) return true
+    if (Array.isArray(allowedSections)) {
+      return allowedSections.includes(sectionKey)
+    }
+    return true
+  }
+
+  const routes = SEARCHABLE_ROUTES.filter((r) => hasPermission(r.sectionKey))
+
+  // 1. Exact label match (e.g. "Users List", "users list")
+  const exact = routes.find((r) => r.label.toLowerCase() === clean)
+  if (exact) return exact.to
+
+  // 2. Starts with query
+  const starts = routes.find((r) => r.label.toLowerCase().startsWith(clean))
+  if (starts) return starts.to
+
+  // 3. Label contains query
+  const labelContains = routes.find((r) => r.label.toLowerCase().includes(clean))
+  if (labelContains) return labelContains.to
+
+  // 4. Keyword match
+  const keywordMatch = routes.find((r) =>
+    r.keywords.some((kw) => kw.toLowerCase().includes(clean))
+  )
+  if (keywordMatch) return keywordMatch.to
+
+  // 5. Path contains query
+  const pathMatch = routes.find((r) => r.to.toLowerCase().includes(clean))
+  if (pathMatch) return pathMatch.to
+
+  return null
+}
+
+const Header = ({ open, setOpen, search, setSearch }) => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
-  const { logout, role, profile, username, fetchAdminProfile } = useAuthStore()
+  const { logout, role, profile, username, fetchAdminProfile, allowedSections } = useAuthStore()
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault()
+    if (!search || !search.trim()) return
+
+    const targetRoute = resolveSearchRoute(search, role, allowedSections)
+    if (targetRoute) {
+      navigate(targetRoute)
+      setSearch?.("")
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur()
+      }
+    }
+  }
 
   const roleDisplay =
     role === "superadmin"
@@ -214,17 +334,32 @@ const Header = ({ open, setOpen }) => {
           <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
         </div>
 
-        <div className="relative group hidden lg:block max-w-sm w-full ml-6">
+        <form onSubmit={handleSearchSubmit} className="relative group hidden sm:block max-w-xs md:max-w-sm w-full ml-3 md:ml-6">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search size={16} className="text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
           </div>
           <input
+            value={search || ""}
+            onChange={(e) => setSearch?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setSearch?.("")
+            }}
             placeholder="Search metrics, users, or destinations..."
-            className="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 
+            className="block w-full pl-10 pr-9 py-2.5 bg-slate-50 dark:bg-slate-900/50 
             text-slate-900 dark:text-slate-100 text-sm font-medium rounded-2xl outline-none border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900/30
             transition-all placeholder:text-slate-400"
           />
-        </div>
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch?.("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              title="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </form>
       </div>
 
       {/* RIGHT: Actions & Profile */}
@@ -434,6 +569,8 @@ const Header = ({ open, setOpen }) => {
 Header.propTypes = {
   open: PropTypes.bool,
   setOpen: PropTypes.func.isRequired,
+  search: PropTypes.string,
+  setSearch: PropTypes.func,
 }
 
 export default Header
