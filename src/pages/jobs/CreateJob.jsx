@@ -342,666 +342,677 @@ const CreateJob = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#060c18] text-slate-100 p-4 sm:p-8 font-sans">
-      <div className="max-w-5xl mx-auto">
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/jobs/list')}
-              className="size-10 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-              title="Back to jobs"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-wide">
-                {isEdit ? 'Edit Job Position' : 'Create Job Position'}
-              </h1>
-              <p className="text-slate-400 text-xs mt-0.5">
-                {isEdit ? 'Update job opening details and specifications' : 'Post a new job vacancy for public website display'}
-              </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
+      {/* ── HEADER HUB (Inspired by Team Management) ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+            <Briefcase size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                JOB MANAGEMENT
+              </span>
             </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              {isEdit ? "Edit" : "Create"} <span className="text-blue-500">Job Position</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              {isEdit ? "Update job opening details and specifications." : "Post a new job vacancy for public website display."}
+            </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* ========================================================= */}
-          {/* SECTION 1: BASIC JOB INFORMATION                          */}
-          {/* ========================================================= */}
-          <div className="bg-[#0b1322] border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl">
-            <div className="flex items-center gap-2.5 pb-5 mb-5 border-b border-slate-800/60 text-blue-400 font-bold text-sm tracking-wider uppercase">
-              <Briefcase size={18} className="text-blue-500" />
-              <span>Basic Job Information</span>
+        <div className="relative z-10 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate("/jobs/list")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+          >
+            <ArrowLeft size={16} /> BACK TO JOB LIST
+          </button>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* ========================================================= */}
+        {/* SECTION 1: BASIC JOB INFORMATION                          */}
+        {/* ========================================================= */}
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 text-blue-500 dark:text-blue-400 font-bold text-xs tracking-widest uppercase">
+            <Briefcase size={16} className="text-blue-500" />
+            <span>Basic Job Information</span>
+          </div>
+
+          <div className="space-y-5">
+            {/* Job Title */}
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                Job Title <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                  <Briefcase size={15} />
+                </div>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="e.g. Senior MERN Stack Developer"
+                  required
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                />
+              </div>
             </div>
 
-            <div className="space-y-5">
-              {/* Job Title */}
+            {/* Location Type & Location */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Job Title <span className="text-rose-500">*</span>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Job Location Type <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  name="locationType"
+                  value={formData.locationType}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner transition-all"
+                >
+                  <option value="Remote" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Remote</option>
+                  <option value="On Site" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">On Site</option>
+                  <option value="Hybrid" className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">Hybrid</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Job Location <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                    <Briefcase size={16} />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <MapPin size={15} />
                   </div>
                   <input
                     type="text"
-                    name="title"
-                    value={formData.title}
+                    name="location"
+                    value={formData.location}
                     onChange={handleChange}
-                    placeholder="e.g. Senior MERN Stack Developer"
+                    placeholder="e.g. Noida, Delhi, Remote"
                     required
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Location Type & Location */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Job Location Type <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    name="locationType"
-                    value={formData.locationType}
-                    onChange={handleChange}
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  >
-                    <option value="Remote">Remote</option>
-                    <option value="On Site">On Site</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Job Location <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <MapPin size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="e.g. Noida, Delhi, Remote"
-                      required
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Salary Structure */}
-              <div className="pt-2">
-                <div className="flex items-center justify-between mb-2.5">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Salary Structure
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={formData.salary.salaryNotDisclosed}
-                      onChange={(e) =>
-                        handleSalaryChange('salaryNotDisclosed', e.target.checked)
-                      }
-                      className="size-4 rounded border-slate-700 bg-[#111a2e] text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
-                    />
-                    <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">
-                      Salary Not Disclosed
-                    </span>
-                  </label>
-                </div>
-
-                <div
-                  className={`grid grid-cols-1 sm:grid-cols-3 gap-4 transition-opacity duration-200 ${
-                    isSalaryNotDisclosed ? 'opacity-40 pointer-events-none' : ''
-                  }`}
-                >
-                  <div className="relative">
-                    <div
-                      className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-sm font-semibold ${
-                        isMinMaxDisabled ? 'text-slate-600' : 'text-slate-500'
-                      }`}
-                    >
-                      ₹
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Min Salary"
-                      value={formData.salary.minSalary}
-                      onChange={(e) => handleSalaryChange('minSalary', e.target.value)}
-                      disabled={isMinMaxDisabled}
-                      title={
-                        hasFixedSalary
-                          ? 'Min Salary is disabled because Fixed Salary is defined'
-                          : undefined
-                      }
-                      className={`w-full rounded-xl pl-9 pr-4 py-3 text-sm transition-colors ${
-                        isMinMaxDisabled
-                          ? 'bg-slate-900/40 border border-slate-800/40 text-slate-500 cursor-not-allowed placeholder-slate-600'
-                          : 'bg-[#111a2e] border border-slate-700/60 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
-                      }`}
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <div
-                      className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-sm font-semibold ${
-                        isMinMaxDisabled ? 'text-slate-600' : 'text-slate-500'
-                      }`}
-                    >
-                      ₹
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Max Salary"
-                      value={formData.salary.maxSalary}
-                      onChange={(e) => handleSalaryChange('maxSalary', e.target.value)}
-                      disabled={isMinMaxDisabled}
-                      title={
-                        hasFixedSalary
-                          ? 'Max Salary is disabled because Fixed Salary is defined'
-                          : undefined
-                      }
-                      className={`w-full rounded-xl pl-9 pr-4 py-3 text-sm transition-colors ${
-                        isMinMaxDisabled
-                          ? 'bg-slate-900/40 border border-slate-800/40 text-slate-500 cursor-not-allowed placeholder-slate-600'
-                          : 'bg-[#111a2e] border border-slate-700/60 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
-                      }`}
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <div
-                      className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-sm font-semibold ${
-                        isFixedDisabled ? 'text-slate-600' : 'text-slate-500'
-                      }`}
-                    >
-                      ₹
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Fixed Salary"
-                      value={formData.salary.fixedSalary}
-                      onChange={(e) => handleSalaryChange('fixedSalary', e.target.value)}
-                      disabled={isFixedDisabled}
-                      title={
-                        hasRangeSalary
-                          ? 'Fixed Salary is disabled because Min/Max Salary is defined'
-                          : undefined
-                      }
-                      className={`w-full rounded-xl pl-9 pr-4 py-3 text-sm transition-colors ${
-                        isFixedDisabled
-                          ? 'bg-slate-900/40 border border-slate-800/40 text-slate-500 cursor-not-allowed placeholder-slate-600'
-                          : 'bg-[#111a2e] border border-slate-700/60 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {!isSalaryNotDisclosed && hasRangeSalary && (
-                  <p className="text-[11px] text-amber-400/90 mt-2 font-medium">
-                    💡 Fixed salary is locked because a salary range (Min/Max) is defined.
-                  </p>
-                )}
-                {!isSalaryNotDisclosed && hasFixedSalary && (
-                  <p className="text-[11px] text-amber-400/90 mt-2 font-medium">
-                    💡 Min and Max salary are locked because a fixed salary is defined.
-                  </p>
-                )}
-              </div>
-
-              {/* Job Description */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Job Description <span className="text-rose-500">*</span>
+            {/* Salary Structure */}
+            <div className="pt-2">
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Salary Structure
                 </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formData.salary.salaryNotDisclosed}
+                    onChange={(e) =>
+                      handleSalaryChange('salaryNotDisclosed', e.target.checked)
+                    }
+                    className="size-4 rounded border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#050A17] text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                  />
+                  <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">
+                    Salary Not Disclosed
+                  </span>
+                </label>
+              </div>
+
+              <div
+                className={`grid grid-cols-1 sm:grid-cols-3 gap-4 transition-opacity duration-200 ${
+                  isSalaryNotDisclosed ? 'opacity-40 pointer-events-none' : ''
+                }`}
+              >
                 <div className="relative">
-                  <textarea
-                    rows={4}
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Job description details..."
-                    required
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl p-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors leading-relaxed"
+                  <div
+                    className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-bold ${
+                      isMinMaxDisabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500'
+                    }`}
+                  >
+                    ₹
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Min Salary"
+                    value={formData.salary.minSalary}
+                    onChange={(e) => handleSalaryChange('minSalary', e.target.value)}
+                    disabled={isMinMaxDisabled}
+                    title={
+                      hasFixedSalary
+                        ? 'Min Salary is disabled because Fixed Salary is defined'
+                        : undefined
+                    }
+                    className={`w-full rounded-xl pl-8 pr-4 py-2.5 text-xs font-bold transition-all shadow-inner ${
+                      isMinMaxDisabled
+                        ? 'bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/40 text-slate-400 dark:text-slate-600 cursor-not-allowed placeholder:text-slate-400'
+                        : 'border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30'
+                    }`}
+                  />
+                </div>
+
+                <div className="relative">
+                  <div
+                    className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-bold ${
+                      isMinMaxDisabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500'
+                    }`}
+                  >
+                    ₹
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Max Salary"
+                    value={formData.salary.maxSalary}
+                    onChange={(e) => handleSalaryChange('maxSalary', e.target.value)}
+                    disabled={isMinMaxDisabled}
+                    title={
+                      hasFixedSalary
+                        ? 'Max Salary is disabled because Fixed Salary is defined'
+                        : undefined
+                    }
+                    className={`w-full rounded-xl pl-8 pr-4 py-2.5 text-xs font-bold transition-all shadow-inner ${
+                      isMinMaxDisabled
+                        ? 'bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/40 text-slate-400 dark:text-slate-600 cursor-not-allowed placeholder:text-slate-400'
+                        : 'border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30'
+                    }`}
+                  />
+                </div>
+
+                <div className="relative">
+                  <div
+                    className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-bold ${
+                      isFixedDisabled ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500'
+                    }`}
+                  >
+                    ₹
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Fixed Salary"
+                    value={formData.salary.fixedSalary}
+                    onChange={(e) => handleSalaryChange('fixedSalary', e.target.value)}
+                    disabled={isFixedDisabled}
+                    title={
+                      hasRangeSalary
+                        ? 'Fixed Salary is disabled because Min/Max Salary is defined'
+                        : undefined
+                    }
+                    className={`w-full rounded-xl pl-8 pr-4 py-2.5 text-xs font-bold transition-all shadow-inner ${
+                      isFixedDisabled
+                        ? 'bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/40 text-slate-400 dark:text-slate-600 cursor-not-allowed placeholder:text-slate-400'
+                        : 'border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30'
+                    }`}
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* ========================================================= */}
-          {/* SECTION 2: ABOUT RECRUITER                                */}
-          {/* ========================================================= */}
-          <div className="bg-[#0b1322] border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl">
-            <div className="flex items-center gap-2.5 pb-5 mb-5 border-b border-slate-800/60 text-blue-400 font-bold text-sm tracking-wider uppercase">
-              <User size={18} className="text-blue-500" />
-              <span>About Recruiter</span>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Recruiter Name <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <User size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.recruiter.name}
-                      onChange={(e) => handleNestedChange('recruiter', 'name', e.target.value)}
-                      placeholder="e.g. John Smith"
-                      required
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Recruiter Designation
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <Briefcase size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.recruiter.designation}
-                      onChange={(e) =>
-                        handleNestedChange('recruiter', 'designation', e.target.value)
-                      }
-                      placeholder="e.g. HR Manager"
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Recruiter Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <Mail size={16} />
-                    </div>
-                    <input
-                      type="email"
-                      value={formData.recruiter.email}
-                      onChange={(e) => handleNestedChange('recruiter', 'email', e.target.value)}
-                      placeholder="e.g. hr@company.com"
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Recruiter Contact Number
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <Phone size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.recruiter.contactNumber}
-                      onChange={(e) =>
-                        handleNestedChange('recruiter', 'contactNumber', e.target.value)
-                      }
-                      placeholder="Contact phone number"
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ========================================================= */}
-          {/* SECTION 3: COMPANY INFORMATION                            */}
-          {/* ========================================================= */}
-          <div className="bg-[#0b1322] border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl">
-            <div className="flex items-center gap-2.5 pb-5 mb-5 border-b border-slate-800/60 text-blue-400 font-bold text-sm tracking-wider uppercase">
-              <Building2 size={18} className="text-blue-500" />
-              <span>Company Information</span>
+              {!isSalaryNotDisclosed && hasRangeSalary && (
+                <p className="text-[11px] text-amber-500 dark:text-amber-400/90 mt-2 font-semibold">
+                  💡 Fixed salary is locked because a salary range (Min/Max) is defined.
+                </p>
+              )}
+              {!isSalaryNotDisclosed && hasFixedSalary && (
+                <p className="text-[11px] text-amber-500 dark:text-amber-400/90 mt-2 font-semibold">
+                  💡 Min and Max salary are locked because a fixed salary is defined.
+                </p>
+              )}
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Company Name <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <Building2 size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.company.name}
-                      onChange={(e) => handleNestedChange('company', 'name', e.target.value)}
-                      placeholder="e.g. Admire Holidays / Trip 2 Honeymoon"
-                      required
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Company Location
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <MapPin size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.company.location}
-                      onChange={(e) => handleNestedChange('company', 'location', e.target.value)}
-                      placeholder="e.g. Bangalore, Karnataka"
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Company Description
-                </label>
+            {/* Job Description */}
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                Job Description <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
                 <textarea
-                  rows={3}
-                  value={formData.company.description}
-                  onChange={(e) => handleNestedChange('company', 'description', e.target.value)}
-                  placeholder="About the company details..."
-                  className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl p-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed"
+                  rows={4}
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Job description details..."
+                  required
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-4 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all leading-relaxed"
                 />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* ========================================================= */}
-          {/* SECTION 4: JOB SPECIFICATIONS                             */}
-          {/* ========================================================= */}
-          <div className="bg-[#0b1322] border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl">
-            <div className="flex items-center gap-2.5 pb-5 mb-5 border-b border-slate-800/60 text-blue-400 font-bold text-sm tracking-wider uppercase">
-              <Sliders size={18} className="text-blue-500" />
-              <span>Job Specifications</span>
+        {/* ========================================================= */}
+        {/* SECTION 2: ABOUT RECRUITER                                */}
+        {/* ========================================================= */}
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 text-blue-500 dark:text-blue-400 font-bold text-xs tracking-widest uppercase">
+            <User size={16} className="text-blue-500" />
+            <span>About Recruiter</span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Recruiter Name <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <User size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.recruiter.name}
+                    onChange={(e) => handleNestedChange('recruiter', 'name', e.target.value)}
+                    placeholder="e.g. John Smith"
+                    required
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Recruiter Designation
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <Briefcase size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.recruiter.designation}
+                    onChange={(e) =>
+                      handleNestedChange('recruiter', 'designation', e.target.value)
+                    }
+                    placeholder="e.g. HR Manager"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-6">
-              {/* Department & Employment Type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Department <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={formData.specifications.department}
-                    onChange={(e) =>
-                      handleNestedChange('specifications', 'department', e.target.value)
-                    }
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  >
-                    {DEPARTMENT_OPTIONS.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Employment Type <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={formData.specifications.employmentType}
-                    onChange={(e) =>
-                      handleNestedChange('specifications', 'employmentType', e.target.value)
-                    }
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  >
-                    {EMPLOYMENT_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Experience Required & Shift */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Experience Required <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={formData.specifications.experienceRequired}
-                    onChange={(e) =>
-                      handleNestedChange('specifications', 'experienceRequired', e.target.value)
-                    }
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  >
-                    {EXPERIENCE_OPTIONS.map((exp) => (
-                      <option key={exp} value={exp}>
-                        {exp}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Shift
-                  </label>
-                  <select
-                    value={formData.specifications.shift}
-                    onChange={(e) =>
-                      handleNestedChange('specifications', 'shift', e.target.value)
-                    }
-                    className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  >
-                    {SHIFT_OPTIONS.map((shift) => (
-                      <option key={shift} value={shift}>
-                        {shift}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Education Qualifications Multi-select Pills */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  Education Qualifications
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Recruiter Email
                 </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {EDUCATION_OPTIONS.map((edu) => {
-                    const isSelected =
-                      formData.specifications.educationQualifications?.includes(edu);
-                    return (
-                      <button
-                        type="button"
-                        key={edu}
-                        onClick={() =>
-                          toggleArrayItem('specifications', 'educationQualifications', edu)
-                        }
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
-                          isSelected
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 border border-blue-500'
-                            : 'bg-[#111a2e] text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-600'
-                        }`}
-                      >
-                        {isSelected && <Check size={13} className="stroke-[3]" />}
-                        {edu}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Preferred Languages Multi-select Pills */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  Preferred Languages
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {LANGUAGE_OPTIONS.map((lang) => {
-                    const isSelected =
-                      formData.specifications.preferredLanguages?.includes(lang);
-                    return (
-                      <button
-                        type="button"
-                        key={lang}
-                        onClick={() =>
-                          toggleArrayItem('specifications', 'preferredLanguages', lang)
-                        }
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
-                          isSelected
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 border border-blue-500'
-                            : 'bg-[#111a2e] text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-600'
-                        }`}
-                      >
-                        {isSelected && <Check size={13} className="stroke-[3]" />}
-                        {lang}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Skills Required Section */}
-              <div className="pt-2 border-t border-slate-800/80">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Skills Required <span className="text-slate-500 font-normal normal-case">(Programming, tools, soft skills)</span>
-                  </label>
-                  {formData.specifications.skills?.length > 0 && (
-                    <span className="text-xs font-semibold text-blue-400">
-                      {formData.specifications.skills.length} Selected
-                    </span>
-                  )}
-                </div>
-
-                {/* Custom Skill Input */}
-                <div className="flex gap-2 mb-3">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      value={customSkillInput}
-                      onChange={(e) => setCustomSkillInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddCustomSkill();
-                        }
-                      }}
-                      placeholder="Type a skill (e.g. Java, Spring Boot, Node.js, Communication) and press Enter or Add"
-                      className="w-full bg-[#111a2e] border border-slate-700/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
-                    />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <Mail size={15} />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleAddCustomSkill}
-                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
-                  >
-                    <Plus size={15} />
-                    <span>Add Skill</span>
-                  </button>
+                  <input
+                    type="email"
+                    value={formData.recruiter.email}
+                    onChange={(e) => handleNestedChange('recruiter', 'email', e.target.value)}
+                    placeholder="e.g. hr@company.com"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
                 </div>
+              </div>
 
-                {/* Selected Skills Tags */}
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Recruiter Contact Number
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <Phone size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.recruiter.contactNumber}
+                    onChange={(e) =>
+                      handleNestedChange('recruiter', 'contactNumber', e.target.value)
+                    }
+                    placeholder="Contact phone number"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* SECTION 3: COMPANY INFORMATION                            */}
+        {/* ========================================================= */}
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 text-blue-500 dark:text-blue-400 font-bold text-xs tracking-widest uppercase">
+            <Building2 size={16} className="text-blue-500" />
+            <span>Company Information</span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Company Name <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <Building2 size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.company.name}
+                    onChange={(e) => handleNestedChange('company', 'name', e.target.value)}
+                    placeholder="e.g. Admire Holidays / Trip 2 Honeymoon"
+                    required
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Company Location
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <MapPin size={15} />
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.company.location}
+                    onChange={(e) => handleNestedChange('company', 'location', e.target.value)}
+                    placeholder="e.g. Bangalore, Karnataka"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] pl-10 pr-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                Company Description
+              </label>
+              <textarea
+                rows={3}
+                value={formData.company.description}
+                onChange={(e) => handleNestedChange('company', 'description', e.target.value)}
+                placeholder="About the company details..."
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] p-4 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all leading-relaxed"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* SECTION 4: JOB SPECIFICATIONS                             */}
+        {/* ========================================================= */}
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-2.5 pb-4 border-b border-slate-200/80 dark:border-slate-800/80 text-blue-500 dark:text-blue-400 font-bold text-xs tracking-widest uppercase">
+            <Sliders size={16} className="text-blue-500" />
+            <span>Job Specifications</span>
+          </div>
+
+          <div className="space-y-6">
+            {/* Department & Employment Type */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Department <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={formData.specifications.department}
+                  onChange={(e) =>
+                    handleNestedChange('specifications', 'department', e.target.value)
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner transition-all"
+                >
+                  {DEPARTMENT_OPTIONS.map((dept) => (
+                    <option key={dept} value={dept} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Employment Type <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={formData.specifications.employmentType}
+                  onChange={(e) =>
+                    handleNestedChange('specifications', 'employmentType', e.target.value)
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner transition-all"
+                >
+                  {EMPLOYMENT_TYPES.map((type) => (
+                    <option key={type} value={type} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Experience Required & Shift */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Experience Required <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={formData.specifications.experienceRequired}
+                  onChange={(e) =>
+                    handleNestedChange('specifications', 'experienceRequired', e.target.value)
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner transition-all"
+                >
+                  {EXPERIENCE_OPTIONS.map((exp) => (
+                    <option key={exp} value={exp} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">
+                      {exp}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                  Shift
+                </label>
+                <select
+                  value={formData.specifications.shift}
+                  onChange={(e) =>
+                    handleNestedChange('specifications', 'shift', e.target.value)
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner transition-all"
+                >
+                  {SHIFT_OPTIONS.map((shift) => (
+                    <option key={shift} value={shift} className="bg-white dark:bg-[#050A17] text-slate-900 dark:text-white">
+                      {shift}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Education Qualifications Multi-select Pills */}
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                Education Qualifications
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {EDUCATION_OPTIONS.map((edu) => {
+                  const isSelected =
+                    formData.specifications.educationQualifications?.includes(edu);
+                  return (
+                    <button
+                      type="button"
+                      key={edu}
+                      onClick={() =>
+                        toggleArrayItem('specifications', 'educationQualifications', edu)
+                      }
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 border border-blue-500/40'
+                          : 'bg-slate-100 dark:bg-[#050A17] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800/90 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      {isSelected && <Check size={13} className="stroke-[3]" />}
+                      {edu}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Preferred Languages Multi-select Pills */}
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+                Preferred Languages
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {LANGUAGE_OPTIONS.map((lang) => {
+                  const isSelected =
+                    formData.specifications.preferredLanguages?.includes(lang);
+                  return (
+                    <button
+                      type="button"
+                      key={lang}
+                      onClick={() =>
+                        toggleArrayItem('specifications', 'preferredLanguages', lang)
+                      }
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 border border-blue-500/40'
+                          : 'bg-slate-100 dark:bg-[#050A17] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800/90 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      {isSelected && <Check size={13} className="stroke-[3]" />}
+                      {lang}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Skills Required Section */}
+            <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80">
+              <div className="flex items-center justify-between mb-2">
+                <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Skills Required <span className="text-slate-400 dark:text-slate-500 font-semibold normal-case">(Programming, tools, soft skills)</span>
+                </label>
                 {formData.specifications.skills?.length > 0 && (
-                  <div className="mb-4 p-3 bg-[#111a2e]/60 border border-slate-800 rounded-xl">
-                    <div className="flex flex-wrap gap-2">
-                      {formData.specifications.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600/20 text-blue-300 border border-blue-500/40 rounded-lg text-xs font-medium"
-                        >
-                          {skill}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(skill)}
-                            className="hover:text-white transition-colors cursor-pointer"
-                            title={`Remove ${skill}`}
-                          >
-                            <X size={13} />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <span className="text-xs font-bold text-blue-500 dark:text-blue-400">
+                    {formData.specifications.skills.length} Selected
+                  </span>
                 )}
+              </div>
 
-                {/* Suggested Common Skills */}
-                <div>
-                  <div className="text-[11px] font-medium text-slate-400 mb-2 flex items-center gap-1.5">
-                    <Sparkles size={12} className="text-blue-400" />
-                    <span>Suggested Skills (click to toggle):</span>
-                  </div>
+              {/* Custom Skill Input */}
+              <div className="flex gap-2 mb-3">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCustomSkill();
+                      }
+                    }}
+                    placeholder="Type a skill (e.g. Java, Spring Boot, Node.js) and press Enter or Add"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800/90 bg-slate-50 dark:bg-[#050A17] px-4 py-2.5 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 shadow-inner transition-all"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddCustomSkill}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-blue-500/30 cursor-pointer shrink-0"
+                >
+                  <Plus size={15} />
+                  <span>Add Skill</span>
+                </button>
+              </div>
+
+              {/* Selected Skills Tags */}
+              {formData.specifications.skills?.length > 0 && (
+                <div className="mb-4 p-3.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl">
                   <div className="flex flex-wrap gap-2">
-                    {COMMON_SKILLS.map((skill) => {
-                      const isSelected = formData.specifications.skills?.includes(skill);
-                      return (
+                    {formData.specifications.skills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold shadow-sm"
+                      >
+                        {skill}
                         <button
                           type="button"
-                          key={skill}
-                          onClick={() => toggleArrayItem('specifications', 'skills', skill)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
-                            isSelected
-                              ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30 border border-blue-500'
-                              : 'bg-[#111a2e] text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-600'
-                          }`}
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-rose-500 transition-colors cursor-pointer"
+                          title={`Remove ${skill}`}
                         >
-                          {isSelected && <Check size={12} className="stroke-[3]" />}
-                          {skill}
+                          <X size={13} />
                         </button>
-                      );
-                    })}
+                      </span>
+                    ))}
                   </div>
+                </div>
+              )}
+
+              {/* Suggested Common Skills */}
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-blue-500" />
+                  <span>Suggested Skills (click to toggle):</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {COMMON_SKILLS.map((skill) => {
+                    const isSelected = formData.specifications.skills?.includes(skill);
+                    return (
+                      <button
+                        type="button"
+                        key={skill}
+                        onClick={() => toggleArrayItem('specifications', 'skills', skill)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30 border border-blue-500/40'
+                            : 'bg-slate-100 dark:bg-[#050A17] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800/90 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
+                        }`}
+                      >
+                        {isSelected && <Check size={12} className="stroke-[3]" />}
+                        {skill}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Bottom Submit Action */}
-          <div className="flex justify-end pt-2 pb-12">
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="flex items-center gap-2.5 px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm shadow-xl shadow-blue-600/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>{isEdit ? 'Update Job Position' : 'Create Job Position'}</span>
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
+        {/* Bottom Submit Action */}
+        <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+          <button
+            type="button"
+            onClick={() => navigate("/jobs/list")}
+            className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+          >
+            CANCEL
+          </button>
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 disabled:opacity-60 transition-all cursor-pointer"
+          >
+            {isSaving && <Loader2 size={15} className="animate-spin" />}
+            {isEdit ? "UPDATE JOB POSITION" : "POST JOB VACANCY"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

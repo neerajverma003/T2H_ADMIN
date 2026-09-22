@@ -30,7 +30,9 @@ import {
     SlidersHorizontal,
     Maximize2,
     ChevronDown,
-    Search
+    Search,
+    Clock,
+    FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -69,6 +71,8 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
         availability_status: "Available",
         amenities: [],
         policies: "",
+        check_in_time: "",
+        check_out_time: "",
         contact_email: "",
         contact_phone: "",
         is_featured: false,
@@ -81,6 +85,8 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
     const [existingImages, setExistingImages] = useState([]);
     const [removedImageIndexes, setRemovedImageIndexes] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
+    const [newFiles, setNewFiles] = useState([]);
+    const fileInputRef = useRef(null);
 
     const [destinations, setDestinations] = useState({ domestic: [], international: [] });
     const [destinationsLoading, setDestinationsLoading] = useState(false);
@@ -181,6 +187,9 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
                 city: resort.city ?? "",
                 state: resort.state ?? "",
                 country: resort.country ?? "",
+                check_in_time: resort.check_in_time ?? "",
+                check_out_time: resort.check_out_time ?? "",
+                policies: resort.policies ?? "",
                 images: null,
                 is_active: resort.is_active !== false,
                 is_featured: !!resort.is_featured,
@@ -204,12 +213,25 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
         }
     };
 
+    const removeNewImage = (indexToRemove) => {
+        setNewFiles((prev) => prev.filter((_, i) => i !== indexToRemove));
+        setPreviewUrls((prev) => {
+            // Revoke the URL to free memory
+            URL.revokeObjectURL(prev[indexToRemove]);
+            return prev.filter((_, i) => i !== indexToRemove);
+        });
+    };
+
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
         if (type === "file") {
-            setFormData((prev) => ({ ...prev, images: files }));
-            const urls = Array.from(files).map((file) => URL.createObjectURL(file));
-            setPreviewUrls(urls);
+            const addedFiles = Array.from(files);
+            // Accumulate new files instead of replacing
+            setNewFiles((prev) => [...prev, ...addedFiles]);
+            const newUrls = addedFiles.map((file) => URL.createObjectURL(file));
+            setPreviewUrls((prev) => [...prev, ...newUrls]);
+            // Reset file input so the same file can be selected again
+            if (fileInputRef.current) fileInputRef.current.value = "";
         } else if (type === "checkbox") {
             setFormData((prev) => ({ ...prev, [name]: checked }));
         } else if (type === "number") {
@@ -235,9 +257,9 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
             const safeTitle = (formData.title || "resort").trim().replace(/\s+/g, '_');
             const resortFolder = `resort/${safeTitle}`;
 
-            if (formData.images && formData.images.length > 0) {
-                for (let i = 0; i < formData.images.length; i++) {
-                    const img = formData.images[i];
+            if (newFiles.length > 0) {
+                for (let i = 0; i < newFiles.length; i++) {
+                    const img = newFiles[i];
                     const uploadImage = await convertImageFileToWebP(img);
                     const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
                         fileName: uploadImage.name,
@@ -744,12 +766,14 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
                                         Click to Upload Resort Photos
                                     </p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        JPG, PNG, WebP supported • Automatic WebP optimization
+                                        JPG, PNG, WebP supported • Select multiple images at once • Automatic WebP optimization
                                     </p>
                                 </div>
                                 <input
+                                    ref={fileInputRef}
                                     disabled={isViewMode}
                                     type="file"
+                                    name="images"
                                     multiple
                                     accept="image/*"
                                     onChange={handleChange}
@@ -817,7 +841,7 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
                                             className="relative aspect-square rounded-2xl overflow-hidden group border-2 border-indigo-500/60 shadow-lg shadow-indigo-500/20"
                                         >
                                             <img src={url} className="w-full h-full object-cover" alt="New Upload" />
-                                            <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-[2px]">
+                                            <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-all backdrop-blur-[2px]">
                                                 <button
                                                     type="button"
                                                     onClick={() => setSelectedImage(url)}
@@ -826,6 +850,16 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
                                                 >
                                                     <Maximize2 size={16} />
                                                 </button>
+                                                {!isViewMode && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeNewImage(idx)}
+                                                        className="p-2 bg-red-500/80 hover:bg-red-600 text-white rounded-xl transition-colors cursor-pointer"
+                                                        title="Remove image"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                             <div className="absolute top-2 left-2 px-2.5 py-0.5 bg-indigo-600/90 backdrop-blur-md rounded-lg shadow">
                                                 <span className="text-[9px] font-bold text-white uppercase tracking-wider">New</span>
@@ -838,7 +872,76 @@ const HoneymoonResortForm = ({ editId, isViewMode: propIsViewMode }) => {
                     </div>
                 </div>
 
-                {/* 5. VISIBILITY & PORTAL STATUS */}
+                {/* 5. CHECK-IN & STAY POLICIES */}
+                <div className={cardStyle}>
+                    <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/25 shrink-0">
+                            <Clock size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Check-In & Stay Policies
+                            </h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                                Define check-in/check-out timings and cancellation or stay policies
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Check-In Time */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <Clock size={13} className="text-amber-400" /> Check-In Time
+                                </label>
+                                <input
+                                    disabled={isViewMode}
+                                    type="time"
+                                    name="check_in_time"
+                                    value={formData.check_in_time}
+                                    onChange={handleChange}
+                                    className={inputStyle}
+                                    placeholder="e.g. 14:00"
+                                />
+                            </div>
+
+                            {/* Check-Out Time */}
+                            <div>
+                                <label className={labelStyle}>
+                                    <Clock size={13} className="text-amber-400" /> Check-Out Time
+                                </label>
+                                <input
+                                    disabled={isViewMode}
+                                    type="time"
+                                    name="check_out_time"
+                                    value={formData.check_out_time}
+                                    onChange={handleChange}
+                                    className={inputStyle}
+                                    placeholder="e.g. 11:00"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Policies & Cancellation */}
+                        <div>
+                            <label className={labelStyle}>
+                                <FileText size={13} className="text-amber-400" /> Policies & Cancellation
+                            </label>
+                            <textarea
+                                disabled={isViewMode}
+                                name="policies"
+                                value={formData.policies}
+                                onChange={handleChange}
+                                rows={4}
+                                className={`${inputStyle} resize-y min-h-[110px] leading-relaxed`}
+                                placeholder="Describe cancellation terms, refund policy, pet policy, smoking rules, special requirements..."
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 6. VISIBILITY & PORTAL STATUS */}
                 <div className={cardStyle}>
                     <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100 dark:border-slate-800/80">
                         <div className="size-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">

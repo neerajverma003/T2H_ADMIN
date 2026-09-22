@@ -19,6 +19,7 @@ import {
   Clock,
   ExternalLink,
   Compass,
+  Hotel,
   X,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
@@ -47,11 +48,14 @@ const getNotifIcon = (type) => {
     case 'booking':
       return <ShoppingBag className="text-emerald-500 shrink-0" size={18} />
     case 'activity':
-    case 'activity_booking':
-      return <Compass className="text-teal-500 shrink-0" size={18} />
     case 'itinerary_lead':
     case 'trip_plan':
       return <MapPin className="text-blue-500 shrink-0" size={18} />
+    case 'resort':
+    case 'resort_enquiry':
+      return <Hotel className="text-blue-500 shrink-0" size={18} />
+    case 'activity_booking':
+      return <Compass className="text-blue-500 shrink-0" size={18} />
     case 'review':
       return <Star className="text-amber-500 shrink-0" size={18} />
     case 'contact':
@@ -70,7 +74,8 @@ const getTypeBadgeColor = (type) => {
       return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200/50'
     case 'activity':
     case 'activity_booking':
-      return 'bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400 border-teal-200/50'
+    case 'resort':
+    case 'resort_enquiry':
     case 'itinerary_lead':
     case 'trip_plan':
       return 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 border-blue-200/50'
@@ -122,9 +127,11 @@ const SEARCHABLE_ROUTES = [
   { label: "Trip Requests", to: "/leads/honeymoon-requests", keywords: ["leads", "trip requests", "honeymoon requests"], sectionKey: "leads" },
   { label: "Itinerary Leads", to: "/leads/itinerary-leads", keywords: ["leads", "itinerary leads"], sectionKey: "leads" },
   { label: "Journey Plans", to: "/leads/plan-journey", keywords: ["leads", "journey plans", "plan your journey"], sectionKey: "leads" },
+  { label: "Activity Enquiries", to: "/leads/activity-enquiries", keywords: ["leads", "activity enquiries", "activity leads", "activities"], sectionKey: "leads" },
+  { label: "Resort Enquiries", to: "/leads/resort-enquiries", keywords: ["leads", "resort enquiries", "resort leads", "resorts"], sectionKey: "leads" },
   { label: "Contact Leads", to: "/leads/contacts", keywords: ["leads", "contacts", "contact leads"], sectionKey: "leads" },
   { label: "Suggestions", to: "/leads/suggestions", keywords: ["leads", "suggestions"], sectionKey: "leads" },
-  { label: "Newsletter", to: "/leads/subscribe", keywords: ["leads", "newsletter", "subscribers"], sectionKey: "leads" },
+  { label: "Subscriber", to: "/leads/subscribe", keywords: ["leads", "subscriber", "subscribers", "newsletter"], sectionKey: "leads" },
   { label: "Global Terms", to: "/global-terms", keywords: ["compliance", "terms", "global terms"], sectionKey: "compliance" },
   { label: "User Agreement", to: "/user-agreement", keywords: ["compliance", "terms", "user agreement"], sectionKey: "compliance" },
   { label: "Destination T&C", to: "/terms-and-conditions", keywords: ["compliance", "terms", "destination tc"], sectionKey: "compliance" },
@@ -219,6 +226,35 @@ const Header = ({ open, setOpen, search, setSearch }) => {
     profile?.name && profile.name !== "Admin User" && profile.name !== ""
       ? profile.name
       : username || profile?.firstName || "Admin"
+
+  const isValidAvatar = (url) => {
+    if (!url || typeof url !== "string") return false
+    const trimmed = url.trim()
+    return trimmed !== "" && trimmed !== "undefined" && trimmed !== "null"
+  }
+
+  const [avatarSrc, setAvatarSrc] = useState(
+    isValidAvatar(profile?.avatar) ? profile.avatar.trim() : profileImg
+  )
+  const [avatarFailed, setAvatarFailed] = useState(false)
+
+  useEffect(() => {
+    if (isValidAvatar(profile?.avatar)) {
+      setAvatarSrc(profile.avatar.trim())
+      setAvatarFailed(false)
+    } else {
+      setAvatarSrc(profileImg)
+      setAvatarFailed(false)
+    }
+  }, [profile?.avatar])
+
+  const handleAvatarError = () => {
+    if (avatarSrc !== profileImg) {
+      setAvatarSrc(profileImg)
+    } else {
+      setAvatarFailed(true)
+    }
+  }
 
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
@@ -326,15 +362,7 @@ const Header = ({ open, setOpen, search, setSearch }) => {
           <Menu size={20} strokeWidth={2.5} />
         </button>
 
-        <div className="hidden md:flex items-center gap-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            {roleDisplay}
-          </p>
-          <ChevronRight size={12} className="text-slate-300" />
-          <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Dashboard</p>
-        </div>
-
-        <form onSubmit={handleSearchSubmit} className="relative group hidden sm:block max-w-xs md:max-w-sm w-full ml-3 md:ml-6">
+        <form onSubmit={handleSearchSubmit} className="relative group hidden sm:block max-w-xs md:max-w-sm w-full">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search size={16} className="text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
           </div>
@@ -522,11 +550,18 @@ const Header = ({ open, setOpen, search, setSearch }) => {
             hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group cursor-pointer"
           >
             <div className="relative">
-              <img
-                src={profile?.avatar || profileImg}
-                alt="Admin"
-                className="size-10 rounded-xl object-cover ring-2 ring-indigo-50 dark:ring-indigo-900/30 group-hover:ring-indigo-200 transition-all"
-              />
+              {!avatarFailed ? (
+                <img
+                  src={avatarSrc}
+                  alt={displayName || "Admin"}
+                  onError={handleAvatarError}
+                  className="size-10 rounded-xl object-cover ring-2 ring-indigo-50 dark:ring-indigo-900/30 group-hover:ring-indigo-200 transition-all"
+                />
+              ) : (
+                <div className="size-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm uppercase shadow-sm">
+                  {displayName?.trim()?.[0] || "A"}
+                </div>
+              )}
               <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-green-500 border-2 border-white dark:border-slate-950 rounded-full" />
             </div>
             <div className="hidden sm:block text-left">

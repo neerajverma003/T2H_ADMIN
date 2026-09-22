@@ -341,13 +341,9 @@ const Settings = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left">
       {/* ── HEADER HUB ── */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-sm shrink-0">
             <User size={22} />
           </div>
           <div>
@@ -377,7 +373,7 @@ const Settings = () => {
         {/* LEFT COLUMN: AVATAR CARD & TAB NAVIGATION */}
         <div className="lg:col-span-4 space-y-6">
           {/* PROFILE SUMMARY CARD */}
-          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl text-center relative overflow-hidden">
+          <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm text-center relative overflow-hidden">
             {/* AVATAR CONTAINER */}
             <div className="relative size-32 mx-auto mb-6">
               <input
@@ -392,10 +388,10 @@ const Settings = () => {
                   src={profileForm.avatar}
                   alt={fullName}
                   onError={() => setAvatarError(true)}
-                  className="size-32 rounded-full object-cover ring-4 ring-blue-500/30 shadow-xl mx-auto"
+                  className="size-32 rounded-full object-cover ring-4 ring-slate-200 dark:ring-slate-800 shadow-sm mx-auto"
                 />
               ) : (
-                <div className="size-32 rounded-full bg-slate-100 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-500 ring-4 ring-blue-500/30 shadow-xl mx-auto">
+                <div className="size-32 rounded-full bg-slate-100 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-blue-500 ring-4 ring-slate-200 dark:ring-slate-800 shadow-sm mx-auto">
                   <span className="text-3xl font-black text-blue-500 uppercase tracking-wider">
                     {profileForm.firstName?.[0] || profileForm.username?.[0] || "A"}
                   </span>
@@ -405,7 +401,7 @@ const Settings = () => {
                 type="button"
                 disabled={uploadingAvatar}
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-full shadow-lg shadow-blue-500/30 transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
+                className="absolute bottom-0 right-0 p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-full shadow-sm transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
                 title="Upload Profile Photo"
               >
                 {uploadingAvatar ? <RefreshCcw size={16} className="animate-spin" /> : <Camera size={16} />}
@@ -415,7 +411,7 @@ const Settings = () => {
                   type="button"
                   disabled={uploadingAvatar}
                   onClick={handleRemoveAvatar}
-                  className="absolute bottom-0 left-0 p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-lg shadow-rose-500/30 transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
+                  className="absolute bottom-0 left-0 p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-sm transition-transform hover:scale-110 active:scale-95 cursor-pointer disabled:opacity-50"
                   title="Remove Profile Photo"
                 >
                   <Trash2 size={16} />
@@ -439,13 +435,13 @@ const Settings = () => {
           </div>
 
           {/* NAVIGATION TABS */}
-          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-3 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-2">
+          <div className="bg-white dark:bg-[#091126] rounded-3xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
             <button
               type="button"
               onClick={() => setActiveTab("personal")}
               className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === "personal"
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
             >
@@ -460,7 +456,7 @@ const Settings = () => {
               onClick={() => setActiveTab("security")}
               className={`flex items-center justify-between w-full p-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeTab === "security"
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60"
               }`}
             >
@@ -475,7 +471,7 @@ const Settings = () => {
         {/* RIGHT COLUMN: TAB VIEW CONTENT */}
         <div className="lg:col-span-8">
           {activeTab === "personal" ? (
-            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+            <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
               {/* TAB HEADER */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
                 <div>
@@ -663,7 +659,7 @@ const Settings = () => {
             /* SECURITY & OTP TAB */
             <div className="space-y-8">
               {/* SECTION 1: CHANGE USERNAME VIA OTP */}
-              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+              <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                     <User size={18} className="text-blue-500" /> Change Username (Login ID)
@@ -680,7 +676,7 @@ const Settings = () => {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={sendingOtp || otpTimer > 0}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/25 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer shrink-0 disabled:opacity-50"
                   >
                     {sendingOtp ? (
                       <>
@@ -727,7 +723,7 @@ const Settings = () => {
                     <button
                       type="submit"
                       disabled={verifyingUsernameOtp}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
                     >
                       {verifyingUsernameOtp ? (
                         <>
@@ -744,7 +740,7 @@ const Settings = () => {
               </div>
 
               {/* SECTION 2: CHANGE PASSWORD VIA OTP */}
-              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+              <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                     <Lock size={18} className="text-emerald-500" /> Change Account Password
@@ -844,7 +840,7 @@ const Settings = () => {
                     <button
                       type="submit"
                       disabled={verifyingOtp}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
                     >
                       {verifyingOtp ? (
                         <>
@@ -861,7 +857,7 @@ const Settings = () => {
               </div>
 
               {/* SECTION 3: TRUSTED DEVICES & 14-DAY IP SESSIONS */}
-              <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+              <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="pb-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">

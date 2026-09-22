@@ -106,13 +106,9 @@ const Suggestions = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       {/* HEADER SECTION */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
             <Lightbulb size={22} />
           </div>
           <div>
@@ -159,7 +155,7 @@ const Suggestions = () => {
       {/* 4 TOP METRIC CARDS */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* CARD 1: TOTAL FEEDBACK */}
-        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
+        <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
               <Lightbulb size={20} />
@@ -172,7 +168,7 @@ const Suggestions = () => {
         </div>
 
         {/* CARD 2: RECENT SUGGESTIONS */}
-        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
+        <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
               <Clock size={20} />
@@ -185,7 +181,7 @@ const Suggestions = () => {
         </div>
 
         {/* CARD 3: SEARCH RESULTS */}
-        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
+        <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
               <Filter size={20} />
@@ -198,7 +194,7 @@ const Suggestions = () => {
         </div>
 
         {/* CARD 4: REGISTRY STATUS */}
-        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
+        <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-6 relative group overflow-hidden transition-all duration-300 hover:scale-[1.01]">
           <div className="flex items-center justify-between">
             <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
               <CheckCircle2 size={20} />
@@ -214,7 +210,7 @@ const Suggestions = () => {
       </div>
 
       {/* FEEDBACK REGISTRY TABLE SECTION */}
-      <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8">
+      <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
@@ -423,7 +419,7 @@ const Suggestions = () => {
               <div className="pt-2 flex justify-end">
                 <button
                   onClick={() => setSelectedSuggestion(null)}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-blue-600/30"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
                 >
                   Close Dossier
                 </button>

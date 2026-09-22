@@ -105,13 +105,9 @@ const ReferralSettings = () => {
       className="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 text-left text-slate-900 dark:text-white font-sans"
     >
       {/* ── HEADER HUB ── */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-sm shrink-0">
             <Gift size={22} />
           </div>
           <div>
@@ -143,7 +139,7 @@ const ReferralSettings = () => {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT COLUMN: EDITABLE FORM CONTROLS */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
             
             {/* SYSTEM STATUS TOGGLE */}
             <div className="flex items-center justify-between p-5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-2xl">
@@ -258,7 +254,7 @@ const ReferralSettings = () => {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-7 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                className="px-7 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
                 {isSaving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
                 {isSaving ? "Saving Configuration..." : "Save Referral Engine Rules"}
@@ -269,7 +265,7 @@ const ReferralSettings = () => {
 
         {/* RIGHT COLUMN: LIVE END-USER DASHBOARD PREVIEW */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+          <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
               <div className="flex items-center gap-2.5">
                 <Gift size={20} className="text-blue-500" />

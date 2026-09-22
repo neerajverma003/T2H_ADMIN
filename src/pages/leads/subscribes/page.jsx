@@ -97,13 +97,9 @@ const Subscribe = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       {/* HEADER HUB */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
             <Inbox size={22} />
           </div>
           <div>
@@ -113,7 +109,7 @@ const Subscribe = () => {
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
-              Blog Newsletter <span className="text-blue-500">Audience</span>
+              Newsletter <span className="text-blue-500">Subscribers</span>
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
               Audience subscribed through the Travel Journal & Editorial newsletter forms.
@@ -126,14 +122,14 @@ const Subscribe = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
             <input
               type="text"
-              placeholder="Filter audience..."
+              placeholder="Filter subscribers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 rounded-xl text-xs font-semibold w-full outline-none transition-all placeholder:text-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-white shadow-inner"
             />
           </div>
           <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-400 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shrink-0">
-            <Sparkles size={15} /> {totalSubscribers} ACTIVE AUDIENCE
+            <Sparkles size={15} /> {totalSubscribers} SUBSCRIBERS
           </div>
         </div>
       </div>
@@ -159,12 +155,12 @@ const Subscribe = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className={`bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:scale-[1.003] ${openDropdownId === sub._id ? 'z-50' : 'z-10'}`}
+                  className={`bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-5 sm:p-6 transition-all duration-300 hover:scale-[1.003] ${openDropdownId === sub._id ? 'z-50' : 'z-10'}`}
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     {/* IDENTITY SECTION */}
                     <div className="flex items-center gap-4 shrink-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/30">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-sm">
                         {sub.email?.charAt(0).toUpperCase()}
                       </div>
                       <div className="text-left">
@@ -237,7 +233,7 @@ const Subscribe = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                 transition={{ duration: 0.15 }}
-                                className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-[#091126] rounded-2xl shadow-xl border border-slate-200 dark:border-indigo-500/30 z-50 overflow-hidden py-1.5"
+                                className="absolute top-full right-0 mt-2 w-[180px] bg-white dark:bg-[#091126] rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 z-50 overflow-hidden py-1.5"
                               >
                                 {['subscribed', 'unsubscribed'].map((status) => (
                                   <button
@@ -269,7 +265,7 @@ const Subscribe = () => {
           </div>
 
           {/* PAGINATION */}
-          <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl">
+          <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#091126] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Audience Frame: <span className="text-slate-900 dark:text-white">{currentPage}</span> <span className="mx-2 text-slate-300 dark:text-slate-600">/</span> {totalPages}
             </p>
@@ -284,7 +280,7 @@ const Subscribe = () => {
           </div>
         </>
       ) : (
-        <div className="py-28 text-center bg-white dark:bg-[#091126]/95 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-xl">
+        <div className="py-28 text-center bg-white dark:bg-[#091126] rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
           <Heart className="mx-auto mb-4 text-slate-300 dark:text-slate-700" size={56} strokeWidth={1} />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight mb-1">No Active Subscribers</h3>
           <p className="text-slate-500 dark:text-slate-400 text-xs">The subscriber vault is currently clear</p>

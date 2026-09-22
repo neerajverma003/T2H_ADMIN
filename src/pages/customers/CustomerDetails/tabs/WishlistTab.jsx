@@ -9,7 +9,7 @@ const WishlistTab = ({ data, loading }) => {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <div className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Loading wishlist items...</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Loading wishlist items...</p>
       </div>
     );
   }
@@ -18,11 +18,11 @@ const WishlistTab = ({ data, loading }) => {
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-20 px-6 text-center">
-        <div className="size-16 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-500 flex items-center justify-center mb-4">
-          <Heart size={32} />
+      <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200/80 dark:border-indigo-500/20 bg-slate-50/50 dark:bg-[#070d1e]/40 py-20 px-6 text-center">
+        <div className="size-16 rounded-2xl bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-200 dark:border-rose-500/20 flex items-center justify-center mb-4">
+          <Heart size={28} />
         </div>
-        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">No wishlist items</h3>
+        <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No wishlist items</h3>
         <p className="text-xs text-slate-400 mt-1 max-w-sm">This customer hasn't saved any travel itineraries or honeymoon packages to their wishlist yet.</p>
       </div>
     );
@@ -32,8 +32,8 @@ const WishlistTab = ({ data, loading }) => {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Heart size={20} className="text-rose-500 fill-rose-500" /> Saved Wishlist
+          <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Heart size={18} className="text-rose-500 fill-rose-500" /> Saved Wishlist
           </h3>
           <p className="text-xs font-medium text-slate-400 mt-0.5">
             {wishlistItems.length} package{wishlistItems.length !== 1 ? 's' : ''} saved by this user
@@ -58,7 +58,7 @@ const WishlistTab = ({ data, loading }) => {
           return (
             <div
               key={item._id}
-              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-indigo-500/40 transition-all group flex flex-col justify-between"
+              className="bg-slate-50/70 dark:bg-[#070d1e]/80 rounded-2xl border border-slate-200/80 dark:border-indigo-500/20 overflow-hidden shadow-sm hover:shadow-xl hover:border-indigo-500/40 transition-all group flex flex-col justify-between"
             >
               <div>
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-950">
@@ -68,7 +68,7 @@ const WishlistTab = ({ data, loading }) => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                  <div className="absolute top-3 right-3 bg-rose-500 text-white p-2 rounded-full shadow-md">
+                  <div className="absolute top-3 right-3 bg-rose-500 text-white p-2 rounded-xl shadow-md">
                     <Heart size={14} className="fill-white" />
                   </div>
                   <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
@@ -78,15 +78,15 @@ const WishlistTab = ({ data, loading }) => {
                 </div>
 
                 <div className="p-5 space-y-3">
-                  <h4 className="font-extrabold text-slate-900 dark:text-white text-base leading-snug line-clamp-2">
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-snug line-clamp-2">
                     {item.title}
                   </h4>
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-bold border-t border-slate-100 dark:border-slate-800/80 pt-3">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-bold border-t border-slate-200/60 dark:border-indigo-500/10 pt-3">
                     <span className="flex items-center gap-1">
-                      <MapPin size={12} className="text-indigo-500" /> {destinationName}
+                      <MapPin size={12} className="text-blue-600 dark:text-indigo-400" /> {destinationName}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} className="text-indigo-500" /> {item.duration || 'N/A'}
+                      <Calendar size={12} className="text-blue-600 dark:text-indigo-400" /> {item.duration || 'N/A'}
                     </span>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ const WishlistTab = ({ data, loading }) => {
                 <button
                   type="button"
                   onClick={() => navigate(`/itineraries/view/${item._id}`)}
-                  className="w-full py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="w-full py-2.5 bg-white dark:bg-[#091126] hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-indigo-500/25 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
                 >
                   View Itinerary <ExternalLink size={12} />
                 </button>

@@ -70,24 +70,24 @@ const NavDropdown = ({ title, icon: Icon, isOpen, onClick, children, isActive, i
       <button
         onClick={onClick}
         className={`
-          flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer group
+          flex w-full items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all duration-150 cursor-pointer group
           ${isHighlighted
             ? "text-blue-600 dark:text-blue-400 font-extrabold"
             : "text-slate-800 hover:text-slate-950 dark:text-slate-200 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/50"}
         `}
       >
-        <span className="flex items-center gap-3">
+        <span className="flex items-center gap-2.5 min-w-0 pr-1">
           <Icon
             size={18}
             strokeWidth={2.2}
-            className={isHighlighted ? "text-blue-600 dark:text-blue-400" : "text-slate-700 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-white"}
+            className={`shrink-0 ${isHighlighted ? "text-blue-600 dark:text-blue-400" : "text-slate-700 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-white"}`}
           />
-          <span className="tracking-wider">{title}</span>
+          <span className="whitespace-nowrap">{title}</span>
         </span>
         <ChevronDown
           size={16}
           strokeWidth={2.5}
-          className={`transition-transform duration-200 ${isOpen ? "rotate-180 text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white"}`}
+          className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white"}`}
         />
       </button>
 
@@ -154,42 +154,48 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
     }
 
     const path = location.pathname
-    if (path === '/') toggleMenu('dashboard', true)
-    if (path.includes('/customers')) toggleMenu('public_user', true)
-    if (path.includes('/users')) toggleMenu('users', true)
-    if (path.includes('/destinations')) toggleMenu('destinations', true)
-    if (path.includes('/itineraries')) toggleMenu('itineraries', true)
-    if (path.includes('/activities')) toggleMenu('activities', true)
-    if (path.includes('/resorts')) toggleMenu('resorts', true)
-    if (path.includes('/hotels')) toggleMenu('hotels', true)
-    if (path.includes('/bookings')) toggleMenu('bookings', true)
-    if (path.includes('/hero')) toggleMenu('hero', true)
-    if (path.includes('/gallery')) toggleMenu('gallery', true)
-    if (path.includes('/social-management')) toggleMenu('social_management', true)
-    if (path.includes('/testimonials')) toggleMenu('testimonials', true)
-    if (path.includes('/blogs')) toggleMenu('blogs', true)
-    if (path.includes('/articles')) toggleMenu('articles', true)
-    if (path.includes('/giftcards')) toggleMenu('giftcards', true)
-    if (path.includes('/global-impact')) toggleMenu('global_impact', true)
-    if (path.includes('/leads')) toggleMenu('leads', true)
-    if (path.includes('/team')) toggleMenu('team', true)
-    if (path.includes('/jobs')) toggleMenu('jobs', true)
-    if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment')) toggleMenu('terms', true)
-    if (path.includes('/reports') || path.includes('/audit-logs')) toggleMenu('analytics', true)
-    if (path.includes('/settings/notifications')) toggleMenu('notifications', true)
-    if (path.includes('/settings/referral')) toggleMenu('referral', true)
-    if (path.includes('/settings/gst')) toggleMenu('gst', true)
-    if (path.includes('/settings/stats')) toggleMenu('stats', true)
-    if (path.includes('/about-settings')) toggleMenu('about_settings', true)
-    if (path.includes('/settings/chatbot')) toggleMenu('chatbot', true)
-    if (path === '/settings') toggleMenu('settings', true)
-  }, [location, setOpen])
+    let activeKey = null
+    if (path === '/') activeKey = 'dashboard'
+    else if (path.includes('/customers')) activeKey = 'public_user'
+    else if (path.includes('/users')) activeKey = 'users'
+    else if (path.includes('/destinations')) activeKey = 'destinations'
+    else if (path.includes('/itineraries')) activeKey = 'itineraries'
+    else if (path.includes('/activities')) activeKey = 'activities'
+    else if (path.includes('/resorts')) activeKey = 'resorts'
+    else if (path.includes('/hotels')) activeKey = 'hotels'
+    else if (path.includes('/bookings')) activeKey = 'bookings'
+    else if (path.includes('/hero')) activeKey = 'hero'
+    else if (path.includes('/gallery')) activeKey = 'gallery'
+    else if (path.includes('/social-management')) activeKey = 'social_management'
+    else if (path.includes('/testimonials')) activeKey = 'testimonials'
+    else if (path.includes('/blogs')) activeKey = 'blogs'
+    else if (path.includes('/articles')) activeKey = 'articles'
+    else if (path.includes('/giftcards')) activeKey = 'giftcards'
+    else if (path.includes('/global-impact')) activeKey = 'global_impact'
+    else if (path.includes('/leads')) activeKey = 'leads'
+    else if (path.includes('/team')) activeKey = 'team'
+    else if (path.includes('/jobs')) activeKey = 'jobs'
+    else if (path.includes('/terms') || path.includes('/policy') || path.includes('/payment') || path.includes('/user-agreement') || path.includes('/global-terms')) activeKey = 'terms'
+    else if (path.includes('/email-templates') || path.includes('/email-campaigns')) activeKey = 'marketing'
+    else if (path.includes('/reports') || path.includes('/audit-logs')) activeKey = 'analytics'
+    else if (path.includes('/settings/notifications')) activeKey = 'notifications'
+    else if (path.includes('/settings/referral')) activeKey = 'referral'
+    else if (path.includes('/settings/gst')) activeKey = 'gst'
+    else if (path.includes('/settings/stats')) activeKey = 'stats'
+    else if (path.includes('/about-settings')) activeKey = 'about_settings'
+    else if (path.includes('/settings/chatbot')) activeKey = 'chatbot'
+    else if (path === '/settings') activeKey = 'settings'
+
+    if (activeKey) {
+      setOpenMenus({ [activeKey]: true })
+    }
+  }, [location.pathname, setOpen])
 
   const toggleMenu = (menu, force) => {
-    setOpenMenus(prev => ({
-      ...prev,
-      [menu]: force !== undefined ? force : !prev[menu]
-    }))
+    setOpenMenus(prev => {
+      const willBeOpen = force !== undefined ? force : !prev[menu]
+      return willBeOpen ? { [menu]: true } : {}
+    })
   }
 
   const handleNavClick = () => {
@@ -413,11 +419,13 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
         { to: '/leads/honeymoon-requests', label: 'Trip Requests' },
         { to: '/leads/itinerary-leads', label: 'Itinerary Leads' },
         { to: '/leads/plan-journey', label: 'Journey Plans' },
+        { to: '/leads/activity-enquiries', label: 'Activity Enquiries' },
+        { to: '/leads/resort-enquiries', label: 'Resort Enquiries' },
         { to: '/leads/contacts', label: 'Contact Leads' },
         { to: '/leads/suggestions', label: 'Suggestions' },
-        { to: '/leads/subscribe', label: 'Newsletter' }
+        { to: '/leads/subscribe', label: 'Subscriber' }
       ],
-      keywords: ['customer leads', 'leads', 'inquiries', 'consultation', 'trip requests', 'newsletter', 'contacts', 'honeymoon requests', 'itinerary leads', 'journey plans', 'suggestions']
+      keywords: ['customer leads', 'leads', 'inquiries', 'consultation', 'trip requests', 'subscriber', 'subscribers', 'newsletter', 'contacts', 'honeymoon requests', 'itinerary leads', 'journey plans', 'activity enquiries', 'resort enquiries', 'resort leads', 'suggestions']
     },
     {
       key: 'terms',
@@ -596,7 +604,7 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
       <aside
         className={`fixed top-0 left-0 z-40 flex h-full flex-col overflow-hidden border-r border-slate-200 dark:border-slate-800/80
         bg-white dark:bg-[#070b16] transition-all duration-300 ease-in-out shadow-2xl
-        ${open ? "w-[270px] translate-x-0" : "w-[270px] -translate-x-full md:translate-x-0 md:w-[80px]"}`}
+        ${open ? "w-[280px] translate-x-0" : "w-[280px] -translate-x-full md:translate-x-0 md:w-[80px]"}`}
       >
         {/* TRIP2HONEYMOON LOGO HEADER */}
         {open ? (

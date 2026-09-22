@@ -41,7 +41,7 @@ const AdminLayout = () => {
 
       <Sidebar open={open} setOpen={setOpen} search={search} setSearch={setSearch} />
 
-      <div className={`flex flex-1 flex-col overflow-hidden transition-all duration-500 ease-in-out ${open ? "md:ml-[270px]" : "md:ml-[80px]"}`}>
+      <div className={`flex flex-1 flex-col overflow-hidden transition-all duration-500 ease-in-out ${open ? "md:ml-[280px]" : "md:ml-[80px]"}`}>
 
         <Header open={open} setOpen={setOpen} search={search} setSearch={setSearch} />
 

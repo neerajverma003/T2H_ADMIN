@@ -6,8 +6,8 @@ const EnquiriesTab = ({ tab }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <Loader2 className="w-7 h-7 text-indigo-600 animate-spin" />
-        <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">Loading enquiries...</p>
+        <Loader2 className="w-8 h-8 text-blue-600 dark:text-indigo-400 animate-spin" />
+        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Loading enquiries...</p>
       </div>
     );
   }
@@ -15,11 +15,11 @@ const EnquiriesTab = ({ tab }) => {
   if (!enquiries || enquiries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="size-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
-          <HelpCircle size={24} className="text-slate-300 dark:text-slate-600" />
+        <div className="size-16 rounded-2xl bg-blue-50 dark:bg-indigo-950/40 border border-blue-200/60 dark:border-indigo-500/30 flex items-center justify-center mb-4 text-blue-600 dark:text-indigo-400">
+          <HelpCircle size={24} />
         </div>
-        <h4 className="font-bold text-slate-700 dark:text-slate-300">No enquiries submitted</h4>
-        <p className="text-sm text-slate-400 mt-1">This customer hasn't submitted any enquiry forms yet.</p>
+        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-base">No enquiries submitted</h4>
+        <p className="text-xs text-slate-400 mt-1">This customer hasn't submitted any enquiry forms yet.</p>
       </div>
     );
   }
@@ -27,24 +27,24 @@ const EnquiriesTab = ({ tab }) => {
   return (
     <div className="space-y-4">
       {enquiries.map((enq) => (
-        <div key={enq._id} className="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+        <div key={enq._id} className="p-5 rounded-2xl border border-slate-200/80 dark:border-indigo-500/20 bg-slate-50/70 dark:bg-[#070d1e]/80 shadow-sm">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">
+            <h4 className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base">
               {enq.itineraryTitle || enq.subject || enq.type}
             </h4>
-            <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-50 dark:bg-indigo-950/60 text-blue-600 dark:text-indigo-400 border border-blue-200 dark:border-indigo-500/30">
               {enq.type}
             </span>
           </div>
           {enq.message || enq.additionalDetails ? (
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{enq.message || enq.additionalDetails}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-2 leading-relaxed">{enq.message || enq.additionalDetails}</p>
           ) : null}
-          <div className="flex flex-wrap gap-3 text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-2">
+          <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400 font-semibold mt-2 pt-2 border-t border-slate-200/60 dark:border-indigo-500/10">
             {enq.phone && <span>📞 +91 {enq.phone}</span>}
             {enq.email && <span>✉️ {enq.email}</span>}
-            {enq.status && <span>Status: {enq.status.replace('_', ' ')}</span>}
+            {enq.status && <span className="capitalize">Status: {enq.status.replace('_', ' ')}</span>}
           </div>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide mt-3">
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-2">
             {new Date(enq.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
           </p>
         </div>

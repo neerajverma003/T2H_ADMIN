@@ -468,14 +468,10 @@ const ItinerariesListPage = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-16 font-sans">
             {/* TOP HEADER HUB */}
-            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
-                {/* Glow Effects */}
-                <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+            <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
                             <Navigation size={22} />
                         </div>
                         <div>
@@ -489,14 +485,14 @@ const ItinerariesListPage = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200 dark:border-slate-800/90 hover:border-blue-500/30 dark:hover:border-indigo-500/30 rounded-2xl px-6 py-2.5 flex flex-col items-center justify-center min-w-[125px] shadow-inner ring-1 ring-slate-900/5 dark:ring-white/5 transition-all">
+                        <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-2.5 flex flex-col items-center justify-center min-w-[125px] shadow-sm">
                             <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Found</span>
                             <span className="text-2xl font-black text-slate-900 dark:text-white leading-tight mt-0.5">{filteredItineraries.length}</span>
                         </div>
                         <button
                             type="button"
                             onClick={() => navigate("/itineraries/create")}
-                            className="flex items-center gap-2.5 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-xl shadow-blue-600/30 uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]"
+                            className="flex items-center gap-2.5 px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-sm uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]"
                         >
                             <Plus size={16} strokeWidth={2.5} /> Create New
                         </button>
@@ -505,7 +501,7 @@ const ItinerariesListPage = () => {
             </div>
 
             {/* FILTERS & TOOLBAR CARD */}
-            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 md:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6 relative z-30">
+            <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 relative z-30">
                 {/* 1. FILTER INPUTS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Search */}

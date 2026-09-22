@@ -18,6 +18,7 @@ import {
   FileText,
   Building,
   MapPin,
+  Edit3,
 } from 'lucide-react';
 import { apiClient } from '../../stores/authStores';
 import { toast } from 'react-toastify';
@@ -33,11 +34,11 @@ const EXPERIENCE_TABS = [
 const STATUS_OPTIONS = ['Pending', 'Reviewed', 'Shortlisted', 'Rejected', 'Hired'];
 
 const STATUS_COLORS = {
-  Pending: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  Reviewed: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-  Shortlisted: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  Rejected: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-  Hired: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  Pending: 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+  Reviewed: 'bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+  Shortlisted: 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+  Rejected: 'bg-rose-500/10 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30',
+  Hired: 'bg-purple-500/10 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30',
 };
 
 const getExperienceCategory = (app) => {
@@ -202,413 +203,430 @@ const JobCandidates = () => {
   }, [candidates]);
 
   return (
-    <div className="min-h-screen bg-[#060c18] text-slate-100 p-4 sm:p-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
+      {/* ── HEADER HUB (Inspired by Team Management) ── */}
+      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Glow Effects */}
+        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Header & Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/jobs/list')}
-              className="size-10 rounded-xl bg-[#0b1322] border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-all cursor-pointer shadow-md"
-              title="Back to All Job Positions"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide uppercase">
-                  {job?.title || 'Job Opening'}
-                </h1>
-                {job?.status && (
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      job.status === 'Active'
-                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-slate-800 text-slate-400 border border-slate-700'
-                    }`}
-                  >
-                    ● {job.status}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-                <span>{job?.specifications?.department || 'Department'}</span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <MapPin size={11} className="text-slate-500" />
-                  {job?.location || 'Location'} ({job?.locationType || 'On Site'})
-                </span>
-              </p>
-            </div>
-          </div>
-
+        <div className="relative z-10 flex items-center gap-3.5">
           <button
-            onClick={() => navigate(`/jobs/edit/${jobId}`)}
-            className="self-start sm:self-auto px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+            onClick={() => navigate('/jobs/list')}
+            className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#0b1322] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer shadow-xs shrink-0"
+            title="Back to All Job Positions"
           >
-            Edit Job Role
+            <ArrowLeft size={18} />
           </button>
-        </div>
-
-        {/* Top Section: Stat Card & Search Bar (Matches Reference Screenshot 2) */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          {/* Total Applicants Stat Card */}
-          <div className="bg-[#0b1322] border border-slate-800/90 rounded-2xl p-4 sm:p-5 flex items-center gap-4 min-w-[220px] shadow-lg">
-            <div className="size-12 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
-              <Users size={22} />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                TOTAL APPLICANTS
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                CANDIDATES
               </span>
-              <span className="text-2xl sm:text-3xl font-black text-white">
-                {candidates.length}
-              </span>
-            </div>
-          </div>
-
-          {/* Search Candidate Bar with Button */}
-          <div className="flex items-center gap-2 flex-1 max-w-xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search candidate email or name..."
-                className="w-full pl-11 pr-4 py-3 bg-[#0b1322] border border-slate-800 focus:border-blue-500 rounded-2xl text-xs sm:text-sm text-white placeholder:text-slate-500 outline-none transition-all shadow-inner"
-              />
-            </div>
-            <button
-              type="button"
-              className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-600/25 cursor-pointer shrink-0"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-
-        {/* Experience Filter Bar (Matches Reference Screenshot 2) */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-2">
-            <Filter size={13} className="text-slate-500" /> EXPERIENCE FILTER:
-          </span>
-
-          {EXPERIENCE_TABS.map((tab) => {
-            const isActive = activeExpFilter === tab.id;
-            const count = countsByTab[tab.id] || 0;
-
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveExpFilter(tab.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
-                  isActive
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30'
-                    : 'bg-[#0b1322] text-slate-400 hover:text-white border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                <span>{tab.label}</span>
+              {job?.status && (
                 <span
-                  className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                    job.status === 'Active'
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
                   }`}
                 >
-                  {count}
+                  ● {job.status}
                 </span>
-              </button>
-            );
-          })}
+              )}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-wide uppercase">
+              {job?.title || 'Job Opening'}
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1 flex-wrap">
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {job?.specifications?.department || 'Department'}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <MapPin size={12} className="text-slate-400 dark:text-slate-500" />
+                {job?.location || 'Location'} ({job?.locationType || 'On Site'})
+              </span>
+            </p>
+          </div>
         </div>
 
-        {/* Main Content: Split-View (List + Resume Preview) or Full Table */}
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-28 bg-[#0b1322] border border-slate-800 rounded-3xl gap-3">
-            <Loader2 className="w-9 h-9 text-blue-500 animate-spin" />
-            <span className="text-sm font-bold text-slate-300">Loading candidate records...</span>
+        <div className="relative z-10 flex items-center gap-3">
+          <button
+            onClick={() => navigate('/jobs/list')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+          >
+            <Briefcase size={14} /> ALL JOBS
+          </button>
+          <button
+            onClick={() => navigate(`/jobs/edit/${jobId}`)}
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-blue-500/30 flex items-center gap-2 cursor-pointer"
+          >
+            <Edit3 size={14} /> EDIT JOB ROLE
+          </button>
+        </div>
+      </div>
+
+      {/* ── TOP STAT CARD & SEARCH BAR ── */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        {/* Total Applicants Stat Card */}
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-5 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl flex items-center gap-4 min-w-[220px]">
+          <div className="size-12 rounded-2xl bg-blue-500/10 dark:bg-blue-600/15 border border-blue-500/20 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <Users size={22} />
           </div>
-        ) : filteredCandidates.length === 0 ? (
-          <div className="bg-[#0b1322] border border-slate-800 border-dashed rounded-3xl p-16 text-center">
-            <div className="size-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-500">
-              <Users size={28} />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">No Matching Candidates Found</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              {searchQuery || activeExpFilter !== 'all'
-                ? 'No applicants match your current search query or experience filter.'
-                : 'No candidates have submitted an application for this opening yet.'}
-            </p>
-            {(searchQuery || activeExpFilter !== 'all') && (
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setActiveExpFilter('all');
-                }}
-                className="mt-4 px-4 py-2 rounded-xl bg-slate-800 text-blue-400 hover:text-white text-xs font-bold transition cursor-pointer"
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block">
+              TOTAL APPLICANTS
+            </span>
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+              {candidates.length}
+            </span>
+          </div>
+        </div>
+
+        {/* Search Candidate Bar with Button */}
+        <div className="flex items-center gap-2 flex-1 max-w-xl">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={17} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search candidate email or name..."
+              className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 focus:border-blue-500 rounded-2xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-all shadow-sm dark:shadow-inner focus:ring-1 focus:ring-blue-500/30"
+            />
+          </div>
+          <button
+            type="button"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-600/25 cursor-pointer shrink-0"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      {/* ── EXPERIENCE FILTER BAR ── */}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-2">
+          <Filter size={13} className="text-slate-400 dark:text-slate-500" /> EXPERIENCE FILTER:
+        </span>
+
+        {EXPERIENCE_TABS.map((tab) => {
+          const isActive = activeExpFilter === tab.id;
+          const count = countsByTab[tab.id] || 0;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveExpFilter(tab.id)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
+                isActive
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-md shadow-blue-600/30'
+                  : 'bg-white dark:bg-[#091126] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                }`}
               >
-                Clear All Filters
-              </button>
-            )}
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── MAIN CONTENT: Split-View (List + Resume Preview) or Empty State ── */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-28 bg-white dark:bg-[#091126]/95 border border-slate-200 dark:border-slate-800 rounded-3xl gap-3 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5">
+          <Loader2 className="w-9 h-9 text-blue-500 animate-spin" />
+          <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Loading candidate records...</span>
+        </div>
+      ) : filteredCandidates.length === 0 ? (
+        <div className="bg-white dark:bg-[#091126]/95 border border-slate-200 dark:border-slate-800 border-dashed rounded-3xl p-16 text-center shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5">
+          <div className="size-16 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-slate-500">
+            <Users size={28} />
           </div>
-        ) : (
-          <div className={`grid grid-cols-1 ${selectedCandidate ? 'lg:grid-cols-12' : ''} gap-6 items-start`}>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Matching Candidates Found</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            {searchQuery || activeExpFilter !== 'all'
+              ? 'No applicants match your current search query or experience filter.'
+              : 'No candidates have submitted an application for this opening yet.'}
+          </p>
+          {(searchQuery || activeExpFilter !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setActiveExpFilter('all');
+              }}
+              className="mt-4 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition cursor-pointer"
+            >
+              Clear All Filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className={`grid grid-cols-1 ${selectedCandidate ? 'lg:grid-cols-12' : ''} gap-6 items-start`}>
 
-            {/* Left Column: Candidates List (Col-span-5 when preview active, full-width otherwise) */}
-            <div className={`${selectedCandidate ? 'lg:col-span-5' : 'w-full'} space-y-3`}>
-              <div className="bg-[#0b1322] border border-slate-800/90 rounded-2xl overflow-hidden shadow-xl">
-                {/* List Header */}
-                <div className="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-400 bg-[#080f1b]/80">
-                  <span>CANDIDATE</span>
-                  <span>EXPERIENCE</span>
-                </div>
-
-                {/* Candidate Rows */}
-                <div className="divide-y divide-slate-800/60 max-h-[calc(100vh-280px)] overflow-y-auto">
-                  {filteredCandidates.map((c) => {
-                    const isSelected = selectedCandidate?._id === c._id;
-                    const initial = c.fullName?.trim()?.charAt(0)?.toUpperCase() || 'C';
-                    const expLabel = formatExperienceBadge(c);
-                    const avatarBg = getAvatarColor(c.fullName || '');
-
-                    return (
-                      <div
-                        key={c._id}
-                        onClick={() => setSelectedCandidate(c)}
-                        className={`p-4 flex items-center justify-between gap-3 cursor-pointer transition-all ${
-                          isSelected
-                            ? 'bg-blue-950/40 border-l-4 border-l-blue-500 pl-3.5'
-                            : 'hover:bg-slate-900/50'
-                        }`}
-                      >
-                        {/* Candidate info */}
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div
-                            className={`size-10 rounded-xl ${avatarBg} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md`}
-                          >
-                            {initial}
-                          </div>
-                          <div className="min-w-0">
-                            <h4
-                              className={`font-black text-sm truncate uppercase tracking-tight ${
-                                isSelected ? 'text-blue-400' : 'text-white'
-                              }`}
-                            >
-                              {c.fullName}
-                            </h4>
-                            <p className="text-xs text-slate-400 truncate mt-0.5">{c.email}</p>
-                            {isSelected && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-blue-400 mt-1 animate-pulse">
-                                ● VIEWING RESUME
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Experience badge */}
-                        <div className="shrink-0 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold shadow-xs">
-                            <Briefcase size={12} className="text-slate-500" />
-                            <span>{expLabel}</span>
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+          {/* Left Column: Candidates List */}
+          <div className={`${selectedCandidate ? 'lg:col-span-5' : 'w-full'} space-y-3`}>
+            <div className="bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5">
+              {/* List Header */}
+              <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50/80 dark:bg-[#080f1b]/80">
+                <span>CANDIDATE</span>
+                <span>EXPERIENCE</span>
               </div>
-            </div>
 
-            {/* Right Column: Split-Screen Resume Preview Panel (Matches Reference Screenshot 3) */}
-            {selectedCandidate && (
-              <div className="lg:col-span-7 bg-[#0b1322] border border-slate-800/90 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5 sticky top-6">
+              {/* Candidate Rows */}
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-[calc(100vh-280px)] overflow-y-auto">
+                {filteredCandidates.map((c) => {
+                  const isSelected = selectedCandidate?._id === c._id;
+                  const initial = c.fullName?.trim()?.charAt(0)?.toUpperCase() || 'C';
+                  const expLabel = formatExperienceBadge(c);
+                  const avatarBg = getAvatarColor(c.fullName || '');
 
-                {/* Preview Header */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-800">
-                  <div className="flex items-start gap-3.5">
-                    <div className="size-11 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30 shrink-0">
-                      <FileText size={22} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                          RESUME PREVIEW
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/50 text-[10px] font-bold text-blue-300">
-                          {formatExperienceBadge(selectedCandidate)} Exp
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-black text-white mt-1 uppercase tracking-tight">
-                        {selectedCandidate.fullName}
-                      </h3>
-                      <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400 flex-wrap">
-                        <a
-                          href={`mailto:${selectedCandidate.email}`}
-                          className="flex items-center gap-1 text-slate-300 hover:text-blue-400 transition-colors"
-                        >
-                          <Mail size={12} className="text-slate-500" /> {selectedCandidate.email}
-                        </a>
-                        <span>•</span>
-                        <a
-                          href={`tel:${selectedCandidate.phone}`}
-                          className="flex items-center gap-1 text-slate-300 hover:text-blue-400 transition-colors"
-                        >
-                          <Phone size={12} className="text-slate-500" /> {selectedCandidate.phone}
-                        </a>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-slate-400">
-                          <Calendar size={12} className="text-slate-500" />
-                          {new Date(selectedCandidate.createdAt).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Top-Right Action Controls (New Tab, Download, Close) */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    {selectedCandidate.resume?.url && (
-                      <>
-                        <a
-                          href={selectedCandidate.resume.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-sm"
-                          title="Open Resume in New Tab"
-                        >
-                          <ExternalLink size={13} />
-                          <span>New Tab</span>
-                        </a>
-                        <a
-                          href={selectedCandidate.resume.url}
-                          download
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 cursor-pointer"
-                          title="Download Resume Document"
-                        >
-                          <Download size={13} />
-                          <span>Download</span>
-                        </a>
-                      </>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCandidate(null)}
-                      className="size-9 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                      title="Close Preview"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Candidate Info Summary Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-[#080f1b] border border-slate-800/80 text-xs">
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Worked Before</span>
-                    <span className={`font-bold ${selectedCandidate.haveYouWorkedBefore === 'Yes' ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {selectedCandidate.haveYouWorkedBefore || 'No'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Experience</span>
-                    <span className="font-bold text-slate-200">
-                      {selectedCandidate.yearsOfExperience || 'Fresher'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Current / Last Salary</span>
-                    <span className="font-bold text-slate-200">
-                      {selectedCandidate.currentOrLastSalary || 'Not Disclosed'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Status</span>
-                    <select
-                      value={selectedCandidate.status}
-                      disabled={updatingStatusId === selectedCandidate._id}
-                      onChange={(e) => handleStatusUpdate(selectedCandidate._id, e.target.value)}
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border focus:outline-none transition-colors cursor-pointer mt-0.5 ${
-                        STATUS_COLORS[selectedCandidate.status] || 'bg-slate-800 text-slate-300 border-slate-700'
+                  return (
+                    <div
+                      key={c._id}
+                      onClick={() => setSelectedCandidate(c)}
+                      className={`p-4 flex items-center justify-between gap-3 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-blue-50/80 dark:bg-blue-950/40 border-l-4 border-l-blue-500 pl-3.5'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-900/50'
                       }`}
                     >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt} value={opt} className="bg-[#0b1322] text-white">
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
+                      {/* Candidate info */}
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div
+                          className={`size-10 rounded-xl ${avatarBg} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-md`}
+                        >
+                          {initial}
+                        </div>
+                        <div className="min-w-0">
+                          <h4
+                            className={`font-black text-sm truncate uppercase tracking-tight ${
+                              isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'
+                            }`}
+                          >
+                            {c.fullName}
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{c.email}</p>
+                          {isSelected && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-blue-600 dark:text-blue-400 mt-1 animate-pulse">
+                              ● VIEWING RESUME
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Experience badge */}
+                      <div className="shrink-0 flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold shadow-xs">
+                          <Briefcase size={12} className="text-slate-400 dark:text-slate-500" />
+                          <span>{expLabel}</span>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Split-Screen Resume Preview Panel */}
+          {selectedCandidate && (
+            <div className="lg:col-span-7 bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 rounded-3xl p-5 sm:p-6 shadow-2xl ring-1 ring-slate-900/5 dark:ring-white/5 space-y-5 sticky top-6">
+
+              {/* Preview Header */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-start gap-3.5">
+                  <div className="size-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
+                    <FileText size={22} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        RESUME PREVIEW
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800/50 text-[10px] font-bold text-blue-600 dark:text-blue-300">
+                        {formatExperienceBadge(selectedCandidate)} Exp
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tight">
+                      {selectedCandidate.fullName}
+                    </h3>
+                    <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+                      <a
+                        href={`mailto:${selectedCandidate.email}`}
+                        className="flex items-center gap-1 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        <Mail size={12} className="text-slate-400 dark:text-slate-500" /> {selectedCandidate.email}
+                      </a>
+                      <span>•</span>
+                      <a
+                        href={`tel:${selectedCandidate.phone}`}
+                        className="flex items-center gap-1 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        <Phone size={12} className="text-slate-400 dark:text-slate-500" /> {selectedCandidate.phone}
+                      </a>
+                      <span>•</span>
+                      <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                        <Calendar size={12} className="text-slate-400 dark:text-slate-500" />
+                        {new Date(selectedCandidate.createdAt).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Resume Document Viewer */}
-                <div className="rounded-2xl overflow-hidden border border-slate-800 bg-white shadow-inner min-h-[550px] relative">
-                  {selectedCandidate.resume?.url ? (
-                    <iframe
-                      src={`${selectedCandidate.resume.url}#toolbar=0&navpanes=0`}
-                      title={`Resume of ${selectedCandidate.fullName}`}
-                      className="w-full h-[65vh] min-h-[550px] border-0"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-28 text-slate-600 gap-2">
-                      <FileText size={36} className="text-slate-400" />
-                      <p className="font-bold text-sm text-slate-700">No digital resume file attached</p>
-                    </div>
+                {/* Top-Right Action Controls (New Tab, Download, Close) */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {selectedCandidate.resume?.url && (
+                    <>
+                      <a
+                        href={selectedCandidate.resume.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                        title="Open Resume in New Tab"
+                      >
+                        <ExternalLink size={13} />
+                        <span>New Tab</span>
+                      </a>
+                      <a
+                        href={selectedCandidate.resume.url}
+                        download
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
+                        title="Download Resume Document"
+                      >
+                        <Download size={13} />
+                        <span>Download</span>
+                      </a>
+                    </>
                   )}
-                </div>
-
-                {/* Footer Controls: Delete option */}
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-slate-500 font-mono">
-                    ID: {selectedCandidate._id}
-                  </span>
                   <button
                     type="button"
-                    onClick={() => setDeleteConfirmCandidate(selectedCandidate)}
-                    className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                    onClick={() => setSelectedCandidate(null)}
+                    className="size-9 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                    title="Close Preview"
                   >
-                    <Trash2 size={13} />
-                    <span>Delete Candidate Record</span>
+                    <X size={16} />
                   </button>
                 </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Delete Confirmation Modal */}
-        {deleteConfirmCandidate && (
-          <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0b1322] border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-              <h3 className="text-lg font-bold text-white">Delete Candidate Application?</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Are you sure you want to permanently delete the application submitted by{' '}
-                <strong className="text-white">{deleteConfirmCandidate.fullName}</strong>? This action cannot be undone.
-              </p>
-              <div className="flex items-center justify-end gap-3 pt-2">
+              {/* Candidate Info Summary Bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-[#080f1b] border border-slate-200 dark:border-slate-800/80 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Worked Before</span>
+                  <span className={`font-bold ${selectedCandidate.haveYouWorkedBefore === 'Yes' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                    {selectedCandidate.haveYouWorkedBefore || 'No'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Experience</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {selectedCandidate.yearsOfExperience || 'Fresher'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Current / Last Salary</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {selectedCandidate.currentOrLastSalary || 'Not Disclosed'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Status</span>
+                  <select
+                    value={selectedCandidate.status}
+                    disabled={updatingStatusId === selectedCandidate._id}
+                    onChange={(e) => handleStatusUpdate(selectedCandidate._id, e.target.value)}
+                    className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border focus:outline-none transition-colors cursor-pointer mt-0.5 ${
+                      STATUS_COLORS[selectedCandidate.status] || 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                    }`}
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt} className="bg-white dark:bg-[#0b1322] text-slate-900 dark:text-white">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Resume Document Viewer */}
+              <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white shadow-inner min-h-[550px] relative">
+                {selectedCandidate.resume?.url ? (
+                  <iframe
+                    src={`${selectedCandidate.resume.url}#toolbar=0&navpanes=0`}
+                    title={`Resume of ${selectedCandidate.fullName}`}
+                    className="w-full h-[65vh] min-h-[550px] border-0"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-28 text-slate-500 gap-2">
+                    <FileText size={36} className="text-slate-400" />
+                    <p className="font-bold text-sm text-slate-600 dark:text-slate-400">No digital resume file attached</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Controls: Delete option */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                  ID: {selectedCandidate._id}
+                </span>
                 <button
-                  onClick={() => setDeleteConfirmCandidate(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition cursor-pointer"
+                  type="button"
+                  onClick={() => setDeleteConfirmCandidate(selectedCandidate)}
+                  className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-600 dark:text-rose-400 hover:text-white border border-rose-500/30 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDeleteCandidate(deleteConfirmCandidate._id)}
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition shadow-lg shadow-rose-600/20 cursor-pointer"
-                >
-                  Confirm Delete
+                  <Trash2 size={13} />
+                  <span>Delete Candidate Record</span>
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-      </div>
+      {/* ── DELETE CONFIRMATION MODAL ── */}
+      {deleteConfirmCandidate && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#091126] border border-slate-200 dark:border-indigo-500/25 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4 ring-1 ring-slate-900/5 dark:ring-white/5">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Delete Candidate Application?</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              Are you sure you want to permanently delete the application submitted by{' '}
+              <strong className="text-slate-900 dark:text-white">{deleteConfirmCandidate.fullName}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setDeleteConfirmCandidate(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteCandidate(deleteConfirmCandidate._id)}
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition shadow-lg shadow-rose-600/20 cursor-pointer"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
 export default JobCandidates;
+

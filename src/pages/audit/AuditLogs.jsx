@@ -555,13 +555,9 @@ const AuditLogs = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       
       {/* ── 1. HEADER HUB ── */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
             <FiShield size={22} />
           </div>
           <div>
@@ -610,7 +606,7 @@ const AuditLogs = () => {
           <button
             onClick={handleExportCSV}
             disabled={isExporting}
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-blue-500/30 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Download className="size-3.5" />
             {isExporting ? "Exporting..." : "Export CSV"}
@@ -638,10 +634,10 @@ const AuditLogs = () => {
             setSelectedModule("ALL");
             setCurrentPage(1);
           }}
-          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-sm cursor-pointer ${
             selectedAction === "ALL" && selectedModule === "ALL"
               ? "bg-blue-50/50 dark:bg-blue-950/40 border-blue-500/60 dark:border-blue-500/50 ring-2 ring-blue-500/20"
-              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-blue-500/40"
+              : "bg-white dark:bg-[#091126] border-slate-200 dark:border-slate-800 hover:border-blue-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -666,10 +662,10 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "CREATE" ? "ALL" : "CREATE");
             setCurrentPage(1);
           }}
-          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-sm cursor-pointer ${
             selectedAction === "CREATE"
               ? "bg-emerald-50/50 dark:bg-emerald-950/40 border-emerald-500/60 dark:border-emerald-500/50 ring-2 ring-emerald-500/20"
-              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-emerald-500/40"
+              : "bg-white dark:bg-[#091126] border-slate-200 dark:border-slate-800 hover:border-emerald-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -692,10 +688,10 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "UPDATE" ? "ALL" : "UPDATE");
             setCurrentPage(1);
           }}
-          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-sm cursor-pointer ${
             selectedAction === "UPDATE"
               ? "bg-indigo-50/50 dark:bg-indigo-950/40 border-indigo-500/60 dark:border-indigo-500/50 ring-2 ring-indigo-500/20"
-              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-indigo-500/40"
+              : "bg-white dark:bg-[#091126] border-slate-200 dark:border-slate-800 hover:border-indigo-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -718,10 +714,10 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "DELETE" ? "ALL" : "DELETE");
             setCurrentPage(1);
           }}
-          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden shadow-sm cursor-pointer ${
             selectedAction === "DELETE"
               ? "bg-rose-50/50 dark:bg-rose-950/40 border-rose-500/60 dark:border-rose-500/50 ring-2 ring-rose-500/20"
-              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-rose-500/40"
+              : "bg-white dark:bg-[#091126] border-slate-200 dark:border-slate-800 hover:border-rose-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -744,10 +740,10 @@ const AuditLogs = () => {
             setSelectedAction(selectedAction === "SETTINGS_CHANGE" ? "ALL" : "SETTINGS_CHANGE");
             setCurrentPage(1);
           }}
-          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden col-span-2 sm:col-span-1 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl cursor-pointer ${
+          className={`p-5 rounded-3xl border text-left transition-all group relative overflow-hidden col-span-2 sm:col-span-1 shadow-sm cursor-pointer ${
             selectedAction === "SETTINGS_CHANGE"
               ? "bg-purple-50/50 dark:bg-purple-950/40 border-purple-500/60 dark:border-purple-500/50 ring-2 ring-purple-500/20"
-              : "bg-white dark:bg-[#091126]/95 border-slate-200/90 dark:border-indigo-500/25 hover:border-purple-500/40"
+              : "bg-white dark:bg-[#091126] border-slate-200 dark:border-slate-800 hover:border-purple-500/40"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -766,7 +762,7 @@ const AuditLogs = () => {
       </div>
 
       {/* 3. MULTI-DIMENSION FILTER SUITE */}
-      <div className="bg-white dark:bg-[#091126]/95 p-6 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-4">
+      <div className="bg-white dark:bg-[#091126] p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         
         {/* Main Controls Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -945,7 +941,7 @@ const AuditLogs = () => {
       </div>
 
       {/* 4. AUDIT LOGS TABLE */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl overflow-hidden">
+      <div className="bg-white dark:bg-[#091126] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

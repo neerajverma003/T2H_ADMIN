@@ -28,6 +28,8 @@ import Suggestions from "./pages/leads/suggesations/page"
 import Subscribe from "./pages/leads/subscribes/page"
 import HoneymoonTripRequests from "./pages/leads/plan_your_trip/page"
 import ItineraryLeads from "./pages/leads/itinerary_leads/ItineraryLeads"
+import ActivityEnquiries from "./pages/leads/activity_enquiries/page"
+import ResortEnquiries from "./pages/leads/resort_enquiries/page"
 // Iteraries
 import CreateItineriesPage from "./pages/itineraries/CreateItinerary"
 import ItineraryListPage from "./pages/Itinerary_list/ItineraryList"
@@ -206,6 +208,8 @@ function App() {
             <Route path="leads/suggestions" element={<Suggestions />} />
             <Route path="leads/subscribe" element={<Subscribe />} />
             <Route path="leads/itinerary-leads" element={<ItineraryLeads />} />
+            <Route path="leads/activity-enquiries" element={<ActivityEnquiries />} />
+            <Route path="leads/resort-enquiries" element={<ResortEnquiries />} />
 
             {/* Gift Cards */}
             <Route path="giftcards/verify" element={<VerifyGiftCard />} />

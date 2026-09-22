@@ -171,12 +171,9 @@ const ChatbotSettings = () => {
       className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
     >
       {/* HEADER */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-purple-500/10 dark:bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-purple-500/30 shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
             <MessageSquare className="w-5 h-5" />
           </div>
           <div>
@@ -206,7 +203,7 @@ const ChatbotSettings = () => {
             type="button"
             onClick={handleSubmit}
             disabled={isSaving}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-purple-500/30 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer active:scale-95 disabled:opacity-50"
           >
             {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             Save All Changes
@@ -216,9 +213,9 @@ const ChatbotSettings = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* STEP 1 CARD */}
-        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-purple-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               1
             </div>
             <div>
@@ -296,9 +293,9 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 2 CARD */}
-        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-blue-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               2
             </div>
             <div>
@@ -376,9 +373,9 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 3 CARD */}
-        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-emerald-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               3
             </div>
             <div>
@@ -432,9 +429,9 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 4 CARD */}
-        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-amber-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               4
             </div>
             <div>
@@ -512,9 +509,9 @@ const ChatbotSettings = () => {
         </div>
 
         {/* STEP 5 CARD */}
-        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden">
+        <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-rose-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
               5
             </div>
             <div>
@@ -613,7 +610,7 @@ const ChatbotSettings = () => {
           <button
             type="submit"
             disabled={isSaving}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-purple-500/30 disabled:opacity-50 active:scale-95"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-sm disabled:opacity-50 active:scale-95"
           >
             {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             Save Travel Assistant Settings

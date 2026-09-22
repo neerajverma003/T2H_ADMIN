@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Trash2, Users, Loader2, Search, UserPlus, Mail, Calendar, Pencil, X, Save, User, ShieldCheck } from "lucide-react"
 import useAuthStore from "../../stores/authStores"
 import ConfirmationModel from "../../newComponents/ConfirmationModel"
 import { motion, AnimatePresence } from "framer-motion"
 
 const UserList = () => {
+  const navigate = useNavigate()
   const {
     users,
     fetchUsers,
@@ -106,115 +108,143 @@ const UserList = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left"
     >
-      {/* PAGE HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-        <div>
-          <h1 className="text-4xl font-black text-slate-950 dark:text-white tracking-tight">User Directory</h1>
-          <p className="text-slate-600 dark:text-slate-400 font-bold mt-2 text-xl italic">Manage administrative access and roles</p>
+      {/* ── HEADER HUB ── */}
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
+            <Users size={22} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
+                STAFF DIRECTORY
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 flex-wrap">
+              User <span className="text-blue-500">Directory</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-semibold mt-0.5 text-xs sm:text-sm">
+              Manage administrative access, system credentials, and account roles.
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="relative z-10 flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
             <input
               type="text"
               placeholder="Find users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-6 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-600/20 rounded-2xl text-base font-black text-slate-950 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 w-full md:w-80 transition-all"
+              className="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 rounded-xl text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 w-full sm:w-64 transition-all shadow-inner"
             />
           </div>
-          <button className="bg-indigo-700 text-white p-4 rounded-2xl shadow-xl shadow-indigo-500/40 hover:bg-indigo-800 transition-all hover:scale-105 active:scale-95">
-            <UserPlus size={24} />
+          <button 
+            onClick={() => navigate('/users/add')}
+            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 cursor-pointer shrink-0"
+            title="Add Staff User"
+          >
+            <UserPlus size={15} />
+            <span className="hidden sm:inline">Add User</span>
           </button>
         </div>
       </div>
 
-      {/* TABLE SECTION */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden">
+      {/* ── TABLE SECTION ── */}
+      <div className="bg-white dark:bg-[#091126] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {isLoadingUsers ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading Secure Data...</p>
+          <div className="flex flex-col items-center justify-center py-28 gap-3">
+            <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Loading Secure Data...</p>
           </div>
         ) : filteredUsers.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100 dark:bg-slate-800">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-slate-50/80 dark:bg-[#080f1b]/80 border-b border-slate-200 dark:border-slate-800">
                 <tr>
-                  <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Administrative User</th>
-                  <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Email</th>
-                  <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Access Level</th>
-                  <th className="px-8 py-6 text-left font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Joined On</th>
-                  <th className="px-8 py-6 text-right font-black text-slate-950 dark:text-slate-200 uppercase tracking-[0.3em] text-xs">Actions</th>
+                  <th className="px-6 py-4 font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">Administrative User</th>
+                  <th className="px-6 py-4 font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">Email</th>
+                  <th className="px-6 py-4 font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">Access Level</th>
+                  <th className="px-6 py-4 font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">Joined On</th>
+                  <th className="px-6 py-4 text-right font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[11px]">Actions</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {filteredUsers.map((user) => (
                   <tr
                     key={user._id}
-                    className="group hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
+                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group"
                   >
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="size-12 rounded-2xl bg-indigo-700 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/30">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="size-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-base font-black shadow-md shadow-blue-500/20 shrink-0">
                           {(user.username || "A").charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-black text-slate-950 dark:text-white text-lg leading-none mb-1.5">{user.username || "Unknown User"}</p>
-                          <p className="text-xs text-indigo-700 font-black uppercase tracking-widest">@{user.role || "admin_user"}</p>
+                          <p className="font-extrabold text-slate-900 dark:text-white text-sm leading-none mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {user.username || "Unknown User"}
+                          </p>
+                          <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">@{user.role || "admin_user"}</p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                        <Mail size={16} className="text-indigo-600" />
-                        <span className="font-bold text-sm">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                        <Mail size={14} className="text-blue-500" />
+                        <span className="font-semibold text-xs">
                           {user.email || <span className="text-slate-400 italic">Not set</span>}
                         </span>
                       </div>
                     </td>
 
-                    <td className="px-8 py-6">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-[0.2em] shadow-sm">
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                        user.role === 'superadmin' 
+                          ? 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30' 
+                          : user.role === 'admin' 
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' 
+                          : 'bg-violet-500/10 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-500/30'
+                      }`}>
                         {user.role === 'superadmin' ? 'Full Control' : user.role === 'admin' ? 'Add/Edit' : 'Restricted'}
                       </span>
                     </td>
 
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-slate-950 dark:text-slate-300">
-                        <Calendar size={18} className="text-indigo-700" />
-                        <span className="font-black text-xs uppercase tracking-widest">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                        <Calendar size={14} className="text-blue-500" />
+                        <span className="font-semibold text-xs">
                           {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Recently Joined"}
                         </span>
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
                         {canEditUser(user) && (
                           <button
                             onClick={() => handleEditClick(user)}
-                            className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-xl transition-all shadow-sm"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
                             title="Edit user"
                           >
-                            <Pencil size={20} />
+                            <Pencil size={15} />
                           </button>
                         )}
                         {canDeleteUser(user) && (
                           <button
                             onClick={() => handleDeleteClick(user)}
-                            className="p-3 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all shadow-sm"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all cursor-pointer"
                             title="Delete user"
                           >
-                            <Trash2 size={20} />
+                            <Trash2 size={15} />
                           </button>
                         )}
                         {!canEditUser(user) && !canDeleteUser(user) && (
-                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 italic pr-2">
+                          <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 italic pr-2">
                             Restricted
                           </span>
                         )}
@@ -227,15 +257,16 @@ const UserList = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="size-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300 mb-6">
-              <Users size={40} />
+            <div className="size-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-300 dark:text-slate-600 mb-4">
+              <Users size={32} />
             </div>
-            <p className="text-slate-600 font-black uppercase tracking-widest text-sm">No users found matching your search</p>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">No Users Found</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs">No administrative users matched your search criteria.</p>
           </div>
         )}
       </div>
 
-      {/* CONFIRM DELETE MODAL */}
+      {/* ── CONFIRM DELETE MODAL ── */}
       <ConfirmationModel
         isOpen={open}
         onClose={() => setOpen(false)}
@@ -243,19 +274,19 @@ const UserList = () => {
         isLoading={isDeleting}
         title="Revoke Access"
       >
-        <p className="text-slate-950 font-bold text-lg py-6 leading-relaxed">
-          Are you sure you want to revoke administrative access for <span className="text-indigo-700 font-black underline underline-offset-4">{selectedUser?.username}</span>? This action is irreversible.
+        <p className="text-slate-600 dark:text-slate-400 font-medium text-sm py-4 leading-relaxed">
+          Are you sure you want to revoke administrative access for <strong className="text-slate-900 dark:text-white underline underline-offset-4">{selectedUser?.username}</strong>? This action is irreversible.
         </p>
       </ConfirmationModel>
 
-      {/* EDIT USER MODAL */}
+      {/* ── EDIT USER MODAL ── */}
       <AnimatePresence>
         {isEditOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
             onClick={() => !isSubmitting && setIsEditOpen(false)}
           >
             <motion.div
@@ -263,80 +294,80 @@ const UserList = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 w-full max-w-lg border border-slate-100 dark:border-slate-800 shadow-2xl"
+              className="bg-white dark:bg-[#091126] rounded-3xl p-6 sm:p-8 w-full max-w-lg border border-slate-200 dark:border-indigo-500/25 shadow-2xl ring-1 ring-slate-900/5 dark:ring-white/5"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                  <Pencil size={20} className="text-indigo-600" /> Edit User
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Pencil size={18} className="text-blue-500" /> Edit User
                 </h3>
                 <button
                   onClick={() => !isSubmitting && setIsEditOpen(false)}
-                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
-              <form onSubmit={handleEditSubmit} className="space-y-5">
+              <form onSubmit={handleEditSubmit} className="space-y-4">
                 <div>
-                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Username</label>
+                  <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Username</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
                     <input
                       type="text"
                       name="username"
                       value={editData.username}
                       onChange={handleEditChange}
                       placeholder="Admin username"
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all shadow-inner"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
+                  <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
                     <input
                       type="email"
                       name="email"
                       value={editData.email}
                       onChange={handleEditChange}
                       placeholder="admin@example.com"
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all shadow-inner"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Level</label>
+                  <label className="flex items-center gap-1.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Access Level</label>
                   <div className="relative">
-                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
                     <select
                       name="role"
                       value={editData.role}
                       onChange={handleEditChange}
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-base font-medium focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white transition-all appearance-none cursor-pointer"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all appearance-none cursor-pointer shadow-inner"
                     >
                       {currentRole === 'superadmin' ? (
                         <>
-                          <option value="admin">Admin (Add/Edit only)</option>
-                          <option value="subadmin">Subadmin (Restricted)</option>
-                          <option value="superadmin">Superadmin (Full Control)</option>
+                          <option value="admin" className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">Admin (Add/Edit only)</option>
+                          <option value="subadmin" className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">Subadmin (Restricted)</option>
+                          <option value="superadmin" className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">Superadmin (Full Control)</option>
                         </>
                       ) : (
-                        <option value="subadmin">Subadmin (Restricted Access)</option>
+                        <option value="subadmin" className="bg-white dark:bg-[#091126] text-slate-900 dark:text-white">Subadmin (Restricted Access)</option>
                       )}
                     </select>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 pt-4">
+                <div className="flex items-center gap-3 pt-3">
                   <button
                     type="button"
                     onClick={() => !isSubmitting && setIsEditOpen(false)}
-                    className="flex-1 py-4 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-base hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                    className="flex-1 py-3 px-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
                     disabled={isSubmitting}
                   >
                     Cancel
@@ -344,9 +375,9 @@ const UserList = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 py-4 px-6 bg-indigo-600 text-white rounded-2xl font-black text-base shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
-                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                    {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                     {isSubmitting ? "Saving..." : "Save Changes"}
                   </button>
                 </div>

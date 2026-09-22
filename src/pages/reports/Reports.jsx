@@ -66,7 +66,7 @@ const Reports = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay }}
       whileHover={{ y: -4 }}
-      className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl group cursor-default text-left flex flex-col justify-between"
+      className="bg-white dark:bg-[#091126] rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm group cursor-default text-left flex flex-col justify-between"
     >
       <div className="flex items-center justify-between gap-4">
         <div>
@@ -74,7 +74,7 @@ const Reports = () => {
           <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mt-1">{value ?? 0}</h3>
           {subtext && <p className="mt-2 text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">{subtext}</p>}
         </div>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg ${color}`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm ${color}`}>
           <Icon className="size-6 text-white" />
         </div>
       </div>
@@ -93,13 +93,9 @@ const Reports = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
       {/* ── HEADER HUB ── */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Glow Effects */}
-        <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
             <Target size={22} />
           </div>
           <div>
@@ -120,7 +116,7 @@ const Reports = () => {
         <div className="relative z-10 flex items-center gap-3">
           <button 
             onClick={() => alert('Exporting Logic Store...')}
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md shadow-blue-500/30 transition-all cursor-pointer active:scale-95"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all cursor-pointer active:scale-95"
           >
             <FiDownload size={15} /> Export Dataset
           </button>
@@ -138,7 +134,7 @@ const Reports = () => {
             title="Total Flux" 
             value={stats?.leads?.total} 
             icon={FiActivity} 
-            color="bg-gradient-to-br from-blue-600 to-indigo-600 shadow-blue-500/30" 
+            color="bg-gradient-to-br from-blue-600 to-indigo-600" 
             delay={0}
             subtext="Combined Engine Leads"
           />
@@ -146,7 +142,7 @@ const Reports = () => {
             title="Advisory" 
             value={stats?.leads?.consultations} 
             icon={FiUsers} 
-            color="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/30" 
+            color="bg-gradient-to-br from-indigo-500 to-purple-600" 
             delay={0.1}
             subtext="Direct Sync Requests"
           />
@@ -154,7 +150,7 @@ const Reports = () => {
             title="Drafts" 
             value={stats?.leads?.tripRequests} 
             icon={FiCalendar} 
-            color="bg-gradient-to-br from-purple-500 to-pink-600 shadow-purple-500/30" 
+            color="bg-gradient-to-br from-purple-500 to-pink-600" 
             delay={0.2}
             subtext="Customized Blueprints"
           />
@@ -162,7 +158,7 @@ const Reports = () => {
             title="Inquiries" 
             value={stats?.leads?.contacts} 
             icon={FiMessageSquare} 
-            color="bg-gradient-to-br from-sky-500 to-blue-600 shadow-sky-500/30" 
+            color="bg-gradient-to-br from-sky-500 to-blue-600" 
             delay={0.3}
             subtext="General Comms"
           />
@@ -170,7 +166,7 @@ const Reports = () => {
             title="Audience" 
             value={stats?.leads?.subscribers} 
             icon={FiMail} 
-            color="bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/30" 
+            color="bg-gradient-to-br from-emerald-500 to-teal-600" 
             delay={0.4}
             subtext="Registry Growth"
           />
@@ -182,11 +178,11 @@ const Reports = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-8 bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl"
+          className="lg:col-span-8 bg-white dark:bg-[#091126] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
                 <LineIcon size={20} />
               </div>
               <div className="text-left">
@@ -245,10 +241,10 @@ const Reports = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="lg:col-span-4 bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl flex flex-col justify-between"
+          className="lg:col-span-4 bg-white dark:bg-[#091126] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col justify-between"
         >
           <div className="flex items-center gap-3.5 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-500/30 shrink-0">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
               <PieIcon size={20} />
             </div>
             <div className="text-left">
@@ -314,11 +310,11 @@ const Reports = () => {
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="xl:col-span-2 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 bg-white dark:bg-[#091126]/95 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl overflow-hidden"
+          className="xl:col-span-2 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#091126] shadow-sm overflow-hidden"
         >
           <div className="p-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm">
                 <FiClock size={18} />
               </div>
               <div className="text-left">
@@ -370,11 +366,11 @@ const Reports = () => {
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 bg-white dark:bg-[#091126]/95 p-6 sm:p-8 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl flex flex-col justify-between"
+          className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#091126] p-6 sm:p-8 shadow-sm flex flex-col justify-between"
         >
           <div>
             <div className="flex items-center gap-3.5 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
                 <FiGlobe size={18} />
               </div>
               <div className="text-left">
@@ -430,7 +426,7 @@ const Reports = () => {
           
           <Link 
             to="/destinations/create" 
-            className="w-full mt-8 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-blue-500/30 active:scale-95 transition-all"
+            className="w-full mt-8 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider shadow-sm active:scale-95 transition-all"
           >
             <Box size={16} /> Sync Logic Vault
           </Link>

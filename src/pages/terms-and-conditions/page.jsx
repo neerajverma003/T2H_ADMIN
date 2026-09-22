@@ -100,13 +100,9 @@ const HoneymoonTermsAndCondition = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 pb-20 font-sans min-h-screen text-slate-900 dark:text-slate-100 text-left">
             {/* HEADER HUB */}
-            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
-                {/* Glow Effects */}
-                <div className="absolute -top-24 -right-24 w-60 h-60 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 dark:bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
+            <div className="bg-white dark:bg-[#091126] rounded-3xl py-4 sm:py-5 px-6 sm:px-8 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="relative z-10 flex items-center gap-3">
-                    <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
                         <FileText size={22} />
                     </div>
                     <div>
@@ -132,7 +128,7 @@ const HoneymoonTermsAndCondition = () => {
             </div>
 
             {/* CATEGORY & TARGET DESTINATION SELECTOR */}
-            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 lg:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+            <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
                     <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">CATEGORY</label>
@@ -146,7 +142,7 @@ const HoneymoonTermsAndCondition = () => {
                                     type="button"
                                     onClick={() => setCategory(tab.id)}
                                     className={`flex-1 py-2.5 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${category === tab.id
-                                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white shadow-md shadow-blue-500/30"
+                                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white shadow-sm"
                                             : "bg-slate-50 dark:bg-[#050A17] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
                                         }`}
                                 >
@@ -180,7 +176,7 @@ const HoneymoonTermsAndCondition = () => {
 
             {/* ASSOCIATED PROTOCOLS BOX-WISE LIST VIEW / EDITOR */}
             {selectedDestinationId ? (
-                <div className="bg-white dark:bg-[#091126]/95 rounded-3xl p-6 lg:p-8 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-6">
+                <div className="bg-white dark:bg-[#091126] rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-6">
                         <div className="flex items-center gap-4">
                             <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
@@ -200,7 +196,7 @@ const HoneymoonTermsAndCondition = () => {
                             <button
                                 onClick={() => setIsEditing(true)}
                                 disabled={loading}
-                                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-blue-500/30 flex items-center gap-2 cursor-pointer"
+                                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                             >
                                 <Edit size={14} /> EDIT FRAMEWORK
                             </button>
@@ -215,7 +211,7 @@ const HoneymoonTermsAndCondition = () => {
                                 <button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-blue-500/30 flex items-center gap-2 cursor-pointer"
+                                    className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                                 >
                                     {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
                                     {isSaving ? "SAVING..." : "SAVE CHANGES"}
@@ -278,7 +274,7 @@ const HoneymoonTermsAndCondition = () => {
                     )}
                 </div>
             ) : (
-                <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#091126]/95 border border-slate-200/90 dark:border-indigo-500/25 shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl space-y-3">
+                <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#091126] border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
                     <MapPin className="mx-auto text-slate-400 dark:text-slate-600" size={40} />
                     <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No Target Destination Selected</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Select a destination above to configure box-wise terms & conditions.</p>
