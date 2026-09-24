@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiClient } from "../../stores/authStores";
 import {
   Mail,
@@ -222,11 +223,12 @@ const getGiftCardLifecycleBadge = (status) => {
 };
 
 const BookedPackages = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("search") || searchParams.get("ref") || "");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest"); // "newest" | "oldest"
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -237,7 +239,12 @@ const BookedPackages = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Activities state
-  const [activeCategory, setActiveCategory] = useState("packages"); // "packages" | "activities" | "giftcards"
+  const [activeCategory, setActiveCategory] = useState(() => {
+    const tab = (searchParams.get("tab") || searchParams.get("category"))?.toLowerCase();
+    if (tab === "activities" || tab === "activity") return "activities";
+    if (tab === "giftcards" || tab === "giftcard" || tab === "gift_card") return "giftcards";
+    return "packages";
+  });
   const [activityBookings, setActivityBookings] = useState([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [viewActivityBooking, setViewActivityBooking] = useState(null);
@@ -246,6 +253,31 @@ const BookedPackages = () => {
   const [giftCardBookings, setGiftCardBookings] = useState([]);
   const [isLoadingGiftCards, setIsLoadingGiftCards] = useState(false);
   const [viewGiftCardBooking, setViewGiftCardBooking] = useState(null);
+
+  // Synchronize category & search filters when query parameters change
+  useEffect(() => {
+    const tab = (searchParams.get("tab") || searchParams.get("category"))?.toLowerCase();
+    if (tab === "activities" || tab === "activity") {
+      setActiveCategory("activities");
+    } else if (tab === "giftcards" || tab === "giftcard" || tab === "gift_card") {
+      setActiveCategory("giftcards");
+    } else if (tab === "packages" || tab === "package") {
+      setActiveCategory("packages");
+    }
+
+    const ref = searchParams.get("search") || searchParams.get("ref");
+    if (ref) {
+      setSearchTerm(ref);
+    }
+  }, [searchParams]);
+
+  const handleCategorySwitch = (category) => {
+    setActiveCategory(category);
+    setCurrentPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("tab", category);
+    setSearchParams(newParams);
+  };
 
   const fetchBookings = async () => {
     setIsLoading(true);
@@ -648,7 +680,7 @@ const BookedPackages = () => {
           <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#050A17] p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800/90 flex-wrap shrink-0">
             <button
               type="button"
-              onClick={() => { setActiveCategory("packages"); setCurrentPage(1); }}
+              onClick={() => handleCategorySwitch("packages")}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "packages"
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"
@@ -661,7 +693,7 @@ const BookedPackages = () => {
             </button>
             <button
               type="button"
-              onClick={() => { setActiveCategory("activities"); setCurrentPage(1); }}
+              onClick={() => handleCategorySwitch("activities")}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "activities"
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"
@@ -674,7 +706,7 @@ const BookedPackages = () => {
             </button>
             <button
               type="button"
-              onClick={() => { setActiveCategory("giftcards"); setCurrentPage(1); }}
+              onClick={() => handleCategorySwitch("giftcards")}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${activeCategory === "giftcards"
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800/50"

@@ -489,26 +489,6 @@ const CreateItineriesPage = () => {
                             Crafting unforgettable experiences for couples
                         </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <fieldset disabled={isViewMode} className="border-none p-0 m-0">
-                            <div className="bg-slate-100 dark:bg-[#050A17] p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-800/90 shadow-inner">
-                                {["domestic", "international"].map((t) => (
-                                    <button
-                                        key={t}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, destination_type: t })}
-                                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                                            formData.destination_type === t
-                                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                                                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-                                        }`}
-                                    >
-                                        {t}
-                                    </button>
-                                ))}
-                            </div>
-                        </fieldset>
-                    </div>
                 </div>
             </div>
 

@@ -1,13 +1,13 @@
-import { 
-    Calendar, 
-    MapPin, 
-    Image as ImageIcon, 
-    Trash2, 
-    Plus, 
-    UploadCloud, 
-    Plane, 
-    Camera, 
-    Navigation, 
+import {
+    Calendar,
+    MapPin,
+    Image as ImageIcon,
+    Trash2,
+    Plus,
+    UploadCloud,
+    Plane,
+    Camera,
+    Navigation,
     CloudSun,
     Bold,
     Italic,
@@ -55,9 +55,9 @@ const DayInfoSection = ({
                 <AnimatePresence mode="popLayout">
                     {formData.days_information.map((item, index) => {
                         const currentTab = activeTabs[index] || "Day Itinerary";
-                        
+
                         return (
-                            <motion.div 
+                            <motion.div
                                 key={index}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -114,11 +114,10 @@ const DayInfoSection = ({
                                                 type="button"
                                                 key={tab.id}
                                                 onClick={() => handleTabChange(index, tab.id)}
-                                                className={`flex items-center gap-2.5 px-6 py-3.5 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border-b-2 cursor-pointer ${
-                                                    currentTab === tab.id 
-                                                    ? "bg-white dark:bg-[#0D1630] text-indigo-600 dark:text-indigo-400 border-indigo-500 shadow-sm" 
-                                                    : "text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-                                                }`}
+                                                className={`flex items-center gap-2.5 px-6 py-3.5 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap border-b-2 cursor-pointer ${currentTab === tab.id
+                                                        ? "bg-white dark:bg-[#0D1630] text-indigo-600 dark:text-indigo-400 border-indigo-500 shadow-sm"
+                                                        : "text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                                                    }`}
                                             >
                                                 <tab.icon size={15} className={currentTab === tab.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
                                                 {tab.id}
@@ -129,7 +128,7 @@ const DayInfoSection = ({
                                     {/* TAB CONTENT */}
                                     <AnimatePresence mode="wait">
                                         {currentTab === "Images" ? (
-                                            <motion.div 
+                                            <motion.div
                                                 key="images"
                                                 initial={{ opacity: 0, x: 10 }}
                                                 animate={{ opacity: 1, x: 0 }}
@@ -184,9 +183,9 @@ const DayInfoSection = ({
                                                         <label className="aspect-square rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500/60 hover:text-indigo-500 hover:bg-indigo-500/5 transition-all">
                                                             <Plus size={22} />
                                                             <span className="text-[10px] font-bold mt-1.5 uppercase tracking-wider">Add Image</span>
-                                                            <input 
-                                                                type="file" 
-                                                                accept="image/*" 
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
                                                                 multiple
                                                                 onChange={(e) => {
                                                                     const files = Array.from(e.target.files);
@@ -197,8 +196,8 @@ const DayInfoSection = ({
                                                                         const updatedFiles = [...(item.day_images_files || []), ...filesToAdd];
                                                                         handleArrayChange({ target: { name: 'day_images_files', value: updatedFiles } }, index, "days_information");
                                                                     }
-                                                                }} 
-                                                                className="hidden" 
+                                                                }}
+                                                                className="hidden"
                                                             />
                                                         </label>
                                                     )}
@@ -213,7 +212,7 @@ const DayInfoSection = ({
                                                 </div>
                                             </motion.div>
                                         ) : (
-                                            <motion.div 
+                                            <motion.div
                                                 key="editor"
                                                 initial={{ opacity: 0, x: 10 }}
                                                 animate={{ opacity: 1, x: 0 }}
@@ -245,15 +244,15 @@ const DayInfoSection = ({
                                                         disabled={isViewMode}
                                                         name={
                                                             currentTab === "Day Itinerary" ? "locationDetail" :
-                                                            currentTab === "Sightseeing" ? "sightseeing" :
-                                                            currentTab === "Transfer" ? "transfer" :
-                                                            currentTab === "Weather" ? "weather" : "locationDetail"
+                                                                currentTab === "Sightseeing" ? "sightseeing" :
+                                                                    currentTab === "Transfer" ? "transfer" :
+                                                                        currentTab === "Weather" ? "weather" : "locationDetail"
                                                         }
                                                         value={
                                                             currentTab === "Day Itinerary" ? item.locationDetail || "" :
-                                                            currentTab === "Sightseeing" ? item.sightseeing || "" :
-                                                            currentTab === "Transfer" ? item.transfer || "" :
-                                                            currentTab === "Weather" ? item.weather || "" : item.locationDetail || ""
+                                                                currentTab === "Sightseeing" ? item.sightseeing || "" :
+                                                                    currentTab === "Transfer" ? item.transfer || "" :
+                                                                        currentTab === "Weather" ? item.weather || "" : item.locationDetail || ""
                                                         }
                                                         onChange={(e) => handleArrayChange(e, index, "days_information")}
                                                         className="w-full h-44 p-4 border border-slate-200 dark:border-slate-800/90 rounded-2xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 text-slate-900 dark:text-white text-sm leading-relaxed bg-slate-50/80 dark:bg-[#050A17] resize-y placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium outline-none transition-all"

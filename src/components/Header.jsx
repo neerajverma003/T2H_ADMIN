@@ -327,9 +327,37 @@ const Header = ({ open, setOpen, search, setSearch }) => {
       }
     }
     setShowNotifMenu(false)
-    if (notif.link) {
-      navigate(notif.link)
+    const targetLink = resolveNotificationRoute(notif)
+    if (targetLink) {
+      navigate(targetLink)
     }
+  }
+
+  const resolveNotificationRoute = (notif) => {
+    if (!notif) return null
+    let link = notif.link
+    const type = (notif.type || '').toLowerCase()
+    const title = (notif.title || '').toLowerCase()
+
+    // Activity booking notifications should always navigate to the booked package section (Activities tab)
+    if (
+      link === '/activities' ||
+      type === 'activity' ||
+      type === 'activity_booking' ||
+      title.includes('activity booking')
+    ) {
+      return '/bookings?tab=activities'
+    }
+
+    if (
+      type === 'itinerary_booking' ||
+      title.includes('package booking') ||
+      title.includes('itinerary booking')
+    ) {
+      return '/bookings?tab=packages'
+    }
+
+    return link
   }
 
   const handleClearAll = async () => {
@@ -502,7 +530,7 @@ const Header = ({ open, setOpen, search, setSearch }) => {
                             <span className="font-bold text-slate-600 dark:text-slate-300 truncate max-w-[180px]">
                               {notif.userName || notif.userEmail || notif.userPhone}
                             </span>
-                            {notif.link && (
+                            {resolveNotificationRoute(notif) && (
                               <span className="text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5 font-bold">
                                 View <ExternalLink size={10} />
                               </span>

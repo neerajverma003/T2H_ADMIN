@@ -19,10 +19,209 @@ import {
   ChevronsRight,
   RotateCcw,
   ArrowUpDown,
+  LayoutGrid,
+  List,
+  Clock,
+  Navigation,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useActivityStore } from "../../stores/useActivityStore";
 import { usePlaceStore } from "../../stores/usePlaceStore";
+
+const ActivityCard = ({ item, getImagePreviewUrl, toggleStatus, onEdit, onDelete }) => {
+  const destName = item.selected_destination?.destination_name || "Unknown Destination";
+  const isDom = item.destination_type === "domestic";
+  const coverUrl = getImagePreviewUrl(item.cover_image);
+  const isPublic = item.activity_type !== "private";
+  const isActive = item.status === "active";
+  const sellingPrice = item.pricing?.selling_price || 0;
+  const originalPrice = item.pricing?.original_price || 0;
+  const priceUnit = item.pricing?.price_unit || "per person";
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="group relative bg-white dark:bg-[#091126]/95 rounded-2xl border border-slate-200/90 dark:border-indigo-500/25 shadow-md dark:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.7),0_0_20px_2px_rgba(99,102,241,0.12)] hover:border-blue-400/60 dark:hover:border-indigo-500/60 ring-1 ring-slate-900/5 dark:ring-white/5 transition-all overflow-hidden flex flex-col h-full"
+    >
+      {/* 1. MEDIA BANNER */}
+      <div className="relative aspect-[16/9.5] overflow-hidden bg-slate-100 dark:bg-[#050A17]">
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt={item.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => {
+              e.target.style.display = "none";
+              const fallback = e.target.nextElementSibling;
+              if (fallback) fallback.style.display = "flex";
+            }}
+          />
+        ) : null}
+        <div
+          style={{ display: coverUrl ? "none" : "flex" }}
+          className="w-full h-full items-center justify-center text-indigo-400/40 bg-slate-100 dark:bg-[#050A17]"
+        >
+          <Compass size={30} />
+        </div>
+
+        {/* Gradient Scrim */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
+
+        {/* Top Floating Badges */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between gap-1.5 z-10">
+          <div className="flex flex-wrap items-center gap-1">
+            {/* Visibility Badge */}
+            <span
+              className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md backdrop-blur-md border ${
+                isPublic
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                  : "bg-slate-500/20 border-slate-500/40 text-slate-300"
+              }`}
+            >
+              <span className={`size-1.5 rounded-full ${isPublic ? "bg-emerald-400" : "bg-slate-400"}`} />
+              {isPublic ? "LIVE" : "DRAFT"}
+            </span>
+
+            {/* Territory Tag */}
+            <span
+              className={`px-2 py-0.5 rounded-lg text-[8.5px] font-black uppercase tracking-wider backdrop-blur-md border shadow-md ${
+                isDom
+                  ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
+                  : "bg-purple-500/20 text-purple-300 border-purple-500/40"
+              }`}
+            >
+              {item.destination_type || "Domestic"}
+            </span>
+          </div>
+
+          {/* Featured Ribbon / Badge */}
+          {item.is_featured && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[9px] font-black uppercase tracking-wider shadow-md">
+              <Sparkles size={10} strokeWidth={2.5} /> Featured
+            </span>
+          )}
+        </div>
+
+        {/* Bottom Price & Quick Actions Overlay on Image */}
+        <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between z-10">
+          <div>
+            <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-300 block mb-0.5">
+              Price
+            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg font-black text-white leading-none">
+                ₹{sellingPrice.toLocaleString("en-IN")}
+              </span>
+              {originalPrice > sellingPrice && (
+                <span className="text-[11px] text-slate-300/80 line-through font-semibold">
+                  ₹{originalPrice.toLocaleString("en-IN")}
+                </span>
+              )}
+            </div>
+            <span className="text-[9px] text-slate-300/90 font-medium">
+              {priceUnit}
+            </span>
+          </div>
+
+          {/* Quick Edit & Delete pill */}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(item._id); }}
+              className="size-7 rounded-lg bg-[#050A17]/85 hover:bg-blue-600 text-slate-200 hover:text-white border border-slate-700/80 backdrop-blur-md flex items-center justify-center transition-all cursor-pointer shadow-md"
+              title="Edit Activity"
+            >
+              <Edit2 size={12} />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDelete(item._id); }}
+              className="size-7 rounded-lg bg-[#050A17]/85 hover:bg-red-600 text-slate-200 hover:text-white border border-slate-700/80 backdrop-blur-md flex items-center justify-center transition-all cursor-pointer shadow-md"
+              title="Delete Activity"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. CARD CONTENT BODY */}
+      <div className="p-3.5 flex flex-col flex-1 space-y-2.5">
+        {/* Destination & Rating */}
+        <div className="flex items-center justify-between gap-2 text-[11px]">
+          <span className="font-bold text-blue-500 dark:text-blue-400 flex items-center gap-1 truncate">
+            <MapPin size={12} className="shrink-0" />
+            <span className="truncate">{destName}</span>
+          </span>
+
+          <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1 shrink-0">
+            ★ {item.rating || 4.9} ({item.review_count || 120})
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3
+          onClick={() => onEdit(item._id)}
+          className="font-extrabold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 group-hover:text-blue-500 dark:group-hover:text-indigo-400 transition-colors cursor-pointer"
+        >
+          {item.title}
+        </h3>
+
+        {/* Location Spot / Duration Details */}
+        {(item.location_details?.starting_point || item.duration) && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+            {item.duration && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#050A17] border border-slate-200/80 dark:border-slate-800">
+                <Clock size={10} className="text-indigo-400" /> {item.duration}
+              </span>
+            )}
+            {item.location_details?.starting_point && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#050A17] border border-slate-200/80 dark:border-slate-800 truncate max-w-[160px]" title={item.location_details.starting_point}>
+                <Navigation size={10} className="text-indigo-400 shrink-0" /> {item.location_details.starting_point}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Footer Actions Row */}
+        <div className="mt-auto pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+          {/* Status Toggle Button */}
+          <button
+            type="button"
+            onClick={() => toggleStatus(item._id)}
+            className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border transition-all cursor-pointer ${
+              isActive
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                : "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/25 hover:bg-slate-500/20"
+            }`}
+          >
+            {isActive ? (
+              <>
+                <CheckCircle2 size={11} className="text-emerald-500" /> Active
+              </>
+            ) : (
+              <>
+                <XCircle size={11} className="text-slate-400" /> Inactive
+              </>
+            )}
+          </button>
+
+          {/* Edit Activity Button */}
+          <button
+            type="button"
+            onClick={() => onEdit(item._id)}
+            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+          >
+            <Edit2 size={11} /> Edit
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const ActivitiesList = () => {
   const navigate = useNavigate();
@@ -42,6 +241,7 @@ const ActivitiesList = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [sortOrder, setSortOrder] = useState("newest");
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [viewMode, setViewMode] = useState("cards"); // "cards" | "table"
 
   const cdnBase = import.meta.env.VITE_CDN_URL?.trim() || "https://media.trip2honeymoon.com";
   const getImagePreviewUrl = (imgKey) => {
@@ -239,8 +439,38 @@ const ActivitiesList = () => {
               </button>
             </div>
 
-            {/* Right: Sort & Per-Page Controls */}
+            {/* Right: View Mode Toggle, Sort & Per-Page Controls */}
             <div className="flex flex-wrap items-center gap-4 shrink-0">
+              {/* View Mode Switcher */}
+              <div className="flex items-center p-1 bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("cards")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "cards"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                      : "text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                  title="Card Grid View"
+                >
+                  <LayoutGrid size={14} />
+                  <span>Cards</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "table"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                      : "text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                  }`}
+                  title="Table / List View"
+                >
+                  <List size={14} />
+                  <span>Table</span>
+                </button>
+              </div>
+
               {/* Sort Dropdown (New / Old) */}
               <div className="flex items-center gap-2">
                 <span className="text-slate-400 font-bold uppercase tracking-wider text-xs flex items-center gap-1.5 shrink-0">
@@ -283,280 +513,297 @@ const ActivitiesList = () => {
         </form>
       </div>
 
-      {/* 3. ACTIVITIES TABLE CONTAINER */}
-      <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl overflow-hidden">
-        {isLoading ? (
-          <div className="py-32 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="animate-spin text-blue-500" size={44} strokeWidth={2} />
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Loading activities...</p>
+      {/* 3. ACTIVITIES DISPLAY AREA (CARDS OR TABLE) */}
+      {isLoading ? (
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] py-32 flex flex-col items-center justify-center gap-4">
+          <Loader2 className="animate-spin text-blue-500" size={44} strokeWidth={2} />
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Loading activities...</p>
+        </div>
+      ) : activities.length === 0 ? (
+        <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] py-32 text-center space-y-4 px-6">
+          <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 text-blue-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/10">
+            <Compass size={32} />
           </div>
-        ) : activities.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-[#050A17]/80 text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
-                  <th className="py-4 px-6">Activity</th>
-                  <th className="py-4 px-4">Destination</th>
-                  <th className="py-4 px-4">Visibility</th>
-                  <th className="py-4 px-4">Price</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs font-medium">
-                {activities.map((item) => {
-                  const destName =
-                    item.selected_destination?.destination_name || "Unknown Destination";
-                  const isDom = item.destination_type === "domestic";
-                  const coverUrl = getImagePreviewUrl(item.cover_image);
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              No Activities Found
+            </h3>
+            <p className="text-xs text-slate-400 font-medium mt-1 max-w-sm mx-auto">
+              No destination activities match the current filters. Try resetting filters or adding a new activity.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/activities/create")}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-600/25 cursor-pointer transition-all active:scale-[0.98]"
+          >
+            <Plus size={16} strokeWidth={2.5} /> Add New Activity
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {viewMode === "cards" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {activities.map((item) => (
+                <ActivityCard
+                  key={item._id}
+                  item={item}
+                  getImagePreviewUrl={getImagePreviewUrl}
+                  toggleStatus={toggleStatus}
+                  onEdit={(id) => navigate(`/activities/edit/${id}`)}
+                  onDelete={(id) => setDeleteConfirmId(id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-[#091126]/95 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-[#050A17]/80 text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
+                      <th className="py-4 px-6">Activity</th>
+                      <th className="py-4 px-4">Destination</th>
+                      <th className="py-4 px-4">Visibility</th>
+                      <th className="py-4 px-4">Price</th>
+                      <th className="py-4 px-4">Status</th>
+                      <th className="py-4 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs font-medium">
+                    {activities.map((item) => {
+                      const destName =
+                        item.selected_destination?.destination_name || "Unknown Destination";
+                      const isDom = item.destination_type === "domestic";
+                      const coverUrl = getImagePreviewUrl(item.cover_image);
 
-                  return (
-                    <tr
-                      key={item._id}
-                      className="hover:bg-slate-50/60 dark:hover:bg-indigo-950/20 transition-all group"
-                    >
-                      {/* Activity & Thumbnail */}
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#050A17] shrink-0 border border-slate-200/90 dark:border-indigo-500/20 shadow-inner relative flex items-center justify-center">
-                            {coverUrl ? (
-                              <img
-                                src={coverUrl}
-                                alt={item.title}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                  const fallback = e.target.nextElementSibling;
-                                  if (fallback) fallback.style.display = "flex";
-                                }}
-                              />
-                            ) : null}
-                            <div
-                              style={{ display: coverUrl ? "none" : "flex" }}
-                              className="w-full h-full items-center justify-center text-indigo-400/50"
-                            >
-                              <Compass size={22} />
+                      return (
+                        <tr
+                          key={item._id}
+                          className="hover:bg-slate-50/60 dark:hover:bg-indigo-950/20 transition-all group"
+                        >
+                          {/* Activity & Thumbnail */}
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#050A17] shrink-0 border border-slate-200/90 dark:border-indigo-500/20 shadow-inner relative flex items-center justify-center">
+                                {coverUrl ? (
+                                  <img
+                                    src={coverUrl}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      const fallback = e.target.nextElementSibling;
+                                      if (fallback) fallback.style.display = "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <div
+                                  style={{ display: coverUrl ? "none" : "flex" }}
+                                  className="w-full h-full items-center justify-center text-indigo-400/50"
+                                >
+                                  <Compass size={22} />
+                                </div>
+                              </div>
+                              <div>
+                                <span className="font-extrabold text-slate-900 dark:text-white text-sm line-clamp-1 group-hover:text-blue-500 transition-colors">
+                                  {item.title}
+                                </span>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {item.is_featured && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-[10px] font-black uppercase">
+                                      <Sparkles size={10} /> Featured
+                                    </span>
+                                  )}
+                                  <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                                    ★ {item.rating || 4.9} ({item.review_count || 120})
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <span className="font-extrabold text-slate-900 dark:text-white text-sm line-clamp-1 group-hover:text-blue-500 transition-colors">
-                              {item.title}
+                          </td>
+
+                          {/* Destination */}
+                          <td className="py-4 px-4">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-sm">
+                              <MapPin size={14} className="text-blue-500 shrink-0" />
+                              {destName}
                             </span>
-                            <div className="flex items-center gap-2 mt-1">
-                              {item.is_featured && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 text-[10px] font-black uppercase">
-                                  <Sparkles size={10} /> Featured
+                            <span
+                              className={`inline-block mt-1 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                                isDom
+                                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25"
+                                  : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25"
+                              }`}
+                            >
+                              {item.destination_type}
+                            </span>
+                          </td>
+
+                          {/* Visibility (Public / Private) */}
+                          <td className="py-4 px-4">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-extrabold tracking-wider border ${
+                                item.activity_type === "private"
+                                  ? "bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/25"
+                                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  item.activity_type === "private"
+                                    ? "bg-slate-400"
+                                    : "bg-emerald-500 shadow-xs shadow-emerald-500"
+                                }`}
+                              />
+                              <span>{item.activity_type === "private" ? "PRIVATE (DRAFT)" : "PUBLIC (LIVE)"}</span>
+                            </span>
+                          </td>
+
+                          {/* Pricing */}
+                          <td className="py-4 px-4">
+                            <div className="flex items-baseline gap-1.5 font-extrabold text-slate-900 dark:text-white text-sm">
+                              <span>₹{item.pricing?.selling_price?.toLocaleString() || 0}</span>
+                              {item.pricing?.original_price > item.pricing?.selling_price && (
+                                <span className="text-[11px] line-through text-slate-400 font-normal">
+                                  ₹{item.pricing.original_price.toLocaleString()}
                                 </span>
                               )}
-                              <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
-                                ★ {item.rating || 4.9} ({item.review_count || 120})
-                              </span>
                             </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Destination */}
-                      <td className="py-4 px-4">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-sm">
-                          <MapPin size={14} className="text-blue-500 shrink-0" />
-                          {destName}
-                        </span>
-                        <span
-                          className={`inline-block mt-1 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
-                            isDom
-                              ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25"
-                              : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25"
-                          }`}
-                        >
-                          {item.destination_type}
-                        </span>
-                      </td>
-
-                      {/* Visibility (Public / Private) */}
-                      <td className="py-4 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-extrabold tracking-wider border ${
-                            item.activity_type === "private"
-                              ? "bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/25"
-                              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              item.activity_type === "private"
-                                ? "bg-slate-400"
-                                : "bg-emerald-500 shadow-xs shadow-emerald-500"
-                            }`}
-                          />
-                          <span>{item.activity_type === "private" ? "PRIVATE (DRAFT)" : "PUBLIC (LIVE)"}</span>
-                        </span>
-                      </td>
-
-                      {/* Pricing */}
-                      <td className="py-4 px-4">
-                        <div className="flex items-baseline gap-1.5 font-extrabold text-slate-900 dark:text-white text-sm">
-                          <span>₹{item.pricing?.selling_price?.toLocaleString() || 0}</span>
-                          {item.pricing?.original_price > item.pricing?.selling_price && (
-                            <span className="text-[11px] line-through text-slate-400 font-normal">
-                              ₹{item.pricing.original_price.toLocaleString()}
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {item.pricing?.price_unit || "per person"}
                             </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-medium">
-                          {item.pricing?.price_unit || "per person"}
-                        </span>
-                      </td>
+                          </td>
 
-                      {/* Status Toggle */}
-                      <td className="py-4 px-4">
-                        <button
-                          type="button"
-                          onClick={() => toggleStatus(item._id)}
-                          className={`px-3.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 border transition-all cursor-pointer ${
-                            item.status === "active"
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
-                              : "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/25 hover:bg-slate-500/20"
-                          }`}
-                        >
-                          {item.status === "active" ? (
-                            <>
-                              <CheckCircle2 size={12} className="text-emerald-500" /> Active
-                            </>
-                          ) : (
-                            <>
-                              <XCircle size={12} className="text-slate-400" /> Inactive
-                            </>
-                          )}
-                        </button>
-                      </td>
+                          {/* Status Toggle */}
+                          <td className="py-4 px-4">
+                            <button
+                              type="button"
+                              onClick={() => toggleStatus(item._id)}
+                              className={`px-3.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 border transition-all cursor-pointer ${
+                                item.status === "active"
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                                  : "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/25 hover:bg-slate-500/20"
+                              }`}
+                            >
+                              {item.status === "active" ? (
+                                <>
+                                  <CheckCircle2 size={12} className="text-emerald-500" /> Active
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle size={12} className="text-slate-400" /> Inactive
+                                </>
+                              )}
+                            </button>
+                          </td>
 
-                      {/* Actions */}
-                      <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/activities/edit/${item._id}`)}
-                            className="size-9 rounded-xl bg-blue-500/10 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-500/20 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                            title="Edit Activity"
-                          >
-                            <Edit2 size={15} />
-                          </button>
+                          {/* Actions */}
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/activities/edit/${item._id}`)}
+                                className="size-9 rounded-xl bg-blue-500/10 hover:bg-blue-600 text-blue-600 dark:text-blue-400 hover:text-white border border-blue-500/20 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                                title="Edit Activity"
+                              >
+                                <Edit2 size={15} />
+                              </button>
 
-                          <button
-                            type="button"
-                            onClick={() => setDeleteConfirmId(item._id)}
-                            className="size-9 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white border border-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                            title="Delete Activity"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="py-32 text-center space-y-4 px-6">
-            <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 text-blue-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/10">
-              <Compass size={32} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                No Activities Found
-              </h3>
-              <p className="text-xs text-slate-400 font-medium mt-1 max-w-sm mx-auto">
-                No destination activities match the current filters. Try resetting filters or adding a new activity.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/activities/create")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-600/25 cursor-pointer transition-all active:scale-[0.98]"
-            >
-              <Plus size={16} strokeWidth={2.5} /> Add New Activity
-            </button>
-          </div>
-        )}
-
-        {/* 4. PAGINATION BAR */}
-        {!isLoading && totalCount > 0 && (
-          <div className="p-6 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#050A17]/50">
-            <div className="text-xs font-bold text-slate-400">
-              Showing page <span className="text-slate-900 dark:text-white font-extrabold">{currentPage}</span> of{" "}
-              <span className="text-slate-900 dark:text-white font-extrabold">{totalPages}</span> ({totalCount} total activities)
-            </div>
-
-            {totalPages > 1 && (
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(1)}
-                  disabled={currentPage === 1}
-                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
-                  title="First Page"
-                >
-                  <ChevronsLeft size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
-                  title="Previous Page"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-
-                <div className="flex items-center gap-1 px-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                    .map((p, idx, arr) => (
-                      <React.Fragment key={p}>
-                        {idx > 0 && p - arr[idx - 1] > 1 && (
-                          <span className="px-1 text-slate-500 text-xs">...</span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handlePageChange(p)}
-                          className={`size-9 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
-                            currentPage === p
-                              ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-500/40"
-                              : "border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/40"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      </React.Fragment>
-                    ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
-                  title="Next Page"
-                >
-                  <ChevronRight size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(totalPages)}
-                  disabled={currentPage === totalPages}
-                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
-                  title="Last Page"
-                >
-                  <ChevronsRight size={16} />
-                </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteConfirmId(item._id)}
+                                className="size-9 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-600 dark:text-red-400 hover:text-white border border-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                                title="Delete Activity"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+
+          {/* 4. PAGINATION BAR */}
+          {!isLoading && totalCount > 0 && (
+            <div className="p-6 rounded-3xl border border-slate-200/90 dark:border-indigo-500/25 bg-white dark:bg-[#091126]/95 shadow-xl dark:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.7),0_0_30px_2px_rgba(99,102,241,0.18)] ring-1 ring-slate-900/5 dark:ring-white/5 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs font-bold text-slate-400">
+                Showing page <span className="text-slate-900 dark:text-white font-extrabold">{currentPage}</span> of{" "}
+                <span className="text-slate-900 dark:text-white font-extrabold">{totalPages}</span> ({totalCount} total activities)
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
+                    className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
+                    title="First Page"
+                  >
+                    <ChevronsLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  <div className="flex items-center gap-1 px-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                      .map((p, idx, arr) => (
+                        <React.Fragment key={p}>
+                          {idx > 0 && p - arr[idx - 1] > 1 && (
+                            <span className="px-1 text-slate-500 text-xs">...</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handlePageChange(p)}
+                            className={`size-9 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
+                              currentPage === p
+                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-500/40"
+                                : "border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/40"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
+                    title="Next Page"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#050A17] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-blue-500/50 dark:hover:border-indigo-500/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-inner"
+                    title="Last Page"
+                  >
+                    <ChevronsRight size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 5. DELETE CONFIRMATION MODAL */}
       <AnimatePresence>

@@ -48,7 +48,7 @@ const OverviewTab = ({ customer }) => {
           <DataField label="MIDDLE NAME" value={customer.middleName || 'N/A'} />
           <DataField label="LAST NAME" value={customer.lastName} />
           <DataField label="SYSTEM IDENTIFIER" value={mongoId} isCode />
-          <DataField label="GENDER MARKER" value={customer.gender ? customer.gender.toUpperCase() : 'MALE'} />
+          <DataField label="GENDER MARKER" value={customer.gender ? customer.gender.toUpperCase() : 'N/A'} />
           <DataField label="DATE OF BIRTH" value={dobStr} />
         </div>
       </div>
