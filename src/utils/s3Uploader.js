@@ -22,16 +22,16 @@ export const uploadFileToS3 = async (file, { type = 'misc', title = '', fileType
     folder: `${type}/${fileType}`,
   });
 
-  const { uploadUrl, key } = presignedRes.data;
+  const { uploadUrl, key, viewUrl } = presignedRes.data;
 
   // Step 2: PUT the file directly to S3 using the presigned URL
   await axios.put(uploadUrl, uploadFile, {
     headers: { 'Content-Type': uploadFile.type },
   });
 
-  // Step 3: Build the public CDN URL
+  // Step 3: Build the public CDN URL or use presigned view URL
   const cdnBase = import.meta.env.VITE_CDN_URL?.trim() || 'https://media.trip2honeymoon.com';
-  const publicUrl = `${cdnBase}/${key}`;
+  const publicUrl = viewUrl || `${cdnBase}/${key}`;
 
-  return { s3Key: key, publicUrl };
+  return { s3Key: key, publicUrl, viewUrl };
 };

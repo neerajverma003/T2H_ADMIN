@@ -182,7 +182,7 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
     else if (path.includes('/settings/referral')) activeKey = 'referral'
     else if (path.includes('/settings/gst')) activeKey = 'gst'
     else if (path.includes('/settings/stats')) activeKey = 'stats'
-    else if (path.includes('/about-settings')) activeKey = 'about_settings'
+    else if (path.includes('/about-settings') || path.includes('/contact_us_management') || path.includes('/contact-settings')) activeKey = 'about_settings'
     else if (path.includes('/settings/chatbot')) activeKey = 'chatbot'
     else if (path === '/settings') activeKey = 'settings'
 
@@ -472,12 +472,16 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
       title: 'Marketing',
       icon: Mail,
       show: hasPermission('marketing'),
-      isActive: location.pathname.includes('/email-templates') || location.pathname.includes('/email-campaigns'),
+      isActive: location.pathname.includes('/email-templates') || location.pathname.includes('/refer-templates') || location.pathname.includes('/email-campaigns') || location.pathname.includes('/refer-campaigns') || location.pathname.includes('/signup-bonus') || location.pathname.includes('/registration-links'),
       sublinks: [
         { to: '/email-templates', label: 'Email Templates' },
-        { to: '/email-campaigns', label: 'Campaign Management' }
+        { to: '/refer-templates', label: 'Refer Templates' },
+        { to: '/email-campaigns', label: 'Campaign Management' },
+        { to: '/refer-campaigns', label: 'Refer Campaigns' },
+        { to: '/signup-bonus', label: 'Sign-up Bonus' },
+        { to: '/registration-links', label: 'Registration Link Generator' }
       ],
-      keywords: ['marketing', 'campaigns', 'email templates', 'newsletter templates', 'campaign management']
+      keywords: ['marketing', 'campaigns', 'email templates', 'refer templates', 'refer campaigns', 'newsletter templates', 'campaign management', 'sign-up bonus', 'signup bonus', 'registration link generator', 'referral links']
     },
     {
       key: 'analytics',
@@ -537,14 +541,15 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
     },
     {
       key: 'about_settings',
-      title: 'About Us Settings',
+      title: 'Content Management',
       icon: Info,
       show: hasPermission('settings'),
-      isActive: location.pathname.includes('/about-settings'),
+      isActive: location.pathname.includes('/about-settings') || location.pathname.includes('/contact_us_management') || location.pathname.includes('/contact-settings'),
       sublinks: [
-        { to: '/about-settings', label: 'About Us Settings' }
+        { to: '/about-settings', label: 'About Us' },
+        { to: '/contact_us_management', label: 'Contact Us' }
       ],
-      keywords: ['about us settings', 'about us', 'company details', 'brand']
+      keywords: ['content management', 'about us', 'contact us', 'contact management', 'contact settings', 'contact cards', 'company details', 'brand']
     },
     {
       key: 'chatbot',

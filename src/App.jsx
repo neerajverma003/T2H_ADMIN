@@ -72,6 +72,7 @@ import VerifyGiftCard from "./pages/giftcards/VerifyGiftCard"
 import BulkGiftCard from "./pages/giftcards/BulkGiftCard"
 import GiftDiscount from "./pages/giftcards/GiftDiscount"
 import AboutSettings from "./pages/settings/AboutSettings"
+import ContactUsManagement from "./pages/settings/ContactUsManagement"
 import BookedPackages from "./pages/bookings/BookedPackages"
 
 import CreateMember from "./pages/team/CreateMember"
@@ -80,6 +81,10 @@ import SocialManagement from "./pages/social-management/page.jsx"
 import GlobalImpact from "./pages/global_impact/GlobalImpact"
 import EmailTemplates from "./pages/campaign_management/template.jsx"
 import CampaignManagement from "./pages/campaign_management/page.jsx"
+import RegistrationLinkGenerator from "./pages/campaign_management/RegistrationLinkGenerator.jsx"
+import ReferTemplates from "./pages/campaign_management/ReferTemplates.jsx"
+import ReferCampaigns from "./pages/campaign_management/ReferCampaigns.jsx"
+import SignupBonus from "./pages/campaign_management/SignupBonus.jsx"
 
 import CustomersList from "./pages/customers/CustomersList"
 import CustomerDetails from "./pages/customers/CustomerDetails"
@@ -222,9 +227,13 @@ function App() {
             {/* Social Management */}
             <Route path="social-management" element={<SocialManagement />} />
 
-            {/* Marketing — Email Templates & Campaigns */}
+            {/* Marketing — Email Templates, Campaigns, Refer Templates, Refer Campaigns, Sign-up Bonus & Registration Links */}
             <Route path="email-templates" element={<EmailTemplates />} />
+            <Route path="refer-templates" element={<ReferTemplates />} />
             <Route path="email-campaigns" element={<CampaignManagement />} />
+            <Route path="refer-campaigns" element={<ReferCampaigns />} />
+            <Route path="signup-bonus" element={<SignupBonus />} />
+            <Route path="registration-links" element={<RegistrationLinkGenerator />} />
 
             {/* Our Global Impact */}
             <Route path="global-impact" element={<GlobalImpact />} />
@@ -235,6 +244,8 @@ function App() {
 
             {/* Reports & Settings */}
             <Route path="about-settings" element={<AboutSettings />} />
+            <Route path="contact_us_management" element={<ContactUsManagement />} />
+            <Route path="contact-settings" element={<ContactUsManagement />} />
             <Route path="reports" element={<Reports />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="settings/notifications" element={<NotificationRecipients />} />

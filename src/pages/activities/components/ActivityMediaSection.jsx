@@ -13,11 +13,13 @@ export const ActivityMediaSection = ({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [galleryProgress, setGalleryProgress] = useState("");
+  const [previewUrls, setPreviewUrls] = useState({});
 
   const cdnBase = import.meta.env.VITE_CDN_URL?.trim() || "https://media.trip2honeymoon.com";
   const getImagePreviewUrl = (imgKey) => {
     if (!imgKey) return "";
-    if (imgKey.startsWith("http://") || imgKey.startsWith("https://")) return imgKey;
+    if (previewUrls[imgKey]) return previewUrls[imgKey];
+    if (imgKey.startsWith("http://") || imgKey.startsWith("https://") || imgKey.startsWith("blob:")) return imgKey;
     return `${cdnBase}/${imgKey}`;
   };
 
@@ -29,11 +31,19 @@ export const ActivityMediaSection = ({
 
     setIsUploadingCover(true);
     try {
+      // Create immediate blob preview
+      const localBlobUrl = URL.createObjectURL(file);
+
       // uploadFileToS3 automatically converts file to WebP format
-      const { s3Key } = await uploadFileToS3(file, {
+      const { s3Key, viewUrl, publicUrl } = await uploadFileToS3(file, {
         type: "activities",
         fileType: "cover",
       });
+
+      const displayUrl = viewUrl || localBlobUrl || publicUrl;
+      if (s3Key && displayUrl) {
+        setPreviewUrls((prev) => ({ ...prev, [s3Key]: displayUrl }));
+      }
 
       handleInputChange({
         target: { name: "cover_image", value: s3Key },
@@ -64,12 +74,18 @@ export const ActivityMediaSection = ({
         setGalleryProgress(`Uploading ${i + 1}/${files.length}...`);
 
         try {
-          const { s3Key } = await uploadFileToS3(file, {
+          const localBlobUrl = URL.createObjectURL(file);
+          const { s3Key, viewUrl, publicUrl } = await uploadFileToS3(file, {
             type: "activities",
             fileType: "gallery",
           });
 
           if (s3Key) {
+            const displayUrl = viewUrl || localBlobUrl || publicUrl;
+            if (displayUrl) {
+              setPreviewUrls((prev) => ({ ...prev, [s3Key]: displayUrl }));
+            }
+
             currentGallery = [...currentGallery, s3Key];
             successCount++;
             // Update form state immediately as each photo finishes

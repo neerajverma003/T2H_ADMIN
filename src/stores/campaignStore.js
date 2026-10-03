@@ -138,4 +138,149 @@ export const useCampaignStore = create((set, get) => ({
       return { subscribers: [], users: [] };
     }
   },
+
+  // ─── Refer Template Actions ──────────────────────────────
+  referTemplates: [],
+  isLoadingRefer: false,
+
+  fetchReferTemplates: async () => {
+    set({ isLoadingRefer: true });
+    try {
+      const res = await apiClient.get('/admin/refer-templates');
+      set({ referTemplates: res.data.templates || [], isLoadingRefer: false });
+    } catch (err) {
+      console.error('Failed to load refer templates:', err);
+      toast.error('Failed to load refer templates');
+      set({ isLoadingRefer: false });
+    }
+  },
+
+  createReferTemplate: async (payload) => {
+    set({ isLoadingRefer: true });
+    try {
+      const res = await apiClient.post('/admin/refer-templates', payload);
+      if (res.data?.success) {
+        toast.success(res.data.message || 'Refer template created successfully!');
+        get().fetchReferTemplates();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create refer template');
+      return false;
+    } finally {
+      set({ isLoadingRefer: false });
+    }
+  },
+
+  updateReferTemplate: async (id, payload) => {
+    set({ isLoadingRefer: true });
+    try {
+      const res = await apiClient.patch(`/admin/refer-templates/${id}`, payload);
+      if (res.data?.success) {
+        toast.success(res.data.message || 'Refer template updated!');
+        get().fetchReferTemplates();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update refer template');
+      return false;
+    } finally {
+      set({ isLoadingRefer: false });
+    }
+  },
+
+  deleteReferTemplate: async (id) => {
+    try {
+      const res = await apiClient.delete(`/admin/refer-templates/${id}`);
+      if (res.data?.success) {
+        toast.success('Refer template deleted');
+        set((state) => ({ referTemplates: state.referTemplates.filter((t) => t._id !== id) }));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      toast.error('Failed to delete refer template');
+      return false;
+    }
+  },
+
+  // ─── Refer Campaign Actions ───────────────────────────────
+  referCampaigns: [],
+  isLoadingReferCampaign: false,
+  isSendingReferCampaign: false,
+
+  fetchReferCampaigns: async () => {
+    set({ isLoadingReferCampaign: true });
+    try {
+      const res = await apiClient.get('/admin/refer-campaigns');
+      set({ referCampaigns: res.data.campaigns || [], isLoadingReferCampaign: false });
+    } catch (err) {
+      console.error('Failed to load refer campaigns:', err);
+      toast.error('Failed to load refer campaigns');
+      set({ isLoadingReferCampaign: false });
+    }
+  },
+
+  createReferCampaign: async (payload) => {
+    set({ isLoadingReferCampaign: true });
+    try {
+      const res = await apiClient.post('/admin/refer-campaigns', payload);
+      if (res.data?.success) {
+        toast.success(res.data.message || 'Refer campaign created!');
+        get().fetchReferCampaigns();
+        return res.data.campaign;
+      }
+      return null;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create refer campaign');
+      return null;
+    } finally {
+      set({ isLoadingReferCampaign: false });
+    }
+  },
+
+  sendReferCampaign: async (id) => {
+    set({ isSendingReferCampaign: true });
+    try {
+      const res = await apiClient.post(`/admin/refer-campaigns/${id}/send`);
+      if (res.data?.success) {
+        toast.success(res.data.message || 'Refer campaign dispatch started!');
+        get().fetchReferCampaigns();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to dispatch refer campaign');
+      return false;
+    } finally {
+      set({ isSendingReferCampaign: false });
+    }
+  },
+
+  deleteReferCampaign: async (id) => {
+    try {
+      const res = await apiClient.delete(`/admin/refer-campaigns/${id}`);
+      if (res.data?.success) {
+        toast.success('Refer campaign deleted');
+        set((state) => ({ referCampaigns: state.referCampaigns.filter((c) => c._id !== id) }));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      toast.error('Failed to delete refer campaign');
+      return false;
+    }
+  },
+
+  getReferRecipients: async () => {
+    try {
+      const res = await apiClient.get('/admin/refer-campaigns/recipients');
+      return res.data.users || [];
+    } catch (err) {
+      console.error('Failed to load recipient pool:', err);
+      return [];
+    }
+  },
 }));
