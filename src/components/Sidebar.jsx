@@ -227,6 +227,17 @@ const Sidebar = ({ open, setOpen, search = "", setSearch }) => {
       keywords: ['dashboard', 'home', 'overview', 'metrics', 'stats']
     },
     {
+      key: 'direct_mailer',
+      title: 'Direct Mailer',
+      icon: Mail,
+      show: role === 'superadmin' || hasPermission('marketing') || hasPermission('dashboard'),
+      isActive: location.pathname.includes('/direct-mailer') || location.pathname.includes('/outreach'),
+      sublinks: [
+        { to: '/direct-mailer', label: 'Direct Mailer' }
+      ],
+      keywords: ['direct mailer', 'outreach', 'email composer', 'smtp', 'send mail', 'mailer', 'senders']
+    },
+    {
       key: 'public_user',
       title: 'Public User',
       icon: UserCheck,

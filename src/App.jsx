@@ -88,6 +88,7 @@ import SignupBonus from "./pages/campaign_management/SignupBonus.jsx"
 
 import CustomersList from "./pages/customers/CustomersList"
 import CustomerDetails from "./pages/customers/CustomerDetails"
+import DirectMailer from "./pages/direct_mailer/DirectMailer"
 
 // Job Management
 import CreateJob from "./pages/jobs/CreateJob"
@@ -228,6 +229,8 @@ function App() {
             <Route path="social-management" element={<SocialManagement />} />
 
             {/* Marketing — Email Templates, Campaigns, Refer Templates, Refer Campaigns, Sign-up Bonus & Registration Links */}
+            <Route path="direct-mailer" element={<DirectMailer />} />
+            <Route path="outreach" element={<DirectMailer />} />
             <Route path="email-templates" element={<EmailTemplates />} />
             <Route path="refer-templates" element={<ReferTemplates />} />
             <Route path="email-campaigns" element={<CampaignManagement />} />
