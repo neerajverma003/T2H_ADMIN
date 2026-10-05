@@ -121,10 +121,28 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
 
     const removeDirectImage = (index, key) => {
         if (isViewMode) return;
-        setFormData((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }));
+        setFormData((prev) => {
+            const currentList = prev[key] || [];
+            const removedItem = currentList[index];
+            const updatedList = currentList.filter((_, i) => i !== index);
+
+            let updatedFiles = prev[`${key}_files`];
+            if (updatedFiles && typeof removedItem === 'string' && removedItem.startsWith('data:')) {
+                const dataIndex = currentList.slice(0, index).filter(item => typeof item === 'string' && item.startsWith('data:')).length;
+                if (updatedFiles[dataIndex] !== undefined) {
+                    updatedFiles = updatedFiles.filter((_, fi) => fi !== dataIndex);
+                }
+            }
+
+            return {
+                ...prev,
+                [key]: updatedList,
+                ...(updatedFiles !== undefined ? { [`${key}_files`]: updatedFiles } : {})
+            };
+        });
     };
 
-    const renderGrid = (images, selected, key) => {
+    const renderGrid = (images, selected = [], key) => {
         if (isLoading) return <div className="py-10 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div></div>;
         if (!images || !images.length) {
             return (
@@ -138,7 +156,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
                 {images.map((url, idx) => {
                     const urlKey = extractS3Key(url);
-                    const isSelected = selected.some(i => extractS3Key(i) === urlKey);
+                    const isSelected = (selected || []).some(i => extractS3Key(i) === urlKey);
                     return (
                         <div
                             key={`${key}-${idx}`}
@@ -221,7 +239,7 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
                         </div>
 
                         <div>
-                            <label className={labelStyle}><UploadCloud size={13} className="text-indigo-400" /> Upload Custom Thumbnails</label>
+                            <label className={labelStyle}><UploadCloud size={13} className="text-indigo-400" /> Upload Destination Image</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-3">
                                 {formData.destination_thumbnails.map((img, i) => (
                                     <div 
@@ -256,35 +274,42 @@ const MediaSection = ({ formData, setFormData, styles, errors = {} }) => {
 
                     {/* CUSTOM GALLERY */}
                     <div className="pt-6 border-t border-slate-200 dark:border-slate-800/80 space-y-6">
-                        <label className={labelStyle}><GalleryHorizontal size={13} className="text-indigo-400" /> Custom Itinerary Gallery</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-3">
-                            {formData.destination_images.map((img, i) => (
-                                <div 
-                                    key={i} 
-                                    onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
-                                    className={`group relative aspect-square rounded-2xl overflow-hidden border border-indigo-500/30 shadow-md ${isViewMode ? 'cursor-pointer hover:scale-105 transition-all' : ''}`}
-                                >
-                                    {img && <img src={getCdnUrl(img)} className="h-full w-full object-cover" alt="" />}
-                                    {(!isViewMode) && (
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <button 
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); removeDirectImage(i, "destination_images"); }} 
-                                                className="p-2 bg-red-500/90 text-white rounded-xl hover:bg-red-600 transition-colors shadow-lg cursor-pointer"
-                                            >
-                                                <X size={15} />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            {(!isViewMode) && (
-                                <label className="aspect-square rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500/60 hover:text-indigo-500 hover:bg-indigo-500/5 transition-all">
-                                    <Plus size={22} />
-                                    <span className="text-[11px] font-bold mt-1.5 uppercase tracking-wider">Upload</span>
-                                    <input type="file" accept="image/*" multiple onChange={(e) => handleDirectUpload(e, "destination_images")} hidden />
-                                </label>
-                            )}
+                        <div>
+                            <label className={labelStyle}><Sparkles size={13} className="text-indigo-400" /> Destination Source Assets</label>
+                            {renderGrid(destinationImages, formData.destination_images, "destination_images")}
+                        </div>
+
+                        <div>
+                            <label className={labelStyle}><GalleryHorizontal size={13} className="text-indigo-400" /> Custom Itinerary Gallery</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-3">
+                                {formData.destination_images.map((img, i) => (
+                                    <div 
+                                        key={i} 
+                                        onClick={() => { if (isViewMode) setSelectedLightboxImage(img); }}
+                                        className={`group relative aspect-square rounded-2xl overflow-hidden border border-indigo-500/30 shadow-md ${isViewMode ? 'cursor-pointer hover:scale-105 transition-all' : ''}`}
+                                    >
+                                        {img && <img src={getCdnUrl(img)} className="h-full w-full object-cover" alt="" />}
+                                        {(!isViewMode) && (
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button 
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); removeDirectImage(i, "destination_images"); }} 
+                                                    className="p-2 bg-red-500/90 text-white rounded-xl hover:bg-red-600 transition-colors shadow-lg cursor-pointer"
+                                                >
+                                                    <X size={15} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                                {(!isViewMode) && (
+                                    <label className="aspect-square rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] cursor-pointer flex flex-col items-center justify-center text-slate-400 hover:border-indigo-500/60 hover:text-indigo-500 hover:bg-indigo-500/5 transition-all">
+                                        <Plus size={22} />
+                                        <span className="text-[11px] font-bold mt-1.5 uppercase tracking-wider">Upload</span>
+                                        <input type="file" accept="image/*" multiple onChange={(e) => handleDirectUpload(e, "destination_images")} hidden />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
