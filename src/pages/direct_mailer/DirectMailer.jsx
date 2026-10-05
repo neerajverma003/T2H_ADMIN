@@ -43,6 +43,8 @@ export default function DirectMailer() {
   // Multi-Senders state
   const [senders, setSenders] = useState([]);
   const [selectedSenderId, setSelectedSenderId] = useState('');
+  const [senderIdentityName, setSenderIdentityName] = useState('');
+  const [isUpdatingSenderLabel, setIsUpdatingSenderLabel] = useState(false);
   const [isManageSendersOpen, setIsManageSendersOpen] = useState(false);
 
   // Form State
@@ -118,12 +120,17 @@ export default function DirectMailer() {
     try {
       const res = await apiClient.get('/admin/direct-mail/senders');
       if (res.data.success) {
-        setSenders(res.data.senders || []);
-        const defaultSender = res.data.senders?.find((s) => s.isDefault);
+        const sendersList = res.data.senders || [];
+        setSenders(sendersList);
+        const defaultSender = sendersList.find((s) => s.isDefault);
         if (defaultSender) {
-          setSelectedSenderId(defaultSender._id);
-        } else if (res.data.senders?.length > 0) {
-          setSelectedSenderId(res.data.senders[0]._id);
+          setSelectedSenderId((prev) => prev || defaultSender._id);
+          setSenderIdentityName((prev) => (prev !== '' ? prev : defaultSender.label || ''));
+        } else if (sendersList.length > 0) {
+          setSelectedSenderId((prev) => prev || sendersList[0]._id);
+          setSenderIdentityName((prev) => (prev !== '' ? prev : sendersList[0].label || ''));
+        } else {
+          setSenderIdentityName((prev) => (prev !== '' ? prev : username || 'Super Admin'));
         }
       }
     } catch (err) {
@@ -167,6 +174,35 @@ export default function DirectMailer() {
   const currentSender = senders.find((s) => s._id === selectedSenderId) || {
     label: username || 'Super Admin',
     email: 'support@trip2honeymoon.com',
+  };
+
+  const activeSenderName = senderIdentityName.trim() || currentSender.label || username || 'Super Admin';
+
+  const handleSenderChange = (newId) => {
+    setSelectedSenderId(newId);
+    const chosen = senders.find((s) => s._id === newId);
+    if (chosen) {
+      setSenderIdentityName(chosen.label || '');
+    }
+  };
+
+  const handleSaveSenderLabel = async () => {
+    if (!selectedSenderId || !senderIdentityName.trim()) return;
+    setIsUpdatingSenderLabel(true);
+    try {
+      const res = await apiClient.patch(`/admin/direct-mail/senders/${selectedSenderId}`, {
+        label: senderIdentityName.trim(),
+      });
+      if (res.data.success) {
+        toast.success(res.data.msg || 'Sender identity name saved to account');
+        fetchSenders();
+      }
+    } catch (err) {
+      const msg = err.response?.data?.msg || err.message || 'Failed to update sender account name';
+      toast.error(msg);
+    } finally {
+      setIsUpdatingSenderLabel(false);
+    }
   };
 
   // ----------------------------------------------------
@@ -360,6 +396,7 @@ export default function DirectMailer() {
       setSubject('');
       setEmailStyle('normal');
       setAttachments([]);
+      setSenderIdentityName(currentSender.label || username || 'Super Admin');
       if (editorRef.current) editorRef.current.innerHTML = '';
       toast.info('Composer reset');
     }
@@ -377,7 +414,7 @@ export default function DirectMailer() {
         draftId: currentDraftId,
         senderId: selectedSenderId || null,
         senderEmail: currentSender.email,
-        senderName: currentSender.label,
+        senderName: activeSenderName,
         to: recipientEmails,
         cc: ccList,
         bcc: bccList,
@@ -404,6 +441,12 @@ export default function DirectMailer() {
   const handleResumeDraft = (draft) => {
     setCurrentDraftId(draft._id);
     setSelectedSenderId(draft.senderId || selectedSenderId);
+    if (draft.senderName) {
+      setSenderIdentityName(draft.senderName);
+    } else {
+      const s = senders.find((item) => item._id === draft.senderId);
+      if (s) setSenderIdentityName(s.label || '');
+    }
     setSelectedGroups(draft.recipientGroups || []);
 
     const loadedRecips = (draft.to || []).map((e) => ({
@@ -463,6 +506,7 @@ export default function DirectMailer() {
     try {
       const res = await apiClient.post('/admin/direct-mail/send', {
         senderId: selectedSenderId || null,
+        senderName: activeSenderName,
         to: finalEmails,
         cc: ccList,
         bcc: bccList,
@@ -625,18 +669,40 @@ export default function DirectMailer() {
                 <span className="text-red-500">👤</span> From Identity:
               </span>
 
-              <div className="flex flex-1 items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={currentSender.label || 'Super Admin'}
-                  className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 w-44"
-                />
+              <div className="flex flex-1 items-center gap-2 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={senderIdentityName}
+                    onChange={(e) => setSenderIdentityName(e.target.value)}
+                    placeholder={currentSender.label || 'Super Admin'}
+                    title="Sender display name (Editable - click and type)"
+                    className="px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition w-44 sm:w-48 shadow-2xs"
+                  />
+                  {selectedSenderId &&
+                    senderIdentityName.trim() &&
+                    senderIdentityName.trim() !== currentSender.label && (
+                      <button
+                        type="button"
+                        onClick={handleSaveSenderLabel}
+                        disabled={isUpdatingSenderLabel}
+                        title="Save this display name to the selected sender account permanently"
+                        className="px-2.5 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 rounded-xl flex items-center gap-1 transition shrink-0 cursor-pointer shadow-2xs"
+                      >
+                        {isUpdatingSenderLabel ? (
+                          <RefreshCw size={13} className="animate-spin" />
+                        ) : (
+                          <CheckCircle size={13} />
+                        )}
+                        <span>Save</span>
+                      </button>
+                    )}
+                </div>
 
                 <select
                   value={selectedSenderId}
-                  onChange={(e) => setSelectedSenderId(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 font-mono"
+                  onChange={(e) => handleSenderChange(e.target.value)}
+                  className="flex-1 min-w-[200px] px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 font-mono"
                 >
                   {senders.length > 0 ? (
                     senders.map((s) => (
@@ -652,7 +718,7 @@ export default function DirectMailer() {
                 <button
                   type="button"
                   onClick={() => setIsManageSendersOpen(true)}
-                  className="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl flex items-center gap-1.5 transition shrink-0"
+                  className="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl flex items-center gap-1.5 transition shrink-0 cursor-pointer"
                 >
                   <Settings size={14} />
                   Manage Senders
@@ -1266,7 +1332,7 @@ export default function DirectMailer() {
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
         subject={subject}
-        senderName={currentSender.label}
+        senderName={activeSenderName}
         senderEmail={currentSender.email}
         to={
           selectedGroups.length > 0

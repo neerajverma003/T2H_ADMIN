@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, ShieldCheck, X, Eye, EyeOff, ExternalLink, Trash2, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Shield, ShieldCheck, X, Eye, EyeOff, ExternalLink, Trash2, CheckCircle2, RefreshCw, Edit2, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { apiClient } from '../../stores/authStores';
 
@@ -12,7 +12,45 @@ export default function ManageSendersModal({ isOpen, onClose, senders, onRefresh
   const [loading, setLoading] = useState(false);
   const [testingId, setTestingId] = useState(null);
 
+  // Edit sender label state
+  const [editingId, setEditingId] = useState(null);
+  const [editingLabel, setEditingLabel] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleStartEdit = (s) => {
+    setEditingId(s._id);
+    setEditingLabel(s.label || '');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingLabel('');
+  };
+
+  const handleSaveEdit = async (id) => {
+    if (!editingLabel.trim()) {
+      toast.warning('Sender identity name cannot be empty');
+      return;
+    }
+    setIsSavingEdit(true);
+    try {
+      const res = await apiClient.patch(`/admin/direct-mail/senders/${id}`, {
+        label: editingLabel.trim(),
+      });
+      if (res.data.success) {
+        toast.success(res.data.msg || 'Sender identity name updated');
+        setEditingId(null);
+        setEditingLabel('');
+        onRefreshSenders();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.msg || err.message || 'Failed to update sender identity');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
 
   const handleVerifyAndSave = async (e) => {
     e.preventDefault();
@@ -139,27 +177,69 @@ export default function ManageSendersModal({ isOpen, onClose, senders, onRefresh
                         : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                     }`}
                   >
-                    <div className="min-w-0 pr-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate">
-                          {s.label}
-                        </span>
-                        {s.isDefault && (
-                          <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-blue-600 text-white shadow-sm">
-                            Default
+                    {editingId === s._id ? (
+                      <div className="flex-1 flex items-center gap-2 mr-2">
+                        <input
+                          type="text"
+                          value={editingLabel}
+                          onChange={(e) => setEditingLabel(e.target.value)}
+                          placeholder="Sender identity name..."
+                          className="flex-1 px-3 py-1.5 text-xs font-semibold rounded-lg border border-red-500 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveEdit(s._id);
+                            if (e.key === 'Escape') handleCancelEdit();
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSaveEdit(s._id)}
+                          disabled={isSavingEdit}
+                          className="px-2.5 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition flex items-center gap-1"
+                        >
+                          <Check size={13} />
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelEdit}
+                          className="px-2 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="min-w-0 pr-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate">
+                            {s.label}
                           </span>
-                        )}
-                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
-                          Active
-                        </span>
+                          {s.isDefault && (
+                            <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-blue-600 text-white shadow-sm">
+                              Default
+                            </span>
+                          )}
+                          <span className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
+                            Active
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
+                          {s.email}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
-                        {s.email}
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {!s.isDefault && (
+                      {editingId !== s._id && (
+                        <button
+                          onClick={() => handleStartEdit(s)}
+                          className="p-1.5 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-slate-700/60 transition"
+                          title="Edit Identity Name"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                      )}
+                      {!s.isDefault && editingId !== s._id && (
                         <button
                           onClick={() => handleSetDefault(s._id)}
                           className="px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-slate-700/60 transition"
