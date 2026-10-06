@@ -21,7 +21,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  ArrowUpDown
+  ArrowUpDown,
+  Film,
+  Video,
+  Play,
+  Plus,
+  Link as LinkIcon
 } from "lucide-react"
 import { usePlaceStore } from "../../stores/usePlaceStore"
 import { useNavigate } from "react-router-dom"
@@ -51,22 +56,48 @@ const CreateDestination = () => {
   const [data, setData] = useState({
     type: "domestic",
     destination_name: "",
-    image: [],
     destination_type: [],
     best_time: "",
     ideal_duration: "",
     short_description: "",
   })
 
+  // ── Partitioned Visual Asset States ──
+  const [activePartition, setActivePartition] = useState("thumbnail") // "thumbnail" | "destination_images" | "activities" | "testimonials"
+
+  // 1. Destination Thumbnail (Cover)
+  const [thumbnailFile, setThumbnailFile] = useState(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState(null)
+  const thumbnailInputRef = useRef(null)
+
+  // 2. Destination Images (Scenery Gallery)
+  const [destinationImages, setDestinationImages] = useState([])
+  const [destinationPreviews, setDestinationPreviews] = useState([])
+  const galleryInputRef = useRef(null)
+
+  // 3. Activities Images
+  const [activityImages, setActivityImages] = useState([])
+  const [activityPreviews, setActivityPreviews] = useState([])
+  const activityInputRef = useRef(null)
+
+  // 4. Testimonials (Images & Videos)
+  const [testimonialMode, setTestimonialMode] = useState("image") // "image" | "video"
+  const [testimonialImages, setTestimonialImages] = useState([])
+  const [testimonialPreviews, setTestimonialPreviews] = useState([])
+  const testimonialImageInputRef = useRef(null)
+  const [testimonialVideos, setTestimonialVideos] = useState([]) // array of { file, previewUrl, name, size }
+  const [testimonialVideoUrls, setTestimonialVideoUrls] = useState([]) // array of external / direct video strings
+  const [newVideoUrlInput, setNewVideoUrlInput] = useState("")
+  const testimonialVideoInputRef = useRef(null)
+
   const [isLoading, setIsLoading] = useState(false)
+  const [uploadStatusText, setUploadStatusText] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(9)
   const [sortOrder, setSortOrder] = useState("newest")
   const [counts, setCounts] = useState({ domestic: 0, international: 0 })
   const [countsLoading, setCountsLoading] = useState(false)
-  const [imagePreviews, setImagePreviews] = useState([])
-  const fileInputRef = useRef(null)
 
   const { createDestination, fetchDestinationList, destinationList, isListLoading } = usePlaceStore()
   const navigate = useNavigate()
@@ -98,27 +129,108 @@ const CreateDestination = () => {
     typeRef.current = data.type
   }, [data.type, fetchDestinationList])
 
-  const handleImageFilesChange = (newFiles) => {
-    const combinedFiles = [...data.image, ...newFiles]
-    setData((prev) => ({ ...prev, image: combinedFiles }))
+  // Handlers for Thumbnail
+  const handleThumbnailChange = (file) => {
+    if (!file) return
+    if (thumbnailPreview?.url) URL.revokeObjectURL(thumbnailPreview.url)
+    setThumbnailFile(file)
+    setThumbnailPreview({
+      url: URL.createObjectURL(file),
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2)
+    })
+  }
 
-    const newPreviewUrls = newFiles.map((file) => ({
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview?.url) URL.revokeObjectURL(thumbnailPreview.url)
+    setThumbnailFile(null)
+    setThumbnailPreview(null)
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
+  }
+
+  // Handlers for Destination Images
+  const handleDestinationImagesChange = (newFiles) => {
+    setDestinationImages((prev) => [...prev, ...newFiles])
+    const newPreviews = newFiles.map((file) => ({
       url: URL.createObjectURL(file),
       name: file.name,
       size: (file.size / (1024 * 1024)).toFixed(2)
     }))
-    setImagePreviews((prev) => [...prev, ...newPreviewUrls])
+    setDestinationPreviews((prev) => [...prev, ...newPreviews])
   }
 
-  const handleRemoveImage = (index) => {
-    if (imagePreviews[index]?.url) {
-      URL.revokeObjectURL(imagePreviews[index].url)
-    }
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index))
-    setData((prev) => ({
-      ...prev,
-      image: prev.image.filter((_, i) => i !== index)
+  const handleRemoveDestinationImage = (index) => {
+    if (destinationPreviews[index]?.url) URL.revokeObjectURL(destinationPreviews[index].url)
+    setDestinationPreviews((prev) => prev.filter((_, i) => i !== index))
+    setDestinationImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  // Handlers for Activities
+  const handleActivityImagesChange = (newFiles) => {
+    setActivityImages((prev) => [...prev, ...newFiles])
+    const newPreviews = newFiles.map((file) => ({
+      url: URL.createObjectURL(file),
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2)
     }))
+    setActivityPreviews((prev) => [...prev, ...newPreviews])
+  }
+
+  const handleRemoveActivityImage = (index) => {
+    if (activityPreviews[index]?.url) URL.revokeObjectURL(activityPreviews[index].url)
+    setActivityPreviews((prev) => prev.filter((_, i) => i !== index))
+    setActivityImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  // Handlers for Testimonials: Images
+  const handleTestimonialImagesChange = (newFiles) => {
+    setTestimonialImages((prev) => [...prev, ...newFiles])
+    const newPreviews = newFiles.map((file) => ({
+      url: URL.createObjectURL(file),
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2)
+    }))
+    setTestimonialPreviews((prev) => [...prev, ...newPreviews])
+  }
+
+  const handleRemoveTestimonialImage = (index) => {
+    if (testimonialPreviews[index]?.url) URL.revokeObjectURL(testimonialPreviews[index].url)
+    setTestimonialPreviews((prev) => prev.filter((_, i) => i !== index))
+    setTestimonialImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  // Handlers for Testimonials: Videos
+  const handleTestimonialVideoFilesChange = (newFiles) => {
+    const validVideos = newFiles.filter(f => f.type.startsWith("video/") || /\.(mp4|webm|mov|mkv|avi)$/i.test(f.name))
+    if (validVideos.length < newFiles.length) {
+      toast.warn("Some non-video files were skipped. Supported: MP4, WebM, MOV, MKV")
+    }
+    const newItems = validVideos.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2)
+    }))
+    setTestimonialVideos((prev) => [...prev, ...newItems])
+  }
+
+  const handleRemoveTestimonialVideo = (index) => {
+    if (testimonialVideos[index]?.previewUrl) URL.revokeObjectURL(testimonialVideos[index].previewUrl)
+    setTestimonialVideos((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleAddVideoUrl = () => {
+    const trimmed = newVideoUrlInput.trim()
+    if (!trimmed) return
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+      return toast.error("Please enter a valid URL starting with http:// or https://")
+    }
+    setTestimonialVideoUrls((prev) => [...prev, trimmed])
+    setNewVideoUrlInput("")
+  }
+
+  const handleRemoveVideoUrl = (index) => {
+    setTestimonialVideoUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleTagToggle = (tag) => {
@@ -130,34 +242,135 @@ const CreateDestination = () => {
     }))
   }
 
+  const clearAllPreviews = () => {
+    if (thumbnailPreview?.url) URL.revokeObjectURL(thumbnailPreview.url)
+    setThumbnailFile(null)
+    setThumbnailPreview(null)
+
+    destinationPreviews.forEach(p => URL.revokeObjectURL(p.url))
+    setDestinationImages([])
+    setDestinationPreviews([])
+
+    activityPreviews.forEach(p => URL.revokeObjectURL(p.url))
+    setActivityImages([])
+    setActivityPreviews([])
+
+    testimonialPreviews.forEach(p => URL.revokeObjectURL(p.url))
+    setTestimonialImages([])
+    setTestimonialPreviews([])
+
+    testimonialVideos.forEach(v => URL.revokeObjectURL(v.previewUrl))
+    setTestimonialVideos([])
+    setTestimonialVideoUrls([])
+    setNewVideoUrlInput("")
+
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
+    if (galleryInputRef.current) galleryInputRef.current.value = ""
+    if (activityInputRef.current) activityInputRef.current.value = ""
+    if (testimonialImageInputRef.current) testimonialImageInputRef.current.value = ""
+    if (testimonialVideoInputRef.current) testimonialVideoInputRef.current.value = ""
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!data.destination_name.trim()) return toast.error("Please enter a destination name")
-    if (data.image.length === 0) return toast.error("Please select at least one image.")
+    
+    const hasAnyImage = thumbnailFile || destinationImages.length > 0
+    if (!hasAnyImage) {
+      return toast.error("Please provide at least a Thumbnail or a Destination Image.")
+    }
 
     setIsLoading(true)
+    setUploadStatusText("Preparing and converting visual assets to WebP...")
     try {
-      const imageUrls = []
       const capitalizedType = data.type.charAt(0).toUpperCase() + data.type.slice(1)
-      const destinationFolder = `destination/${capitalizedType}/${data.destination_name.trim().replace(/\s+/g, '_')}`
+      const safeName = data.destination_name.trim().replace(/\s+/g, '_')
+      const baseFolder = `destination/${capitalizedType}/${safeName}`
 
-      for (const img of data.image) {
-        const uploadImage = await convertImageFileToWebP(img)
+      // Helper function to upload an image converted to WebP
+      const uploadWebpImage = async (file, subfolder, label = "image") => {
+        setUploadStatusText(`Converting ${label} to WebP...`)
+        const webpFile = await convertImageFileToWebP(file)
+        setUploadStatusText(`Deploying ${webpFile.name} to S3...`)
         const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
-          fileName: uploadImage.name,
-          fileType: uploadImage.type,
-          folder: destinationFolder
+          fileName: webpFile.name,
+          fileType: webpFile.type,
+          folder: `${baseFolder}/${subfolder}`
         })
         const { uploadUrl, key } = presignedRes.data
-        await axios.put(uploadUrl, uploadImage, { headers: { "Content-Type": uploadImage.type } })
-        imageUrls.push(key)
+        await axios.put(uploadUrl, webpFile, { headers: { "Content-Type": webpFile.type } })
+        return key
       }
 
+      // Helper function to upload video
+      const uploadVideo = async (file, subfolder) => {
+        setUploadStatusText(`Uploading video ${file.name}...`)
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4'
+        let resolvedType = file.type || `video/${ext}`
+        const presignedRes = await apiClient.post("/admin/generate-presigned-url", {
+          fileName: file.name,
+          fileType: resolvedType,
+          folder: `${baseFolder}/${subfolder}`
+        })
+        const { uploadUrl, key } = presignedRes.data
+        await axios.put(uploadUrl, file, { headers: { "Content-Type": resolvedType } })
+        return key
+      }
+
+      // 1. Upload Thumbnail
+      let uploadedThumbnailKey = null
+      if (thumbnailFile) {
+        uploadedThumbnailKey = await uploadWebpImage(thumbnailFile, "thumbnail", "Thumbnail")
+      }
+
+      // 2. Upload Destination Gallery Images
+      const uploadedDestinationKeys = []
+      for (let i = 0; i < destinationImages.length; i++) {
+        setUploadStatusText(`Uploading Destination photo ${i + 1} of ${destinationImages.length}...`)
+        const k = await uploadWebpImage(destinationImages[i], "destination_images", `Destination Photo ${i + 1}`)
+        uploadedDestinationKeys.push(k)
+      }
+
+      // 3. Upload Activity Images
+      const uploadedActivityKeys = []
+      for (let i = 0; i < activityImages.length; i++) {
+        setUploadStatusText(`Uploading Activity photo ${i + 1} of ${activityImages.length}...`)
+        const k = await uploadWebpImage(activityImages[i], "activities", `Activity Photo ${i + 1}`)
+        uploadedActivityKeys.push(k)
+      }
+
+      // 4. Upload Testimonial Images
+      const uploadedReviewImageKeys = []
+      for (let i = 0; i < testimonialImages.length; i++) {
+        setUploadStatusText(`Uploading Testimonial photo ${i + 1} of ${testimonialImages.length}...`)
+        const k = await uploadWebpImage(testimonialImages[i], "testimonials/images", `Testimonial Photo ${i + 1}`)
+        uploadedReviewImageKeys.push(k)
+      }
+
+      // 5. Upload Testimonial Videos
+      const uploadedVideoKeys = []
+      for (let i = 0; i < testimonialVideos.length; i++) {
+        setUploadStatusText(`Uploading Testimonial video ${i + 1} of ${testimonialVideos.length}...`)
+        const k = await uploadVideo(testimonialVideos[i].file, "testimonials/videos")
+        uploadedVideoKeys.push(k)
+      }
+
+      const allVideoAssets = [...uploadedVideoKeys, ...testimonialVideoUrls]
+      const fallbackThumbnail = uploadedThumbnailKey || uploadedDestinationKeys[0] || ""
+      const combinedTitleImages = [uploadedThumbnailKey, ...uploadedDestinationKeys].filter(Boolean)
+
+      setUploadStatusText("Saving destination record...")
       const payload = {
         type: data.type,
         destination_name: data.destination_name.trim(),
         destination_type: data.destination_type,
-        title_image: imageUrls,
+        destination_thumbnail: fallbackThumbnail ? [fallbackThumbnail] : [],
+        destination_images: uploadedDestinationKeys,
+        activity_images: uploadedActivityKeys,
+        testimonial_images: uploadedReviewImageKeys,
+        testimonial_videos: allVideoAssets,
+        title_image: combinedTitleImages,
+        show_image: combinedTitleImages,
         best_time: data.best_time.trim(),
         ideal_duration: data.ideal_duration.trim(),
         short_description: data.short_description.trim()
@@ -165,24 +378,22 @@ const CreateDestination = () => {
 
       const result = await createDestination(payload)
       if (result && result.success !== false) {
-        imagePreviews.forEach((p) => URL.revokeObjectURL(p.url))
-        setImagePreviews([])
+        clearAllPreviews()
         setData({
           type: data.type,
           destination_name: "",
           destination_type: [],
-          image: [],
           best_time: "",
           ideal_duration: "",
           short_description: ""
         })
-        if (fileInputRef.current) fileInputRef.current.value = ""
         fetchCounts()
       }
     } catch (err) {
       toast.error(err.response?.data?.msg || "Failed to save destination.")
     } finally {
       setIsLoading(false)
+      setUploadStatusText("")
     }
   }
 
@@ -414,117 +625,588 @@ const CreateDestination = () => {
           </div>
         </div>
 
-        {/* 2. VISUAL ASSETS CARD (THIRD SCREENSHOT) */}
+        {/* 2. VISUAL ASSETS CARD WITH PARTITIONS */}
         <div className={cardStyle}>
-          <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800/80">
             <div className="flex items-center gap-3.5">
               <div className="size-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 shrink-0">
                 <ImageIcon size={22} />
               </div>
               <div>
                 <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  Visual Assets
+                  Visual Assets & Partitions
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
-                  High-resolution cover and gallery
+                  Thumbnail • Destination Gallery • Activities • Testimonials (Photos & Videos)
                 </p>
               </div>
             </div>
 
-            <span className="px-3.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
-              {data.image.length} {data.image.length === 1 ? "IMAGE" : "IMAGES"}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                {(thumbnailFile ? 1 : 0) + destinationImages.length + activityImages.length + testimonialImages.length + testimonialVideos.length + testimonialVideoUrls.length} TOTAL ASSETS
+              </span>
+            </div>
           </div>
 
-          {/* UPLOAD DROPZONE */}
-          <label className="group relative block w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#050A17]/60 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/15 cursor-pointer p-10 transition-all text-center">
-            <div className="flex flex-col items-center justify-center">
-              <div className="size-14 bg-white dark:bg-[#080E21] rounded-2xl flex items-center justify-center shadow-md dark:shadow-lg group-hover:scale-110 transition-transform mb-3.5 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
-                <UploadCloud size={28} />
-              </div>
-              <p className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-                {data.image.length > 0
-                  ? `${data.image.length} Assets Selected`
-                  : "DEPLOY VISUAL ASSETS"}
-              </p>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-                Multi-upload supported • Auto WebP optimized
-              </p>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              name="image"
-              multiple
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files) {
-                  handleImageFilesChange(Array.from(e.target.files))
-                }
-              }}
-              hidden
-            />
-          </label>
-
-          {/* PREVIEW THUMBNAILS */}
-          {imagePreviews.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Selected Photos ({imagePreviews.length}):
-                </span>
+          {/* ─── PARTITION TABS SELECTOR ─── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 p-1.5 rounded-2xl bg-slate-100/80 dark:bg-[#050A17] border border-slate-200/80 dark:border-slate-800">
+            {[
+              {
+                id: "thumbnail",
+                label: "Thumbnail",
+                subtitle: "Destination Cover",
+                icon: ImageIcon,
+                count: thumbnailFile ? 1 : 0
+              },
+              {
+                id: "destination_images",
+                label: "Destination Images",
+                subtitle: "Scenery Gallery",
+                icon: Building2,
+                count: destinationImages.length
+              },
+              {
+                id: "activities",
+                label: "Activities",
+                subtitle: "Things to Do",
+                icon: Compass,
+                count: activityImages.length
+              },
+              {
+                id: "testimonials",
+                label: "Testimonials",
+                subtitle: "Images & Videos",
+                icon: Film,
+                count: testimonialImages.length + testimonialVideos.length + testimonialVideoUrls.length
+              }
+            ].map((part) => {
+              const IconComp = part.icon
+              const isActive = activePartition === part.id
+              return (
                 <button
+                  key={part.id}
                   type="button"
-                  onClick={() => {
-                    imagePreviews.forEach((p) => URL.revokeObjectURL(p.url))
-                    setImagePreviews([])
-                    setData((prev) => ({ ...prev, image: [] }))
-                    if (fileInputRef.current) fileInputRef.current.value = ""
-                  }}
-                  className="text-xs font-bold text-red-500 dark:text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                  onClick={() => setActivePartition(part.id)}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-3.5 rounded-xl transition-all cursor-pointer text-left ${
+                    isActive
+                      ? "bg-white dark:bg-[#091126] text-slate-900 dark:text-white shadow-md border border-indigo-500/30 ring-2 ring-indigo-500/20"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-900/40"
+                  }`}
                 >
-                  Clear All
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        isActive
+                          ? "bg-indigo-600 text-white"
+                          : "bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <IconComp size={16} />
+                    </div>
+                    <div className="truncate">
+                      <p className="text-xs font-bold leading-tight truncate">{part.label}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate hidden sm:block">
+                        {part.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`mt-1 sm:mt-0 text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                      part.count > 0
+                        ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400"
+                        : "bg-slate-200/60 dark:bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    {part.count}
+                  </span>
                 </button>
+              )
+            })}
+          </div>
+
+          {/* ─── TAB 1: DESTINATION THUMBNAIL ─── */}
+          {activePartition === "thumbnail" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <ImageIcon size={16} className="text-indigo-500" />
+                    Thumbnail of Destination (Primary Cover)
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    This image will represent the destination across listing cards, search results, and hero banners.
+                  </p>
+                </div>
+                {thumbnailPreview && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveThumbnail}
+                    className="text-xs font-bold text-red-500 hover:text-red-600 cursor-pointer transition-colors"
+                  >
+                    Remove Cover
+                  </button>
+                )}
               </div>
 
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-56 overflow-y-auto p-1 custom-scrollbar">
-                {imagePreviews.map((preview, idx) => (
-                  <div
-                    key={idx}
-                    className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 group shadow-sm bg-slate-100 dark:bg-[#050A17]"
-                  >
-                    <img
-                      src={preview.url}
-                      alt={preview.name}
-                      className="w-full h-full object-cover"
-                    />
-                    {idx === 0 && (
-                      <span className="absolute bottom-1.5 left-1.5 bg-indigo-600/90 text-[9px] font-bold text-white px-2 py-0.5 rounded-md">
-                        Cover
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(idx)}
-                      className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
-                      title="Remove image"
-                    >
-                      <X size={12} />
-                    </button>
+              {thumbnailPreview ? (
+                <div className="relative max-w-md aspect-[16/9] rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-md group bg-slate-900">
+                  <img
+                    src={thumbnailPreview.url}
+                    alt={thumbnailPreview.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2.5 left-2.5 bg-indigo-600 text-[10px] font-bold text-white px-2.5 py-1 rounded-md shadow">
+                    Primary Cover
                   </div>
-                ))}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl flex items-center justify-between">
+                    <span className="truncate max-w-[200px]">{thumbnailPreview.name}</span>
+                    <span>{thumbnailPreview.size} MB</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveThumbnail}
+                    className="absolute top-2.5 right-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                    title="Remove Thumbnail"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <label className="group relative block w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#050A17]/60 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/15 cursor-pointer p-8 sm:p-10 transition-all text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="size-14 bg-white dark:bg-[#080E21] rounded-2xl flex items-center justify-center shadow-md dark:shadow-lg group-hover:scale-110 transition-transform mb-3.5 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                      <UploadCloud size={28} />
+                    </div>
+                    <p className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                      Upload Destination Thumbnail
+                    </p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
+                      High-resolution landscape image • Auto WebP optimized
+                    </p>
+                  </div>
+                  <input
+                    ref={thumbnailInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) handleThumbnailChange(e.target.files[0])
+                    }}
+                    hidden
+                  />
+                </label>
+              )}
+            </div>
+          )}
+
+          {/* ─── TAB 2: DESTINATION IMAGES (GALLERY) ─── */}
+          {activePartition === "destination_images" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <Building2 size={16} className="text-indigo-500" />
+                    Destination Images (Gallery & Scenery)
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Upload panoramic and landmark photographs for this destination's main image gallery.
+                  </p>
+                </div>
+                {destinationImages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      destinationPreviews.forEach((p) => URL.revokeObjectURL(p.url))
+                      setDestinationPreviews([])
+                      setDestinationImages([])
+                      if (galleryInputRef.current) galleryInputRef.current.value = ""
+                    }}
+                    className="text-xs font-bold text-red-500 hover:text-red-600 cursor-pointer transition-colors"
+                  >
+                    Clear All ({destinationImages.length})
+                  </button>
+                )}
               </div>
+
+              <label className="group relative block w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#050A17]/60 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/15 cursor-pointer p-7 transition-all text-center">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="size-12 bg-white dark:bg-[#080E21] rounded-2xl flex items-center justify-center shadow-md dark:shadow-lg group-hover:scale-110 transition-transform mb-2.5 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                    <UploadCloud size={24} />
+                  </div>
+                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                    {destinationImages.length > 0
+                      ? `${destinationImages.length} Gallery Photos Selected - Add More`
+                      : "Upload Destination Gallery Images"}
+                  </p>
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                    Multi-upload supported • Auto WebP optimized
+                  </p>
+                </div>
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) handleDestinationImagesChange(Array.from(e.target.files))
+                  }}
+                  hidden
+                />
+              </label>
+
+              {destinationPreviews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-64 overflow-y-auto p-1 custom-scrollbar">
+                  {destinationPreviews.map((preview, idx) => (
+                    <div
+                      key={idx}
+                      className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 group shadow-sm bg-slate-100 dark:bg-[#050A17]"
+                    >
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDestinationImage(idx)}
+                        className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                        title="Remove image"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── TAB 3: ACTIVITIES IMAGES ─── */}
+          {activePartition === "activities" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <Compass size={16} className="text-indigo-500" />
+                    Activities & Experiences
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Showcase specific adventures, water sports, sightseeing, and unique couple activities for this destination.
+                  </p>
+                </div>
+                {activityImages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      activityPreviews.forEach((p) => URL.revokeObjectURL(p.url))
+                      setActivityPreviews([])
+                      setActivityImages([])
+                      if (activityInputRef.current) activityInputRef.current.value = ""
+                    }}
+                    className="text-xs font-bold text-red-500 hover:text-red-600 cursor-pointer transition-colors"
+                  >
+                    Clear All ({activityImages.length})
+                  </button>
+                )}
+              </div>
+
+              <label className="group relative block w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#050A17]/60 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/15 cursor-pointer p-7 transition-all text-center">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="size-12 bg-white dark:bg-[#080E21] rounded-2xl flex items-center justify-center shadow-md dark:shadow-lg group-hover:scale-110 transition-transform mb-2.5 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                    <UploadCloud size={24} />
+                  </div>
+                  <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                    {activityImages.length > 0
+                      ? `${activityImages.length} Activity Photos Selected - Add More`
+                      : "Upload Activity & Adventure Photos"}
+                  </p>
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                    Multi-upload supported • Auto WebP optimized
+                  </p>
+                </div>
+                <input
+                  ref={activityInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) handleActivityImagesChange(Array.from(e.target.files))
+                  }}
+                  hidden
+                />
+              </label>
+
+              {activityPreviews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-64 overflow-y-auto p-1 custom-scrollbar">
+                  {activityPreviews.map((preview, idx) => (
+                    <div
+                      key={idx}
+                      className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 group shadow-sm bg-slate-100 dark:bg-[#050A17]"
+                    >
+                      <img
+                        src={preview.url}
+                        alt={preview.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveActivityImage(idx)}
+                        className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                        title="Remove activity image"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── TAB 4: TESTIMONIALS (TWO OPTIONS: IMAGE / VIDEOS) ─── */}
+          {activePartition === "testimonials" && (
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <Film size={16} className="text-indigo-500" />
+                    Testimonials & Couple Reviews
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Add customer reviews for this destination. Choose between Photo Stories or Video Testimonials.
+                  </p>
+                </div>
+
+                {/* TWO OPTIONS SWITCHER */}
+                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#050A17] p-1 rounded-xl border border-slate-200 dark:border-slate-800/80 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setTestimonialMode("image")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      testimonialMode === "image"
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <ImageIcon size={13} />
+                    <span>Images ({testimonialImages.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTestimonialMode("video")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      testimonialMode === "video"
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <Video size={13} />
+                    <span>Videos ({testimonialVideos.length + testimonialVideoUrls.length})</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* TESTIMONIAL OPTION A: IMAGES */}
+              {testimonialMode === "image" && (
+                <div className="space-y-4">
+                  <label className="group relative block w-full rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#050A17]/60 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/15 cursor-pointer p-7 transition-all text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="size-12 bg-white dark:bg-[#080E21] rounded-2xl flex items-center justify-center shadow-md dark:shadow-lg group-hover:scale-110 transition-transform mb-2.5 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                        <UploadCloud size={24} />
+                      </div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+                        {testimonialImages.length > 0
+                          ? `${testimonialImages.length} Testimonial Photos Selected - Add More`
+                          : "Upload Traveler Photo Testimonials"}
+                      </p>
+                      <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                        Real traveler moments & couple photos • Auto WebP optimized
+                      </p>
+                    </div>
+                    <input
+                      ref={testimonialImageInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files) handleTestimonialImagesChange(Array.from(e.target.files))
+                      }}
+                      hidden
+                    />
+                  </label>
+
+                  {testimonialPreviews.length > 0 && (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-64 overflow-y-auto p-1 custom-scrollbar">
+                      {testimonialPreviews.map((preview, idx) => (
+                        <div
+                          key={idx}
+                          className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 group shadow-sm bg-slate-100 dark:bg-[#050A17]"
+                        >
+                          <img
+                            src={preview.url}
+                            alt={preview.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTestimonialImage(idx)}
+                            className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                            title="Remove testimonial image"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TESTIMONIAL OPTION B: VIDEOS */}
+              {testimonialMode === "video" && (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* VIDEO FILE UPLOAD */}
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#050A17]/80 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        <Video size={15} className="text-indigo-500" />
+                        <span>Upload Video Files</span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Upload short couple reels or feedback clips (MP4, WebM, MOV, MKV).
+                      </p>
+
+                      <label className="block w-full border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 rounded-xl p-4 text-center cursor-pointer transition-all bg-white dark:bg-[#080E21]">
+                        <UploadCloud size={20} className="mx-auto text-indigo-500 mb-1" />
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                          Select Video File
+                        </span>
+                        <input
+                          ref={testimonialVideoInputRef}
+                          type="file"
+                          multiple
+                          accept="video/*,.mp4,.webm,.mov,.mkv,.avi"
+                          onChange={(e) => {
+                            if (e.target.files) handleTestimonialVideoFilesChange(Array.from(e.target.files))
+                          }}
+                          hidden
+                        />
+                      </label>
+                    </div>
+
+                    {/* VIDEO URL INPUT */}
+                    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#050A17]/80 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        <LinkIcon size={15} className="text-indigo-500" />
+                        <span>External Video Link</span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Add direct video link, YouTube, or Vimeo embed URL.
+                      </p>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={newVideoUrlInput}
+                          onChange={(e) => setNewVideoUrlInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              handleAddVideoUrl()
+                            }
+                          }}
+                          placeholder="https://youtu.be/... or .mp4 URL"
+                          className={`${inputStyle} py-2.5 text-xs`}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddVideoUrl}
+                          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shrink-0 cursor-pointer transition-colors shadow-sm"
+                        >
+                          Add Link
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* VIDEO PREVIEWS LIST */}
+                  {(testimonialVideos.length > 0 || testimonialVideoUrls.length > 0) && (
+                    <div className="space-y-3 pt-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Selected Video Testimonials ({testimonialVideos.length + testimonialVideoUrls.length}):
+                      </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {/* Uploaded File Previews */}
+                        {testimonialVideos.map((v, idx) => (
+                          <div
+                            key={`v-file-${idx}`}
+                            className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900 group p-2 space-y-2 shadow-sm"
+                          >
+                            <video
+                              src={v.previewUrl}
+                              className="w-full aspect-video rounded-xl object-cover bg-black"
+                              controls
+                            />
+                            <div className="flex items-center justify-between px-1 text-white text-xs">
+                              <span className="truncate max-w-[160px] font-semibold text-[11px]">{v.name}</span>
+                              <span className="text-[10px] text-slate-400">{v.size} MB</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTestimonialVideo(idx)}
+                              className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow transition-all cursor-pointer opacity-90 group-hover:opacity-100"
+                              title="Remove video"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Video URL Previews */}
+                        {testimonialVideoUrls.map((url, idx) => (
+                          <div
+                            key={`v-url-${idx}`}
+                            className="relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#080E21] p-3 flex items-center justify-between gap-2 shadow-sm"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="size-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                                <Film size={16} />
+                              </div>
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                {url}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveVideoUrl(idx)}
+                              className="text-red-500 hover:text-red-600 p-1 cursor-pointer transition-colors"
+                              title="Remove link"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* ACTION SUMMARY & SUBMIT BUTTON */}
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400 gap-2">
               <span className="flex items-center gap-1.5">
                 <Compass size={14} className="text-blue-600 dark:text-blue-400" /> Active Scope:
+                <span className="uppercase text-blue-600 dark:text-blue-400 font-bold tracking-wider ml-1">
+                  {data.type} DESTINATION
+                </span>
               </span>
-              <span className="uppercase text-blue-600 dark:text-blue-400 font-bold tracking-wider">
-                {data.type} DESTINATION
+
+              <span className="text-[11px] text-slate-400">
+                {thumbnailFile ? "✓ Thumbnail" : "○ No Thumbnail"} • {destinationImages.length} Gallery • {activityImages.length} Activities • {testimonialImages.length + testimonialVideos.length + testimonialVideoUrls.length} Testimonials
               </span>
             </div>
 
@@ -536,7 +1218,7 @@ const CreateDestination = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  <span>Synchronizing Asset Hub...</span>
+                  <span>{uploadStatusText || "Synchronizing Asset Hub..."}</span>
                 </>
               ) : (
                 <>

@@ -6,12 +6,15 @@ import { useActivityStore } from "../../stores/useActivityStore";
 import {
   ActivityCoreDetailsSection,
   ActivityPricingSection,
+  ActivityPackageOptionsSection,
   ActivityMediaSection,
   ActivityHighlightsSection,
   ActivityOperatingHoursSection,
   ActivityGuidelinesSection,
   ActivityLocationMapSection,
   ActivityPolicySection,
+  ActivityReviewsSection,
+  ActivityFaqSection,
 } from "./components";
 
 const CreateActivity = () => {
@@ -37,6 +40,7 @@ const CreateActivity = () => {
       price_unit: "per person",
       currency: "INR",
     },
+    package_options: [],
     highlights: [],
     operating_hours: {
       location_name: "",
@@ -52,6 +56,9 @@ const CreateActivity = () => {
     },
     website_link: "",
     cancellation_policy: [],
+    terms_and_conditions: [],
+    faqs: [],
+    reviews: [],
     cover_image: "",
     gallery_images: [],
     badges: ["Mobile Tickets", "Best Price Guaranteed", "Travellers Choice"],
@@ -90,6 +97,7 @@ const CreateActivity = () => {
             price_unit: data.pricing?.price_unit || "per person",
             currency: data.pricing?.currency || "INR",
           },
+          package_options: Array.isArray(data.package_options) ? data.package_options : [],
           highlights: data.highlights || [],
           operating_hours: {
             location_name: data.operating_hours?.location_name || "",
@@ -109,6 +117,13 @@ const CreateActivity = () => {
             : (typeof data.cancellation_policy === "string" && data.cancellation_policy.trim()
               ? data.cancellation_policy.split("\n").map((s) => s.trim()).filter(Boolean)
               : []),
+          terms_and_conditions: Array.isArray(data.terms_and_conditions)
+            ? data.terms_and_conditions
+            : (typeof data.terms_and_conditions === "string" && data.terms_and_conditions.trim()
+              ? data.terms_and_conditions.split("\n").map((s) => s.trim()).filter(Boolean)
+              : []),
+          faqs: Array.isArray(data.faqs) ? data.faqs : [],
+          reviews: Array.isArray(data.reviews) ? data.reviews : [],
           cover_image: data.cover_image || "",
           gallery_images: data.gallery_images || [],
           badges: data.badges || ["Mobile Tickets", "Best Price Guaranteed", "Travellers Choice"],
@@ -341,6 +356,12 @@ const CreateActivity = () => {
           errors={errors}
         />
 
+        <ActivityPackageOptionsSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          styles={styles}
+        />
+
         <ActivityMediaSection
           formData={formData}
           handleInputChange={handleInputChange}
@@ -375,6 +396,18 @@ const CreateActivity = () => {
         />
 
         <ActivityPolicySection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          styles={styles}
+        />
+
+        <ActivityFaqSection
+          formData={formData}
+          handleInputChange={handleInputChange}
+          styles={styles}
+        />
+
+        <ActivityReviewsSection
           formData={formData}
           handleInputChange={handleInputChange}
           styles={styles}
