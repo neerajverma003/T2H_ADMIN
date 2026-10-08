@@ -5,7 +5,6 @@ import { ArrowLeft, Save, Loader2, Compass } from "lucide-react";
 import { useActivityStore } from "../../stores/useActivityStore";
 import {
   ActivityCoreDetailsSection,
-  ActivityPricingSection,
   ActivityPackageOptionsSection,
   ActivityMediaSection,
   ActivityHighlightsSection,
@@ -40,7 +39,22 @@ const CreateActivity = () => {
       price_unit: "per person",
       currency: "INR",
     },
-    package_options: [],
+    package_options: [
+      {
+        title: "Standard Admission Pass",
+        description: "",
+        duration: "",
+        selling_price: "",
+        original_price: "",
+        price_unit: "per person",
+        discount_label: "",
+        age_policy: "",
+        image: "",
+        inclusions: [],
+        exclusions: [],
+        is_default: true,
+      },
+    ],
     highlights: [],
     operating_hours: {
       location_name: "",
@@ -82,6 +96,40 @@ const CreateActivity = () => {
     const loadActivity = async () => {
       const data = await fetchActivityById(id);
       if (data) {
+        const existingPackages =
+          Array.isArray(data.package_options) && data.package_options.length > 0
+            ? data.package_options
+            : [
+                {
+                  title: "Standard Admission Pass",
+                  description: "",
+                  duration: data.duration || "",
+                  selling_price: data.pricing?.selling_price ?? "",
+                  original_price: data.pricing?.original_price ?? "",
+                  discount_label: data.pricing?.discount_label || "",
+                  price_unit: data.pricing?.price_unit || "per person",
+                  age_policy: "",
+                  image: "",
+                  inclusions: [],
+                  exclusions: [],
+                  is_default: true,
+                },
+              ];
+
+        // Ensure lowest price package has is_default: true
+        let minIdx = 0;
+        let minPrice = Infinity;
+        existingPackages.forEach((p, idx) => {
+          const price = Number(p.selling_price);
+          if (!isNaN(price) && price > 0 && price < minPrice) {
+            minPrice = price;
+            minIdx = idx;
+          }
+        });
+        existingPackages.forEach((p, idx) => {
+          p.is_default = idx === minIdx;
+        });
+
         setFormData({
           title: data.title || "",
           short_description: data.short_description || data.description || "",
@@ -97,7 +145,7 @@ const CreateActivity = () => {
             price_unit: data.pricing?.price_unit || "per person",
             currency: data.pricing?.currency || "INR",
           },
-          package_options: Array.isArray(data.package_options) ? data.package_options : [],
+          package_options: existingPackages,
           highlights: data.highlights || [],
           operating_hours: {
             location_name: data.operating_hours?.location_name || "",
@@ -202,14 +250,18 @@ const CreateActivity = () => {
     const errs = {};
     if (!formData.title?.trim()) errs.title = "Activity title is required";
     if (!formData.selected_destination) errs.selected_destination = "Destination is required";
-    if (
-      formData.pricing?.selling_price === "" ||
-      formData.pricing?.selling_price === undefined ||
-      Number(formData.pricing?.selling_price) < 0
-    ) {
-      errs.selling_price = "Valid selling price is required";
-    }
     if (!formData.cover_image?.trim()) errs.cover_image = "Cover image is required";
+
+    if (!Array.isArray(formData.package_options) || formData.package_options.length === 0) {
+      errs.package_options = "At least one package option is required";
+    } else {
+      const firstInvalid = formData.package_options.find(
+        (p) => !p.title?.trim() || p.selling_price === "" || Number(p.selling_price) < 0
+      );
+      if (firstInvalid) {
+        errs.package_options = "Each package option must have a title and a valid selling price";
+      }
+    }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -233,18 +285,52 @@ const CreateActivity = () => {
       return;
     }
 
+    const options = formData.package_options || [];
+    const validPkgs = options.filter(
+      (p) => !isNaN(Number(p.selling_price)) && Number(p.selling_price) > 0
+    );
+    const lowestPkg =
+      validPkgs.length > 0
+        ? [...validPkgs].sort(
+            (a, b) => (Number(a.selling_price) || 0) - (Number(b.selling_price) || 0)
+          )[0]
+        : options.find((p) => p.is_default) || options[0] || null;
+
+    // Ensure lowestPkg is default in package options payload
+    const normalizedOptions = options.map((p) => ({
+      ...p,
+      is_default: lowestPkg
+        ? p === lowestPkg ||
+          (p._id && lowestPkg._id && String(p._id) === String(lowestPkg._id)) ||
+          p.title === lowestPkg.title
+        : Boolean(p.is_default),
+    }));
+
+    const derivedPricing = lowestPkg
+      ? {
+          selling_price: Number(lowestPkg.selling_price) || 0,
+          original_price: Number(lowestPkg.original_price) || 0,
+          discount_label: lowestPkg.discount_label || "",
+          price_unit: lowestPkg.price_unit || "per person",
+          currency: "INR",
+        }
+      : {
+          selling_price: 0,
+          original_price: 0,
+          discount_label: "",
+          price_unit: "per person",
+          currency: "INR",
+        };
+
     const payload = {
       ...formData,
+      package_options: normalizedOptions,
       location_details: {
         ...formData.location_details,
         map_embed_url: extractIframeSrc(formData.location_details?.map_embed_url),
         map_link: extractIframeSrc(formData.location_details?.map_link),
       },
-      pricing: {
-        ...formData.pricing,
-        selling_price: Number(formData.pricing.selling_price),
-        original_price: Number(formData.pricing.original_price) || 0,
-      },
+      pricing: derivedPricing,
     };
 
     let res;
@@ -349,17 +435,11 @@ const CreateActivity = () => {
           errors={errors}
         />
 
-        <ActivityPricingSection
-          formData={formData}
-          handlePricingChange={handlePricingChange}
-          styles={styles}
-          errors={errors}
-        />
-
         <ActivityPackageOptionsSection
           formData={formData}
           handleInputChange={handleInputChange}
           styles={styles}
+          errors={errors}
         />
 
         <ActivityMediaSection

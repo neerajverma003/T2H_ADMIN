@@ -9,19 +9,12 @@ export const ActivityPolicySection = ({
   const { cardStyle, labelStyle, inputStyle } = styles;
   const [newBadge, setNewBadge] = useState("");
   const [newPolicy, setNewPolicy] = useState("");
-  const [newTerm, setNewTerm] = useState("");
 
   const badges = formData.badges || [];
   const policies = Array.isArray(formData.cancellation_policy)
     ? formData.cancellation_policy
     : (typeof formData.cancellation_policy === "string" && formData.cancellation_policy.trim()
         ? formData.cancellation_policy.split("\n").map((s) => s.trim()).filter(Boolean)
-        : []);
-
-  const terms = Array.isArray(formData.terms_and_conditions)
-    ? formData.terms_and_conditions
-    : (typeof formData.terms_and_conditions === "string" && formData.terms_and_conditions.trim()
-        ? formData.terms_and_conditions.split("\n").map((s) => s.trim()).filter(Boolean)
         : []);
 
   const handleAddBadge = (e) => {
@@ -54,25 +47,6 @@ export const ActivityPolicySection = ({
     const updated = [...policies];
     updated[index] = value;
     handleInputChange({ target: { name: "cancellation_policy", value: updated } });
-  };
-
-  const handleAddTerm = (e) => {
-    e?.preventDefault();
-    if (!newTerm.trim()) return;
-    const updated = [...terms, newTerm.trim()];
-    handleInputChange({ target: { name: "terms_and_conditions", value: updated } });
-    setNewTerm("");
-  };
-
-  const handleRemoveTerm = (index) => {
-    const updated = terms.filter((_, idx) => idx !== index);
-    handleInputChange({ target: { name: "terms_and_conditions", value: updated } });
-  };
-
-  const handleUpdateTerm = (index, value) => {
-    const updated = [...terms];
-    updated[index] = value;
-    handleInputChange({ target: { name: "terms_and_conditions", value: updated } });
   };
 
   return (
@@ -221,79 +195,6 @@ export const ActivityPolicySection = ({
           ) : (
             <div className="py-6 text-center text-xs font-semibold text-slate-500 italic bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/90">
               No cancellation policy terms added yet. Add a few rules to inform travelers about refund conditions!
-            </div>
-          )}
-        </div>
-
-        {/* 3. General Terms & Conditions */}
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 shadow-inner space-y-4">
-          <div className="flex items-center justify-between">
-            <label className={labelStyle}>
-              <FileText size={14} className="text-indigo-400" />
-              <span>Terms & Conditions (Rules & Regulations)</span>
-            </label>
-            <span className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-wider">
-              {terms.length} Terms
-            </span>
-          </div>
-
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Specify mandatory entry conditions, voucher validity, ID requirements, and behavior guidelines.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            <input
-              type="text"
-              value={newTerm}
-              onChange={(e) => setNewTerm(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddTerm();
-                }
-              }}
-              placeholder="e.g. Valid government ID proof is mandatory at entry for all guests."
-              className={`${inputStyle} flex-1`}
-            />
-            <button
-              type="button"
-              onClick={handleAddTerm}
-              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 text-white rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 cursor-pointer transition-all active:scale-95 shrink-0"
-            >
-              <Plus size={16} /> Add Rule
-            </button>
-          </div>
-
-          {terms.length > 0 ? (
-            <div className="space-y-3">
-              {terms.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#050A17] border border-slate-200 dark:border-slate-800/90 group hover:border-indigo-500/40 transition-colors shadow-inner"
-                >
-                  <span className="w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-black flex items-center justify-center shrink-0">
-                    {index + 1}
-                  </span>
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => handleUpdateTerm(index, e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-slate-900 dark:text-white font-medium focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTerm(index)}
-                    className="text-slate-500 hover:text-red-400 transition-colors p-1.5 cursor-pointer"
-                    title="Remove rule"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-6 text-center text-xs font-semibold text-slate-500 italic bg-slate-50 dark:bg-[#050A17] rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/90">
-              No specific terms and conditions added yet.
             </div>
           )}
         </div>

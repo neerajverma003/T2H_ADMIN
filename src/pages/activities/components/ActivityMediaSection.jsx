@@ -141,26 +141,34 @@ export const ActivityMediaSection = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Cover Image Section */}
+      <div className="space-y-8 pt-2">
+        {/* 1. Primary Cover Photo (Top, Full Width) */}
         <div>
-          <label className={labelStyle}>
-            Primary Cover Photo <span className="text-red-400">*</span>
-          </label>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-            Main display image shown on search cards and top of details page.
+          <div className="flex items-center justify-between mb-1.5">
+            <label className={labelStyle}>
+              <span>Primary Cover Photo</span> <span className="text-red-400">*</span>
+            </label>
+            {formData.cover_image && (
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <Check size={11} /> Cover Active
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3.5">
+            Main display image shown on search cards, destination highlights, and hero header of the activity page.
           </p>
 
           {formData.cover_image ? (
-            <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-64 shadow-inner">
+            <div className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-64 sm:h-72 md:h-80 shadow-inner">
               <img
                 src={getImagePreviewUrl(formData.cover_image)}
                 alt="Activity Cover"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                <label className="px-4 py-2 bg-white text-slate-900 font-bold rounded-xl text-xs cursor-pointer shadow-lg hover:bg-slate-100 transition-colors">
-                  Replace Photo
+                <label className="px-4 py-2.5 bg-white text-slate-900 font-bold rounded-xl text-xs cursor-pointer shadow-lg hover:bg-slate-100 transition-colors flex items-center gap-1.5">
+                  <UploadCloud size={15} />
+                  <span>Replace Photo</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -173,9 +181,10 @@ export const ActivityMediaSection = ({
                   onClick={() =>
                     handleInputChange({ target: { name: "cover_image", value: "" } })
                   }
-                  className="px-4 py-2 bg-red-600 text-white font-bold rounded-xl text-xs shadow-lg hover:bg-red-700 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-lg transition-colors cursor-pointer flex items-center gap-1.5"
                 >
-                  Remove
+                  <X size={15} />
+                  <span>Remove</span>
                 </button>
               </div>
               <span className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 border border-white/10">
@@ -184,7 +193,7 @@ export const ActivityMediaSection = ({
             </div>
           ) : (
             <label
-              className={`flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center h-56 sm:h-64 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
                 errors.cover_image
                   ? "border-red-500/60 bg-red-500/10"
                   : "border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F]"
@@ -226,41 +235,27 @@ export const ActivityMediaSection = ({
           )}
         </div>
 
-        {/* Gallery Images Section */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className={labelStyle}>Mosaic Gallery Photos</label>
-            <span className="text-xs font-bold text-slate-400">
-              {formData.gallery_images?.length || 0} Photos Added
-            </span>
+        {/* 2. Mosaic Gallery Photos (Bottom with space) */}
+        <div className="pt-8 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <label className={labelStyle}>
+                <span>Mosaic Gallery Photos</span>
+              </label>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Upload multiple photos for the experience gallery (supporting multiple file selection with automatic WebP conversion).
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              <span className="px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-[11px] font-black uppercase tracking-wider">
+                {formData.gallery_images?.length || 0} Photos Added
+              </span>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-            Upload multiple photos for the 5-image mosaic grid (matching Thrillophilia style).
-          </p>
 
-          <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto p-1 custom-scrollbar">
-            {formData.gallery_images?.map((imgKey, index) => (
-              <div
-                key={index}
-                className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-28 shadow-inner"
-              >
-                <img
-                  src={getImagePreviewUrl(imgKey)}
-                  alt={`Gallery ${index}`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveGalleryImage(index)}
-                  className="absolute top-1.5 right-1.5 p-1 bg-red-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md hover:bg-red-700"
-                  title="Remove photo"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 rounded-xl bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F] h-28 cursor-pointer transition-all">
+          {/* Upload Dropzone / Gallery Photos List */}
+          {(!formData.gallery_images || formData.gallery_images.length === 0) ? (
+            <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 rounded-2xl bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F] cursor-pointer transition-all">
               <input
                 type="file"
                 accept="image/*"
@@ -270,20 +265,92 @@ export const ActivityMediaSection = ({
                 className="hidden"
               />
               {isUploadingGallery ? (
-                <div className="flex flex-col items-center gap-1.5 p-2 text-center">
-                  <Loader2 className="animate-spin text-indigo-400" size={18} />
-                  <span className="text-[10px] font-bold text-slate-400">
-                    {galleryProgress || "Uploading..."}
+                <div className="flex flex-col items-center gap-2 p-4 text-center">
+                  <Loader2 className="animate-spin text-indigo-400" size={28} />
+                  <span className="text-xs font-bold text-slate-300">
+                    {galleryProgress || "Converting to WebP & Uploading..."}
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-1 text-center p-2">
-                  <UploadCloud size={18} className="text-indigo-400" />
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Add Photos</span>
+                <div className="flex flex-col items-center gap-2 text-center p-6">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                    <UploadCloud size={22} />
+                  </div>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    Click or drag multiple photos to add to Mosaic Gallery
+                  </span>
+                  <span className="text-xs text-slate-500 font-medium">
+                    PNG, JPG, JPEG (Select multiple images — all auto-converted to WebP)
+                  </span>
                 </div>
               )}
             </label>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
+                {formData.gallery_images.map((imgKey, index) => (
+                  <div
+                    key={index}
+                    className="relative group rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#050A17] h-32 sm:h-36 shadow-xs hover:shadow-md transition-all"
+                  >
+                    <img
+                      src={getImagePreviewUrl(imgKey)}
+                      alt={`Gallery ${index + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {/* Index Badge */}
+                    <span className="absolute top-2 left-2 size-6 rounded-lg bg-black/70 backdrop-blur-md text-white text-[10px] font-black flex items-center justify-center border border-white/10">
+                      {index + 1}
+                    </span>
+                    {/* Remove Action */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveGalleryImage(index)}
+                      className="absolute top-2 right-2 size-7 bg-red-600/90 hover:bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
+                      title="Remove photo"
+                    >
+                      <X size={14} />
+                    </button>
+                    <span className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-[9px] font-bold text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      WebP
+                    </span>
+                  </div>
+                ))}
+
+                {/* Always-accessible Add More Photos Card in the grid */}
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500/60 rounded-2xl bg-slate-50 dark:bg-[#050A17] hover:bg-white dark:hover:bg-[#070D1F] h-32 sm:h-36 cursor-pointer transition-all group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryUpload}
+                    disabled={isUploadingGallery}
+                    className="hidden"
+                  />
+                  {isUploadingGallery ? (
+                    <div className="flex flex-col items-center gap-1.5 p-2 text-center">
+                      <Loader2 className="animate-spin text-indigo-400" size={20} />
+                      <span className="text-[10px] font-bold text-slate-400">
+                        {galleryProgress || "Uploading..."}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-center p-2">
+                      <div className="size-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <UploadCloud size={16} />
+                      </div>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        Add More
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        Multiple files
+                      </span>
+                    </div>
+                  )}
+                </label>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
