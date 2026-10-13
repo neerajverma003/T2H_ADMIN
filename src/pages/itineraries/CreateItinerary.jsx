@@ -495,7 +495,7 @@ const CreateItineriesPage = () => {
             <form onSubmit={handleSubmit} className="flex flex-col gap-10 md:gap-12">
                 <fieldset disabled={isViewMode} className="border-none p-0 m-0 min-w-0 flex flex-col gap-10 md:gap-12">
                     <CoreDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />
-                    <DiscriptionDetailsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
+                    <DiscriptionDetailsSection isViewMode={isViewMode} formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} setFormData={setFormData} />
                     <MediaSection formData={formData} setFormData={setFormData} styles={styleProps} errors={errors} />
                     <DayInfoSection isViewMode={isViewMode} formData={formData} handleArrayChange={handleArrayChange} handleAddItem={handleAddItem} handleRemoveItem={handleRemoveItem} styles={styleProps} errors={errors} />
                     <ProvisionsSection formData={formData} handleInputChange={handleInputChange} styles={styleProps} errors={errors} />

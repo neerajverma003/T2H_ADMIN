@@ -4,108 +4,12 @@ import {
     CreditCard,
     ShieldX,
     Info,
-    ChevronDown,
-    Bold,
-    Italic,
-    Underline,
-    Strikethrough,
-    AlignLeft,
-    List,
-    Link2,
     Sparkles,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { apiClient } from "../../../stores/authStores";
 import { toast } from "react-toastify";
-
-// Helper Toolbar for the rich text editor aesthetic
-const EditorToolbar = () => {
-    return (
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-slate-100 dark:bg-[#081226] border-b border-slate-200 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 select-none overflow-x-auto text-xs">
-            <button
-                type="button"
-                className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold cursor-default"
-                tabIndex="-1"
-            >
-                <span>Normal</span>
-                <ChevronDown size={12} className="text-slate-400" />
-            </button>
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-700/60 shrink-0" />
-            <div className="flex items-center gap-1">
-                <button
-                    type="button"
-                    title="Bold"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold cursor-default"
-                    tabIndex="-1"
-                >
-                    <Bold size={13} />
-                </button>
-                <button
-                    type="button"
-                    title="Italic"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 italic cursor-default"
-                    tabIndex="-1"
-                >
-                    <Italic size={13} />
-                </button>
-                <button
-                    type="button"
-                    title="Underline"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 underline cursor-default"
-                    tabIndex="-1"
-                >
-                    <Underline size={13} />
-                </button>
-                <button
-                    type="button"
-                    title="Strikethrough"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 line-through cursor-default"
-                    tabIndex="-1"
-                >
-                    <Strikethrough size={13} />
-                </button>
-            </div>
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-700/60 shrink-0" />
-            <div className="flex items-center gap-1">
-                <button
-                    type="button"
-                    title="Align Left"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-default"
-                    tabIndex="-1"
-                >
-                    <AlignLeft size={13} />
-                </button>
-                <button
-                    type="button"
-                    title="Bullet List"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-default"
-                    tabIndex="-1"
-                >
-                    <List size={13} />
-                </button>
-            </div>
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-700/60 shrink-0" />
-            <div className="flex items-center gap-1">
-                <button
-                    type="button"
-                    title="Link"
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-default"
-                    tabIndex="-1"
-                >
-                    <Link2 size={13} />
-                </button>
-                <button
-                    type="button"
-                    title="Clear Format"
-                    className="px-1.5 py-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[11px] font-bold cursor-default"
-                    tabIndex="-1"
-                >
-                    Tx
-                </button>
-            </div>
-        </div>
-    );
-};
+import RichTextEditor from "./RichTextEditor";
 
 const DescriptionsSection = ({
     formData,
@@ -113,6 +17,7 @@ const DescriptionsSection = ({
     styles,
     setFormData,
     errors = {},
+    isViewMode = false,
 }) => {
     const { cardStyle, labelStyle, inputStyle } = styles;
 
@@ -205,14 +110,13 @@ const DescriptionsSection = ({
                 <div className={`rounded-2xl border bg-slate-50/90 dark:bg-[#050A17] overflow-hidden transition-all focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30 ${
                     errors.destination_detail ? "border-red-500 ring-1 ring-red-500/40" : "border-slate-200 dark:border-slate-800/90"
                 }`}>
-                    <EditorToolbar />
-                    <textarea
-                        id="destination_detail"
+                    <RichTextEditor
+                        variant="embedded"
                         name="destination_detail"
-                        value={formData.destination_detail}
+                        value={formData.destination_detail || ""}
                         onChange={handleInputChange}
+                        disabled={isViewMode}
                         placeholder="Write a captivating description about the destination..."
-                        className="w-full bg-transparent p-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none resize-none no-scrollbar min-h-[140px] leading-relaxed font-semibold"
                     />
                 </div>
                 {errors.destination_detail && (
@@ -237,14 +141,13 @@ const DescriptionsSection = ({
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-slate-50/90 dark:bg-[#050A17] overflow-hidden transition-all focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/30">
-                    <EditorToolbar />
-                    <textarea
-                        id="about_the_tour"
+                    <RichTextEditor
+                        variant="embedded"
                         name="about_the_tour"
                         value={formData.about_the_tour || ""}
                         onChange={handleInputChange}
+                        disabled={isViewMode}
                         placeholder="Write a detailed description about the tour..."
-                        className="w-full bg-transparent p-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none resize-none no-scrollbar min-h-[140px] leading-relaxed font-semibold"
                     />
                 </div>
             </div>

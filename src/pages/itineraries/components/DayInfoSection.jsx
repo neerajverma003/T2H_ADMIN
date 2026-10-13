@@ -8,19 +8,12 @@ import {
     Plane,
     Camera,
     Navigation,
-    CloudSun,
-    Bold,
-    Italic,
-    Underline,
-    Strikethrough,
-    List,
-    ListOrdered,
-    AlignLeft,
-    Link,
-    Type
+    CloudSun
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import RichTextEditor from "./RichTextEditor";
+
 
 const DayInfoSection = ({
     isViewMode = false,
@@ -214,52 +207,30 @@ const DayInfoSection = ({
                                             </motion.div>
                                         ) : (
                                             <motion.div
-                                                key="editor"
+                                                key={`editor-${currentTab}`}
                                                 initial={{ opacity: 0, x: 10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: -10 }}
                                                 className="min-h-[260px] flex flex-col"
                                             >
-                                                {/* EDITOR TOOLBAR */}
-                                                {!isViewMode && (
-                                                    <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800/80 flex flex-wrap items-center gap-1 bg-slate-100/70 dark:bg-[#050A17]/40">
-                                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mr-3 pr-3 border-r border-slate-200 dark:border-slate-800">Body Text</span>
-                                                        {[Bold, Italic, Underline, Strikethrough].map((Icon, i) => (
-                                                            <button type="button" key={i} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-lg transition-colors cursor-pointer"><Icon size={15} /></button>
-                                                        ))}
-                                                        <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-1.5"></div>
-                                                        {[List, ListOrdered, AlignLeft].map((Icon, i) => (
-                                                            <button type="button" key={i} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-lg transition-colors cursor-pointer"><Icon size={15} /></button>
-                                                        ))}
-                                                        <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-1.5"></div>
-                                                        {[Link, ImageIcon, Type].map((Icon, i) => (
-                                                            <button type="button" key={i} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60 rounded-lg transition-colors cursor-pointer"><Icon size={15} /></button>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* EDITOR CONTENT */}
-                                                <div className="flex-1 p-5">
-                                                    <textarea
-                                                        key={currentTab}
-                                                        disabled={isViewMode}
-                                                        name={
-                                                            currentTab === "Day Itinerary" ? "locationDetail" :
-                                                                currentTab === "Sightseeing" ? "sightseeing" :
-                                                                    currentTab === "Transfer" ? "transfer" :
-                                                                        currentTab === "Weather" ? "weather" : "locationDetail"
-                                                        }
-                                                        value={
-                                                            currentTab === "Day Itinerary" ? item.locationDetail || "" :
-                                                                currentTab === "Sightseeing" ? item.sightseeing || "" :
-                                                                    currentTab === "Transfer" ? item.transfer || "" :
-                                                                        currentTab === "Weather" ? item.weather || "" : item.locationDetail || ""
-                                                        }
-                                                        onChange={(e) => handleArrayChange(e, index, "days_information")}
-                                                        className="w-full h-44 p-4 border border-slate-200 dark:border-slate-800/90 rounded-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 text-slate-900 dark:text-white text-sm leading-relaxed bg-slate-50/80 dark:bg-[#050A17] resize-y placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium outline-none transition-all"
-                                                        placeholder={`Enter your ${currentTab.toLowerCase()} details here...`}
-                                                    />
-                                                </div>
+                                                <RichTextEditor
+                                                    key={`${index}-${currentTab}`}
+                                                    disabled={isViewMode}
+                                                    name={
+                                                        currentTab === "Day Itinerary" ? "locationDetail" :
+                                                            currentTab === "Sightseeing" ? "sightseeing" :
+                                                                currentTab === "Transfer" ? "transfer" :
+                                                                    currentTab === "Weather" ? "weather" : "locationDetail"
+                                                    }
+                                                    value={
+                                                        currentTab === "Day Itinerary" ? item.locationDetail || "" :
+                                                            currentTab === "Sightseeing" ? item.sightseeing || "" :
+                                                                currentTab === "Transfer" ? item.transfer || "" :
+                                                                    currentTab === "Weather" ? item.weather || "" : item.locationDetail || ""
+                                                    }
+                                                    onChange={(e) => handleArrayChange(e, index, "days_information")}
+                                                    placeholder={`Enter your ${currentTab.toLowerCase()} details here...`}
+                                                />
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
